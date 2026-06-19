@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aurum PMS — Project Review Profile</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f3ff; color: #1a1a2e; padding: 32px 16px; }
+    .profile { max-width: 800px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 40%, #ec4899 100%);
+      border-radius: 20px;
+      padding: 40px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 60px rgba(99,102,241,0.3);
+    }
+    .header-score {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 5px solid rgba(255,255,255,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+    .header-score .num { font-size: 44px; font-weight: 900; line-height: 1; }
+    .header-score .denom { font-size: 14px; opacity: 0.8; margin-top: 2px; }
+    .header-info h1 { font-size: 28px; font-weight: 900; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .header-info .sub { font-size: 14px; opacity: 0.88; line-height: 1.6; }
+    .header-info .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .tag {
+      background: rgba(255,255,255,0.22);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Project Meta */
+    .meta {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .meta-item {
+      flex: 1;
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      border: 1px solid #e8e4f0;
+    }
+    .meta-val { font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .meta-lbl { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+
+    /* Section titles */
+    .section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #4f46e5;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      padding-left: 2px;
+    }
+
+    /* Category cards */
+    .cats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+    .cat {
+      border-radius: 14px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .cat-label { font-size: 14px; font-weight: 800; color: #1a1a2e; }
+    .cat-score { font-size: 22px; font-weight: 900; }
+    .cat-bar { height: 7px; border-radius: 4px; background: rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px; }
+    .cat-bar-fill { height: 100%; border-radius: 4px; }
+    .cat-detail { font-size: 12px; color: #555; line-height: 1.65; }
+
+    .c1 { background: linear-gradient(135deg, #ede9fe, #f3e8ff); }
+    .c1 .cat-score { color: #7c3aed; } .c1 .cat-bar-fill { background: #7c3aed; }
+    .c2 { background: linear-gradient(135deg, #dbeafe, #e0f2fe); }
+    .c2 .cat-score { color: #2563eb; } .c2 .cat-bar-fill { background: #2563eb; }
+    .c3 { background: linear-gradient(135deg, #d1fae5, #dcfce7); }
+    .c3 .cat-score { color: #16a34a; } .c3 .cat-bar-fill { background: #16a34a; }
+    .c4 { background: linear-gradient(135deg, #fef3c7, #fef9c3); }
+    .c4 .cat-score { color: #d97706; } .c4 .cat-bar-fill { background: #d97706; }
+    .c5 { background: linear-gradient(135deg, #fce7f3, #fce4ec); }
+    .c5 .cat-score { color: #db2777; } .c5 .cat-bar-fill { background: #db2777; }
+    .c6 { background: linear-gradient(135deg, #e0e7ff, #eef2ff); }
+    .c6 .cat-score { color: #4f46e5; } .c6 .cat-bar-fill { background: #4f46e5; }
+    .c7 { background: linear-gradient(135deg, #ccfbf1, #cffafe); }
+    .c7 .cat-score { color: #0d9488; } .c7 .cat-bar-fill { background: #0d9488; }
+    .c8 { background: linear-gradient(135deg, #ffe4e6, #fee2e2); }
+    .c8 .cat-score { color: #e11d48; } .c8 .cat-bar-fill { background: #e11d48; }
+
+    /* Strengths / Weaknesses */
+    .sw { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+    .sw-box { border-radius: 14px; padding: 22px; }
+    .sw-box h3 { font-size: 14px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .sw-box ul { list-style: none; padding: 0; }
+    .sw-box li { font-size: 12.5px; line-height: 1.7; padding: 4px 0; color: #444; }
+    .sw-box li::before { margin-right: 8px; font-weight: bold; }
+    .strengths { background: linear-gradient(135deg, #d1fae5, #ecfdf5); box-shadow: 0 2px 12px rgba(5,150,105,0.08); }
+    .strengths h3 { color: #059669; }
+    .strengths li::before { content: "✓"; color: #059669; }
+    .weaknesses { background: linear-gradient(135deg, #fef3c7, #fffbeb); box-shadow: 0 2px 12px rgba(217,119,6,0.08); }
+    .weaknesses h3 { color: #d97706; }
+    .weaknesses li::before { content: "△"; color: #d97706; }
+
+    /* Tech Stack */
+    .stack { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .stack-item {
+      background: #fff;
+      border: 2px solid #e8e4f0;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #4f46e5;
+      transition: all 0.2s;
+    }
+
+    /* Verdict */
+    .verdict {
+      background: linear-gradient(135deg, #1e1b4b, #312e81, #4c1d95);
+      border-radius: 18px;
+      padding: 32px;
+      color: #fff;
+      box-shadow: 0 20px 60px rgba(30,27,75,0.3);
+      margin-bottom: 20px;
+    }
+    .verdict h3 { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
+    .verdict p { font-size: 13.5px; line-height: 1.8; opacity: 0.92; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 11px;
+      color: #999;
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .header, .verdict { box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+    @media (max-width: 600px) {
+      .cats, .sw { grid-template-columns: 1fr; }
+      .header { flex-direction: column; text-align: center; }
+      .meta { flex-wrap: wrap; }
+      .meta-item { min-width: calc(50% - 4px); }
+    }
+  </style>
+</head>
+<body>
+<div class="profile">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-score">
+      <div class="num">82</div>
+      <div class="denom">/ 100</div>
+    </div>
+    <div class="header-info">
+      <h1>Aurum PMS</h1>
+      <div class="sub">Discretionary Portfolio Management Platform<br/>SEBI-Compliant Client Onboarding & KYC System</div>
+      <div class="tags">
+        <span class="tag">Python / FastAPI</span>
+        <span class="tag">React + TypeScript</span>
+        <span class="tag">React Native</span>
+        <span class="tag">PostgreSQL 16</span>
+        <span class="tag">Redis</span>
+        <span class="tag">Docker</span>
+        <span class="tag">GitHub Actions</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK STATS -->
+  <div class="meta">
+    <div class="meta-item"><div class="meta-val">21K+</div><div class="meta-lbl">Lines of Code</div></div>
+    <div class="meta-item"><div class="meta-val">10</div><div class="meta-lbl">Test Files</div></div>
+    <div class="meta-item"><div class="meta-val">5</div><div class="meta-lbl">DB Migrations</div></div>
+    <div class="meta-item"><div class="meta-val">9</div><div class="meta-lbl">Doc Pages</div></div>
+    <div class="meta-item"><div class="meta-val">3</div><div class="meta-lbl">Platforms</div></div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div class="section-title">Tech Stack</div>
+  <div class="stack">
+    <div class="stack-item">FastAPI + Pydantic v2</div>
+    <div class="stack-item">SQLAlchemy (Data Mapper)</div>
+    <div class="stack-item">Alembic Migrations</div>
+    <div class="stack-item">React 18 + TypeScript</div>
+    <div class="stack-item">TanStack Query</div>
+    <div class="stack-item">Zod Validation</div>
+    <div class="stack-item">React Native (Expo)</div>
+    <div class="stack-item">PostgreSQL 16</div>
+    <div class="stack-item">Redis 7</div>
+    <div class="stack-item">Nginx + Let's Encrypt</div>
+    <div class="stack-item">Docker Compose</div>
+    <div class="stack-item">GitHub Actions CI/CD</div>
+    <div class="stack-item">Surepass KYC API</div>
+    <div class="stack-item">Digio Aadhaar eSign</div>
+    <div class="stack-item">structlog</div>
+    <div class="stack-item">Ruff + mypy</div>
+  </div>
+
+  <!-- CATEGORY SCORES -->
+  <div class="section-title">Rating Breakdown</div>
+  <div class="cats">
+    <div class="cat c1">
+      <div class="cat-header"><span class="cat-label">Architecture & Design</span><span class="cat-score">15/15</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:100%"></div></div>
+      <div class="cat-detail">Textbook Clean/Hexagonal architecture. Domain layer is pure Python with zero framework imports. Ports & Adapters with a proper composition root in dependencies.py. State machine aggregate root enforces invariants. Transactional outbox for reliable cross-module events.</div>
+    </div>
+    <div class="cat c2">
+      <div class="cat-header"><span class="cat-label">Domain Modeling</span><span class="cat-score">14/15</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:93%"></div></div>
+      <div class="cat-detail">Rich value objects (PAN, Aadhaar with masking, Money in paise for precision, BankAccount with IFSC validation). Domain events raised from the aggregate. SEBI minimum-investment invariant enforced at creation. Only gap: no aggregate versioning for optimistic concurrency.</div>
+    </div>
+    <div class="cat c3">
+      <div class="cat-header"><span class="cat-label">Security & Compliance</span><span class="cat-score">13/15</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:87%"></div></div>
+      <div class="cat-detail">Fernet PII encryption at rest, SHA-256 PAN hashing for dedup without decryption, PBKDF2 (200K rounds) passwords, JWT + RBAC (investor/RM/compliance), security headers middleware, per-endpoint rate limiting. Aadhaar stored masked per UIDAI mandate. Missing: CSRF tokens, refresh token rotation.</div>
+    </div>
+    <div class="cat c4">
+      <div class="cat-header"><span class="cat-label">Testing</span><span class="cat-score">9/15</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:60%"></div></div>
+      <div class="cat-detail">Good domain unit tests covering state machine, risk scoring, and value object validation. Integration tests for KRA with a mock sandbox server. 10 test files across backend. However: zero frontend/mobile tests, no E2E tests, no coverage metrics, mypy errors not blocking CI.</div>
+    </div>
+    <div class="cat c5">
+      <div class="cat-header"><span class="cat-label">DevOps & CI/CD</span><span class="cat-score">11/12</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:92%"></div></div>
+      <div class="cat-detail">Full GitHub Actions pipeline: lint (Ruff) → type check (mypy) → DB migrate → test → Docker smoke build. Separate deploy workflow to Render with concurrency control. Docker Compose for both dev and production with Certbot auto-SSL, health checks, and backup scripts.</div>
+    </div>
+    <div class="cat c6">
+      <div class="cat-header"><span class="cat-label">Documentation</span><span class="cat-score">10/10</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:100%"></div></div>
+      <div class="cat-detail">9 documentation files including detailed Architecture, Database schema with column descriptions, ER diagrams (Mermaid), KRA/eSign integration guides, Outbox pattern explanation, local setup guide, and two deployment guides. Outstanding documentation quality for this project scale.</div>
+    </div>
+    <div class="cat c7">
+      <div class="cat-header"><span class="cat-label">Frontend & Mobile</span><span class="cat-score">6/9</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:67%"></div></div>
+      <div class="cat-detail">Web: React 18 + TS, TanStack Query, Zod validation, custom design system with skeleton loaders, toast system, and confirm dialogs. Mobile: Expo + React Native with biometric auth, dark theme, and bottom-tab navigation. Gaps: no Storybook, no accessibility audit, no responsive testing.</div>
+    </div>
+    <div class="cat c8">
+      <div class="cat-header"><span class="cat-label">Code Hygiene</span><span class="cat-score">4/9</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:44%"></div></div>
+      <div class="cat-detail">Ruff linter + mypy (strict mode) are configured. However: .venv directory is committed to git (massive bloat), backend/.env with real credentials is tracked, stale timestamp files in frontend, and a confusing backend package.json alongside requirements.txt.</div>
+    </div>
+  </div>
+
+  <!-- STRENGTHS / WEAKNESSES -->
+  <div class="section-title">Assessment</div>
+  <div class="sw">
+    <div class="sw-box strengths">
+      <h3>Key Strengths</h3>
+      <ul>
+        <li>Domain-driven design executed properly — pure aggregate root, value objects with validation, domain events, ports & adapters</li>
+        <li>Real regulatory compliance (SEBI PMS Regulations 2020) enforced in code, not just documented</li>
+        <li>Transactional outbox pattern for at-least-once event delivery without distributed transactions</li>
+        <li>Three platforms (web, mobile, landing page) served from a single backend API</li>
+        <li>Production-grade infrastructure: Nginx reverse proxy, Let's Encrypt SSL, Redis, Docker health checks</li>
+        <li>Documentation quality far above average — 9 detailed pages covering architecture, database, integrations, and deployment</li>
+        <li>Real external integrations (Surepass KYC, Digio eSign) with proper fallback to fake adapters for dev/testing</li>
+        <li>Structured JSON logging with correlation IDs propagated through middleware — no PII in logs</li>
+        <li>Mobile app includes biometric authentication (FaceID/fingerprint) and secure session management</li>
+      </ul>
+    </div>
+    <div class="sw-box weaknesses">
+      <h3>Areas to Improve</h3>
+      <ul>
+        <li><strong>.venv committed to git</strong> — adds hundreds of MBs; add to .gitignore and remove from history</li>
+        <li><strong>backend/.env with credentials committed</strong> — rotate secrets and add .env to .gitignore</li>
+        <li><strong>No frontend or mobile tests</strong> — only backend has test coverage; add Jest/Vitest + React Testing Library</li>
+        <li><strong>No E2E tests</strong> — consider Playwright or Cypress for critical onboarding flow</li>
+        <li><strong>mypy errors not blocking CI</strong> — change continue-on-error to false once issues are fixed</li>
+        <li><strong>Landing page is 81KB monolith</strong> — consider breaking into components or a separate framework</li>
+        <li><strong>No test coverage reporting</strong> — add pytest-cov with minimum threshold in CI</li>
+        <li><strong>No API versioning strategy beyond /v1</strong> — consider how breaking changes will be managed</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="verdict">
+    <h3>Final Verdict — 82 / 100 — Strongly Above Average</h3>
+    <p>
+      Aurum PMS demonstrates real software engineering maturity. The clean hexagonal architecture with a genuinely framework-free domain layer, proper DDD patterns (aggregate roots, immutable value objects, domain events, ports & adapters), and enforcement of SEBI regulatory rules directly in the domain model is both rare and impressive. The transactional outbox, PII encryption with masked Aadhaar storage, structured correlation-ID logging, and multi-platform delivery show production-level system design thinking that goes well beyond typical portfolio projects. The main gaps are around test coverage (especially frontend and mobile), the committed .venv and .env files, and the absence of E2E tests. Addressing these would push the score comfortably into the 90+ range. As-is, this project clearly demonstrates the ability to design and build a compliance-sensitive fintech system with proper engineering practices.
+    </p>
+  </div>
+
+  <div class="footer">
+    Project Review Profile — Aurum PMS (Discretionary Portfolio Management) — Generated June 2026
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+services:
+  # ── Backend: FastAPI on Render web service ──────────────────────────────
+  - type: web
+    name: aurum-pms-api
+    runtime: python
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: >
+      alembic upgrade head &&
+      gunicorn app.main:app
+        --worker-class uvicorn.workers.UvicornWorker
+        --workers 2
+        --bind 0.0.0.0:$PORT
+        --timeout 120
+        --access-logfile -
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # paste your Neon/Supabase URL in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true  # Render auto-generates a secure value
+      - key: PII_ENCRYPTION_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false          # set to your Vercel/Netlify URL after deploy
+      - key: ENVIRONMENT
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+
+  # ── Frontend: React SPA on Render static site ───────────────────────────
+  - type: web
+    name: aurum-pms-app
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # set to https://aurum-pms-api.onrender.com/api/v1
+    routes:
+      # SPA fallback: any unmatched path serves index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html

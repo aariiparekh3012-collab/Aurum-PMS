@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+# Only one deploy at a time
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  # ── Gate: CI must pass first ─────────────────────────────────────────────
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  # ── Deploy backend to Render ─────────────────────────────────────────────
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Trigger Render deploy (backend)
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}" \
+            | grep -q "200\|201" && echo "Backend deploy triggered" \
+            || echo "::warning::Backend deploy hook returned non-200"
+
+  # ── Deploy frontend to Render ────────────────────────────────────────────
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Trigger Render deploy (frontend)
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}" \
+            | grep -q "200\|201" && echo "Frontend deploy triggered" \
+            || echo "::warning::Frontend deploy hook returned non-200"

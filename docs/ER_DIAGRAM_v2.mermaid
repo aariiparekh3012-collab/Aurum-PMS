@@ -1,0 +1,275 @@
+erDiagram
+    %% ===================== ONBOARDING (UNCHANGED) =====================
+    onboarding_applications {
+        uuid id PK
+        string status
+        string pan_hash UK
+        bigint proposed_investment_paise
+    }
+    onboarding_documents {
+        uuid id PK
+        uuid application_id FK
+        string document_type
+    }
+
+    %% ===================== CLIENT MASTER =====================
+    clients {
+        uuid id PK
+        uuid onboarding_application_id FK "source funnel"
+        string client_code UK "golden record id"
+        string pan_hash UK
+        string status "active|dormant|closed"
+        string investor_type
+    }
+    client_bank_accounts {
+        uuid id PK
+        uuid client_id FK
+        string ifsc
+        string account_enc
+        bool is_primary
+    }
+    client_demat_accounts {
+        uuid id PK
+        uuid client_id FK
+        string bo_id
+        string depository "NSDL|CDSL"
+    }
+    nominees {
+        uuid id PK
+        uuid client_id FK
+        string name_enc
+        numeric share_percent
+        int rank "1..3"
+    }
+    client_risk_profiles {
+        uuid id PK
+        uuid client_id FK
+        int score
+        string category
+        int ruleset_version
+        date effective_from
+    }
+
+    %% ===================== REFERENCE / MASTER DATA =====================
+    securities_master {
+        uuid id PK
+        string isin UK
+        string symbol
+        string exchange
+        string instrument_type
+        string sector
+    }
+    strategies {
+        uuid id PK
+        string name
+        string approach "discretionary model"
+        uuid benchmark_id FK
+    }
+    strategy_constituents {
+        uuid id PK
+        uuid strategy_id FK
+        uuid security_id FK
+        numeric target_weight
+    }
+    benchmarks {
+        uuid id PK
+        string name "e.g. NIFTY 50 TRI"
+    }
+    benchmark_values {
+        uuid id PK
+        uuid benchmark_id FK
+        date as_of
+        numeric index_level
+    }
+    corporate_actions {
+        uuid id PK
+        uuid security_id FK
+        string action_type "dividend|split|bonus"
+        date ex_date
+        numeric ratio_or_amount
+    }
+    brokers {
+        uuid id PK
+        string name
+        string sebi_reg_no
+    }
+
+    %% ===================== PORTFOLIO ACCOUNTS =====================
+    portfolio_accounts {
+        uuid id PK
+        uuid client_id FK
+        uuid strategy_id FK
+        uuid demat_account_id FK
+        uuid fee_schedule_id FK
+        string account_code UK
+        string status
+        date inception_date
+    }
+    fee_schedules {
+        uuid id PK
+        numeric mgmt_fee_pct
+        numeric perf_fee_pct
+        bool high_water_mark
+    }
+    capital_flows {
+        uuid id PK
+        uuid portfolio_account_id FK
+        string flow_type "contribution|withdrawal"
+        string asset_kind "cash|securities"
+        bigint amount_paise
+        date value_date
+    }
+    cash_ledger {
+        uuid id PK
+        uuid portfolio_account_id FK
+        string entry_type
+        bigint amount_paise
+        date posted_on
+    }
+
+    %% ===================== HOLDINGS =====================
+    holdings {
+        uuid id PK
+        uuid portfolio_account_id FK
+        uuid security_id FK
+        numeric quantity
+        bigint avg_cost_paise
+    }
+    holding_lots {
+        uuid id PK
+        uuid holding_id FK
+        numeric quantity
+        bigint cost_paise
+        date acquired_on "FIFO tax lot"
+    }
+
+    %% ===================== TRADES =====================
+    orders {
+        uuid id PK
+        uuid strategy_id FK
+        uuid security_id FK
+        string side "buy|sell"
+        numeric quantity
+        string status
+        timestamptz created_at
+    }
+    order_allocations {
+        uuid id PK
+        uuid order_id FK
+        uuid portfolio_account_id FK
+        numeric allocated_qty "pro-rata"
+    }
+    trades {
+        uuid id PK
+        uuid order_id FK
+        uuid portfolio_account_id FK
+        uuid security_id FK
+        uuid broker_id FK
+        numeric quantity
+        bigint price_paise
+        timestamptz traded_at
+    }
+
+    %% ===================== PERFORMANCE REPORTING =====================
+    valuation_snapshots {
+        uuid id PK
+        uuid portfolio_account_id FK
+        date as_of
+        bigint market_value_paise
+        bigint cost_value_paise
+    }
+    performance_returns {
+        uuid id PK
+        uuid portfolio_account_id FK
+        string period "MTD|QTD|YTD|ITD"
+        numeric twrr_pct
+        numeric benchmark_pct
+    }
+    statements {
+        uuid id PK
+        uuid portfolio_account_id FK
+        string period
+        string storage_key
+        timestamptz generated_at
+    }
+
+    %% ===================== COMPLIANCE =====================
+    compliance_reviews {
+        uuid id PK
+        uuid client_id FK
+        uuid portfolio_account_id FK
+        string review_type "periodic|re-kyc|suitability"
+        string outcome
+        string maker
+        string checker
+    }
+    suitability_assessments {
+        uuid id PK
+        uuid risk_profile_id FK
+        uuid portfolio_account_id FK
+        bool is_suitable
+    }
+    compliance_alerts {
+        uuid id PK
+        uuid portfolio_account_id FK
+        string rule "concentration|mandate_drift|cash_breach"
+        string severity
+        string status
+    }
+
+    %% ===================== PLATFORM (SHARED, UNCHANGED) =====================
+    audit_logs {
+        uuid id PK
+        uuid aggregate_id
+        string action
+    }
+    event_outbox {
+        uuid id PK
+        uuid aggregate_id
+        string event_type
+        bool published
+    }
+
+    %% ===================== RELATIONSHIPS =====================
+    onboarding_applications ||--o{ onboarding_documents : "has"
+    onboarding_applications ||--o| clients : "provisions on ACTIVE"
+
+    clients ||--o{ client_bank_accounts : "has"
+    clients ||--o{ client_demat_accounts : "has"
+    clients ||--o{ nominees : "nominates (<=3)"
+    clients ||--o{ client_risk_profiles : "profiled over time"
+    clients ||--o{ portfolio_accounts : "owns (1..n)"
+    clients ||--o{ compliance_reviews : "subject of"
+
+    strategies ||--o| benchmarks : "benchmarked against"
+    strategies ||--o{ strategy_constituents : "model weights"
+    strategies ||--o{ portfolio_accounts : "managed under"
+    strategies ||--o{ orders : "drives"
+    benchmarks ||--o{ benchmark_values : "daily levels"
+    securities_master ||--o{ strategy_constituents : "referenced by"
+    securities_master ||--o{ corporate_actions : "affected by"
+    securities_master ||--o{ holdings : "held as"
+    securities_master ||--o{ orders : "for"
+    securities_master ||--o{ trades : "of"
+
+    portfolio_accounts ||--o| fee_schedules : "billed under"
+    portfolio_accounts ||--o{ capital_flows : "corpus in/out"
+    portfolio_accounts ||--o{ cash_ledger : "cash movements"
+    portfolio_accounts ||--o{ holdings : "holds"
+    portfolio_accounts ||--o{ order_allocations : "receives"
+    portfolio_accounts ||--o{ trades : "booked to"
+    portfolio_accounts ||--o{ valuation_snapshots : "valued daily"
+    portfolio_accounts ||--o{ performance_returns : "measured"
+    portfolio_accounts ||--o{ statements : "reported in"
+    portfolio_accounts ||--o{ compliance_reviews : "reviewed"
+    portfolio_accounts ||--o{ compliance_alerts : "monitored"
+    client_demat_accounts ||--o{ portfolio_accounts : "settles to"
+
+    holdings ||--o{ holding_lots : "tax lots (FIFO)"
+    orders ||--o{ order_allocations : "split across accounts"
+    orders ||--o{ trades : "filled by"
+    brokers ||--o{ trades : "executes"
+
+    client_risk_profiles ||--o{ suitability_assessments : "basis for"
+    portfolio_accounts ||--o{ suitability_assessments : "assessed for"
+    compliance_reviews ||--o{ compliance_alerts : "may raise"

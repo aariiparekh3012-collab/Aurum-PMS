@@ -1,0 +1,31 @@
+# Core
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic[email]==2.10.4
+pydantic-settings==2.7.1
+
+# Database
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+psycopg[binary]==3.2.3
+alembic==1.14.1
+
+# Security
+cryptography==44.0.0
+PyJWT==2.10.1
+
+# HTTP clients (external integrations)
+httpx==0.28.1
+tenacity==9.0.0
+
+# Message bus
+redis==5.2.1
+
+# Observability
+structlog==24.4.0
+
+# Dev / Testing
+pytest==8.3.4
+ruff==0.8.6
+mypy==1.14.1
+httpx  # also used as TestClient transport

@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* ════════════════════════════════════════════════════════════════════════
+   PMS Platform — "Petal & Cream" theme
+   Playful pink + cream, kept clean enough for a finance tool.
+   One file themes the whole React app via CSS variables + utility classes.
+   ════════════════════════════════════════════════════════════════════════ */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* surfaces */
+  --bg:#fff6f1;                 /* warm cream page background           */
+  --bg-secondary:#fdeef3;       /* soft blush section background        */
+  --surface:#fffdfc;            /* card surface (almost-white, warm)    */
+  --glass:rgba(255,255,255,.62);
+  --glass-border:rgba(255,255,255,.7);
+
+  /* lines / borders */
+  --border:#f4d6e2;             /* soft pink border                     */
+  --border-light:#fbe9f0;
+  --line:#f4d6e2;
+
+  /* text */
+  --text:#43273c;               /* deep plum (not harsh black)          */
+  --text-secondary:#9b6f86;     /* muted mauve                          */
+  --muted:#9b6f86;
+  --faint:#bb97aa;
+
+  /* brand pink */
+  --primary:#ec4899;            /* fun, friendly pink                   */
+  --primary-hover:#db2777;
+  --primary-light:#fde5f0;
+
+  /* status */
+  --success:#1fa97f;--success-light:#e3f8f0;--color-success:#1fa97f;
+  --danger:#e5484d;--danger-light:#fdeaea;--error:#e5484d;
+  --warning:#f59e0b;--warning-light:#fdf2dc;
+
+  /* rose-gold accent (charts, highlights) */
+  --gold:#e79a86;--gold-dim:#f3c9bd;--color-gold:#e79a86;
+
+  /* shape + depth */
+  --radius:16px;--radius-sm:11px;
+  --shadow:0 6px 22px rgba(236,72,153,.12);
+  --shadow-sm:0 2px 10px rgba(236,72,153,.10);
+
+  /* signature gradient */
+  --grad:linear-gradient(120deg,#ec4899 0%,#f97394 55%,#ffa56b 100%);
+}
+
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  color:var(--text);line-height:1.55;
+  background:
+    radial-gradient(900px 520px at 100% -10%,#ffe3ef 0%,rgba(255,227,239,0) 60%),
+    radial-gradient(800px 500px at -10% 110%,#ffe9d8 0%,rgba(255,233,216,0) 55%),
+    var(--bg);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3,h4{font-family:'Quicksand','Inter',sans-serif;font-weight:700;color:var(--text);letter-spacing:-.01em}
+h1{font-size:1.9rem;line-height:1.2}
+a{color:var(--primary);text-decoration:none}
+a:hover{color:var(--primary-hover)}
+
+/* ── Inputs ─────────────────────────────────────────────────────────────── */
+input,select,textarea,.input,.select,.form-input{
+  width:100%;padding:11px 15px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-size:14px;font-family:inherit;color:var(--text);background:var(--surface);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+input:focus,select:focus,textarea:focus,.input:focus,.select:focus,.form-input:focus{
+  border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-light);
+}
+.input--error,input.input--error{border-color:var(--danger);box-shadow:0 0 0 4px var(--danger-light)}
+label,.label,.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:var(--text-secondary)}
+.field{margin-bottom:16px}
+.field__error,.error-text{color:var(--danger);font-size:12px;margin-top:5px}
+.form-group{margin-bottom:16px}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:11px 22px;border-radius:999px;border:none;cursor:pointer;
+  font-family:'Quicksand','Inter',sans-serif;font-size:14px;font-weight:700;
+  transition:transform .12s ease,box-shadow .18s ease,background .18s,color .18s;
+}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn--block,.btn-block{width:100%}
+.btn--sm{padding:7px 15px;font-size:13px}
+
+.btn--primary,.btn-primary{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(236,72,153,.32)}
+.btn--primary:hover,.btn-primary:hover{box-shadow:0 9px 22px rgba(236,72,153,.42);transform:translateY(-1px)}
+.btn--primary:disabled,.btn-primary:disabled{opacity:.55;cursor:not-allowed;box-shadow:none;transform:none}
+
+.btn-outline,.btn--ghost{background:var(--surface);border:1.5px solid var(--border);color:var(--primary-hover)}
+.btn-outline:hover,.btn--ghost:hover{border-color:var(--primary);background:var(--primary-light)}
+
+.btn--danger,.btn-danger{background:var(--danger);color:#fff}
+.btn--danger:hover,.btn-danger:hover{background:#c93a3f}
+
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#178a68}
+
+.btn--link{background:none;border:none;color:var(--primary);padding:4px 6px;font-weight:600;box-shadow:none}
+.btn--link:hover{color:var(--primary-hover);text-decoration:underline}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card{
+  background:var(--surface);border:1.5px solid var(--border-light);
+  border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);
+  transition:transform .16s ease,box-shadow .2s ease;
+}
+.card--glass{background:var(--glass);border:1.5px solid var(--glass-border);backdrop-filter:blur(12px)}
+.card__title{font-family:'Quicksand',sans-serif;font-size:1rem;font-weight:700;margin-bottom:14px;color:var(--text)}
+
+/* ── Badges (pill) ──────────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 12px;border-radius:999px;
+  font-size:12px;font-weight:700;font-family:'Quicksand',sans-serif;
+  background:var(--primary-light);color:var(--primary-hover)}
+.badge--success,.badge-verified,.badge-success,.badge-active{background:var(--success-light);color:var(--success)}
+.badge--warning,.badge-pending,.badge-warning{background:var(--warning-light);color:#b9770a}
+.badge--info{background:#e8eefc;color:#3a63c4}
+.badge--gold{background:#fdeee6;color:#c9744f}
+.badge-draft{background:#f3e9ef;color:var(--muted)}
+.badge-rejected,.badge-error{background:var(--danger-light);color:var(--danger)}
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{text-align:left;padding:11px 13px;font-size:11.5px;font-weight:700;color:var(--text-secondary);
+  border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.04em;font-family:'Quicksand',sans-serif}
+.table td{padding:11px 13px;border-bottom:1px solid var(--border-light)}
+.table tbody tr{transition:background .12s}
+.table tbody tr:hover{background:var(--primary-light)}
+
+/* ── KPIs ───────────────────────────────────────────────────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.kpi{background:var(--surface);border:1.5px solid var(--border-light);border-radius:var(--radius);
+  padding:20px 22px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:4px}
+.kpi__value{font-family:'Quicksand',sans-serif;font-size:1.7rem;font-weight:700;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kpi__label{font-size:12.5px;color:var(--text-secondary);font-weight:600}
+
+/* ── Layout helpers ─────────────────────────────────────────────────────── */
+.grid{display:grid}
+.row{display:flex;align-items:center}
+.row--between{justify-content:space-between}
+.center{display:flex;align-items:center;justify-content:center}
+.muted{color:var(--text-secondary)}
+.faint{color:var(--faint)}
+.gold{color:var(--gold)}
+.mono{font-family:'SF Mono',ui-monospace,'Cascadia Code',Menlo,monospace;font-size:.9em}
+.empty{padding:42px 20px;text-align:center;color:var(--faint);font-size:.92rem}
+
+/* ── Auth screen ────────────────────────────────────────────────────────── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-card{width:100%;max-width:400px;background:var(--surface);border:1.5px solid var(--border-light);
+  border-radius:22px;padding:36px;box-shadow:var(--shadow)}
+.brand__mark{font-family:'Quicksand',sans-serif;font-weight:700;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--grad);color:#fff;font-weight:700;font-family:'Quicksand',sans-serif;font-size:14px}
+
+/* ── Stepper ────────────────────────────────────────────────────────────── */
+.stepper{display:flex;align-items:center;gap:6px}
+.step__dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;background:var(--primary-light);color:var(--primary-hover);
+  border:2px solid var(--border);transition:all .2s}
+.step__dot--active,.step__dot.is-active{background:var(--grad);color:#fff;border-color:transparent;
+  box-shadow:0 4px 12px rgba(236,72,153,.35)}
+.step__line{flex:1;height:2px;background:var(--border)}
+.step__label{font-size:12px;color:var(--text-secondary);font-weight:600}
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────────── */
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
+.breadcrumb__link{color:var(--primary)}
+.breadcrumb__sep{color:var(--faint)}
+.breadcrumb__current{color:var(--text);font-weight:600}
+
+/* ── Dialog / toast ─────────────────────────────────────────────────────── */
+.dialog-overlay{position:fixed;inset:0;background:rgba(67,39,60,.38);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.dialog{background:var(--surface);border-radius:20px;padding:28px;max-width:480px;width:100%;
+  box-shadow:0 20px 60px rgba(67,39,60,.28);border:1.5px solid var(--border-light)}
+.toast-stack{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:60}
+.quick-action{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--radius);
+  background:var(--surface);border:1.5px solid var(--border-light);box-shadow:var(--shadow-sm);
+  cursor:pointer;transition:transform .14s,box-shadow .2s}
+.quick-action:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+
+/* ── Spinner / skeleton / check ─────────────────────────────────────────── */
+.spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.5);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skeleton{background:linear-gradient(90deg,#fbe9f0 25%,#fdf3f7 37%,#fbe9f0 63%);
+  background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:8px}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.success-check{width:56px;height:56px;border-radius:50%;background:var(--success-light);color:var(--success);
+  display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px}
+
+/* ── Entrance animation ─────────────────────────────────────────────────── */
+.fade-in{animation:fadeIn .4s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* pretty pink scrollbar */
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:999px;border:3px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:var(--primary-light)}

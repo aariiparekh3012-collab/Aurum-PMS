@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     if: github.ref == 'refs/heads/main'
-    env:
-      RENDER_DEPLOY_HOOK_BACKEND: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
     steps:
       - name: Trigger Render deploy (backend)
+        env:
+          RENDER_DEPLOY_HOOK_BACKEND: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
         run: |
           curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}" \
+            -X POST "$RENDER_DEPLOY_HOOK_BACKEND" \
             | grep -q "200\|201" && echo "Backend deploy triggered" \
             || echo "::warning::Backend deploy hook returned non-200"
 
@@ -31,12 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     if: github.ref == 'refs/heads/main'
-    env:
-      RENDER_DEPLOY_HOOK_FRONTEND: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
     steps:
       - name: Trigger Render deploy (frontend)
+        env:
+          RENDER_DEPLOY_HOOK_FRONTEND: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
         run: |
           curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}" \
+            -X POST "$RENDER_DEPLOY_HOOK_FRONTEND" \
             | grep -q "200\|201" && echo "Frontend deploy triggered" \
             || echo "::warning::Frontend deploy hook returned non-200"

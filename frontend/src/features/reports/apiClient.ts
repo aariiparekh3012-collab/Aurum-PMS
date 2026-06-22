@@ -126,3 +126,5 @@ export const reportsApi = {
       params: { period_from: periodFrom, period_to: periodTo },
     }).then((r) => r.data),
 };
+export { apiClient };
+

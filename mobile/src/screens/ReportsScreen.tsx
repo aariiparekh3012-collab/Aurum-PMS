@@ -85,8 +85,8 @@ export function ReportsScreen() {
               onPress={() => { setReportType(o.key); setTrigger(0); }}
               style={[styles.reportChip, reportType === o.key && styles.reportChipActive]}
             >
-              <Ionicons name={o.icon} size={20} color={reportType === o.key ? colors.gold : colors.muted} />
-              <Text style={[styles.reportChipText, reportType === o.key && { color: colors.gold }]}>{o.label}</Text>
+              <Ionicons name={o.icon} size={20} color={reportType === o.key ? colors.primary : colors.muted} />
+              <Text style={[styles.reportChipText, reportType === o.key && { color: colors.primary }]}>{o.label}</Text>
             </Pressable>
           ))}
         </View>
@@ -105,7 +105,7 @@ export function ReportsScreen() {
                 onPress={() => { setAccountId(a.id); setTrigger(0); }}
                 style={[styles.acctChip, accountId === a.id && styles.acctChipActive]}
               >
-                <Text style={[styles.acctCode, accountId === a.id && { color: colors.gold }]}>{a.account_code}</Text>
+                <Text style={[styles.acctCode, accountId === a.id && { color: colors.primary }]}>{a.account_code}</Text>
                 <Text style={styles.acctStrat}>{stratMap[a.strategy_id] || ""}</Text>
               </Pressable>
             ))}
@@ -241,9 +241,9 @@ export function ReportsScreen() {
                 <Text style={styles.cellValue}>{inr(item.amount_paise)}</Text>
               </View>
             ))}
-            <View style={[styles.tableRow, { borderTopWidth: 2, borderTopColor: colors.gold }]}>
+            <View style={[styles.tableRow, { borderTopWidth: 2, borderTopColor: colors.primary }]}>
               <Text style={[styles.cellBold, { flex: 1 }]}>Grand Total (incl. GST)</Text>
-              <Text style={[styles.cellBold, { color: colors.gold, fontSize: 16 }]}>{inr(d.grand_total_paise)}</Text>
+              <Text style={[styles.cellBold, { color: colors.primary, fontSize: 16 }]}>{inr(d.grand_total_paise)}</Text>
             </View>
           </Card>
         );
@@ -266,13 +266,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10, paddingHorizontal: 14, borderRadius: radius.md,
     backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.line,
   },
-  reportChipActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  reportChipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   reportChipText: { ...font.medium, fontSize: 13, color: colors.textSecondary },
   acctChip: {
     paddingVertical: 10, paddingHorizontal: 16, borderRadius: radius.md,
     backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.line,
   },
-  acctChipActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  acctChipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   acctCode: { ...font.semibold, fontSize: 14, color: colors.text },
   acctStrat: { ...font.regular, fontSize: 11, color: colors.muted, marginTop: 2 },
   kpiRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },

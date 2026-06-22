@@ -12,7 +12,6 @@ worker process (process_outbox.py).
 """
 from __future__ import annotations
 
-import datetime as dt
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select
@@ -20,14 +19,13 @@ from sqlalchemy.orm import Session
 
 from app.application.client.use_cases.provision_client import ProvisionClientUseCase
 from app.core.logging import get_logger
-from app.infrastructure.db.models import OutboxModel
+from app.infrastructure.db.models_outbox import OutboxModel
 from app.infrastructure.events.message_bus import EventMessage, MessageBusPort, NoOpMessageBus
 
 if TYPE_CHECKING:
     from app.application.portfolio.use_cases.provision_client import (
         ProvisionClientUseCase as PortfolioProvisionClientUseCase,
     )
-    from app.application.portfolio.dto import ProvisionClientCommand
 
 log = get_logger("outbox")
 

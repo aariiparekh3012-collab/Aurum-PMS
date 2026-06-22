@@ -1,55 +1,55 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import * as api from "../api/portfolioApi";
+import { portfolioApi } from "../api";
 
 export const useClients = () =>
-  useQuery({ queryKey: ["clients"], queryFn: api.listClients });
+  useQuery({ queryKey: ["clients"], queryFn: portfolioApi.listClients });
 
 export const usePortfolios = (clientId: string) =>
   useQuery({
     queryKey: ["portfolios", clientId],
-    queryFn: () => api.listPortfolios(clientId),
+    queryFn: () => portfolioApi.accounts(clientId),
     enabled: !!clientId,
   });
 
 export const usePortfolio = (id: string) =>
   useQuery({
     queryKey: ["portfolio", id],
-    queryFn: () => api.getPortfolio(id),
+    queryFn: () => portfolioApi.getAccount(id),
     enabled: !!id,
   });
 
 export const useHoldings = (accountId: string) =>
   useQuery({
     queryKey: ["holdings", accountId],
-    queryFn: () => api.getHoldings(accountId),
+    queryFn: () => portfolioApi.holdings(accountId),
     enabled: !!accountId,
   });
 
 export const useTrades = (accountId: string) =>
   useQuery({
     queryKey: ["trades", accountId],
-    queryFn: () => api.listTrades(accountId),
+    queryFn: () => portfolioApi.listTrades(accountId),
     enabled: !!accountId,
   });
 
 export const useCashLedger = (accountId: string) =>
   useQuery({
     queryKey: ["cashLedger", accountId],
-    queryFn: () => api.getCashLedger(accountId),
+    queryFn: () => portfolioApi.cashLedger(accountId),
     enabled: !!accountId,
   });
 
 export const useSecurities = () =>
-  useQuery({ queryKey: ["securities"], queryFn: api.listSecurities });
+  useQuery({ queryKey: ["securities"], queryFn: portfolioApi.securities });
 
 export const useStrategies = () =>
-  useQuery({ queryKey: ["strategies"], queryFn: api.listStrategies });
+  useQuery({ queryKey: ["strategies"], queryFn: portfolioApi.strategies });
 
 export const useRecordTrade = (accountId: string) => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: { security_id: string; side: string; quantity: number; price_inr: number }) =>
-      api.recordTrade(accountId, data),
+      portfolioApi.recordTrade(accountId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["holdings", accountId] });
       qc.invalidateQueries({ queryKey: ["trades", accountId] });
@@ -63,7 +63,7 @@ export const useRecordCapitalFlow = (accountId: string) => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: { flow_type: string; amount_inr: number }) =>
-      api.recordCapitalFlow(accountId, data),
+      portfolioApi.recordCapitalFlow(accountId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["portfolio", accountId] });
       qc.invalidateQueries({ queryKey: ["cashLedger", accountId] });
@@ -74,7 +74,7 @@ export const useRecordCapitalFlow = (accountId: string) => {
 export const useCreatePortfolio = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: api.createPortfolio,
+    mutationFn: portfolioApi.createAccount,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolios"] }),
   });
 };

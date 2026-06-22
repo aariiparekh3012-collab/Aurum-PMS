@@ -87,13 +87,13 @@ export function TradingScreen() {
       {/* Tab toggle */}
       <View style={styles.tabRow}>
         <Pressable onPress={() => setTab("orders")} style={[styles.tabBtn, tab === "orders" && styles.tabBtnActive]}>
-          <Ionicons name="list-outline" size={16} color={tab === "orders" ? colors.gold : colors.muted} />
+          <Ionicons name="list-outline" size={16} color={tab === "orders" ? colors.primary : colors.muted} />
           <Text style={[styles.tabText, tab === "orders" && styles.tabTextActive]}>
             Orders ({orders.length})
           </Text>
         </Pressable>
         <Pressable onPress={() => setTab("trades")} style={[styles.tabBtn, tab === "trades" && styles.tabBtnActive]}>
-          <Ionicons name="swap-horizontal-outline" size={16} color={tab === "trades" ? colors.gold : colors.muted} />
+          <Ionicons name="swap-horizontal-outline" size={16} color={tab === "trades" ? colors.primary : colors.muted} />
           <Text style={[styles.tabText, tab === "trades" && styles.tabTextActive]}>
             Trades ({trades.length})
           </Text>
@@ -115,7 +115,7 @@ export function TradingScreen() {
             data={orders}
             keyExtractor={(o) => o.id}
             contentContainerStyle={{ paddingBottom: 40 }}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
             ListEmptyComponent={
               loadingOrders
                 ? <Loading text="Loading orders..." />
@@ -156,13 +156,13 @@ export function TradingScreen() {
             placeholderTextColor={colors.muted}
             value={tradeSearch}
             onChangeText={setTradeSearch}
-            selectionColor={colors.gold}
+            selectionColor={colors.primary}
           />
           <FlatList
             data={filteredTrades}
             keyExtractor={(t) => t.id}
             contentContainerStyle={{ paddingBottom: 40 }}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
             ListEmptyComponent={
               loadingTrades
                 ? <Loading text="Loading trades..." />
@@ -213,9 +213,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  tabBtnActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  tabBtnActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   tabText: { ...font.medium, fontSize: 14, color: colors.muted },
-  tabTextActive: { color: colors.gold },
+  tabTextActive: { color: colors.primary },
   filterRow: { gap: 8, paddingBottom: spacing.md },
   chip: {
     paddingVertical: 8,
@@ -225,9 +225,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  chipActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  chipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   chipText: { color: colors.textSecondary, fontSize: 13, ...font.medium, textTransform: "capitalize" },
-  chipTextActive: { color: colors.gold },
+  chipTextActive: { color: colors.primary },
   orderCard: { marginBottom: spacing.sm },
   orderTop: { flexDirection: "row", alignItems: "flex-start" },
   orderSymbol: { ...font.semibold, fontSize: 16, color: colors.text },

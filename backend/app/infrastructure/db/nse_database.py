@@ -44,7 +44,8 @@ def get_nse_db() -> Generator[Session, None, None]:
     db = factory()
     try:
         yield db
-        db.commit()
+        if db.new or db.dirty or db.deleted:
+            db.commit()
     except Exception:
         db.rollback()
         raise

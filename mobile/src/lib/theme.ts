@@ -1,35 +1,48 @@
-/** Aurum PMS dark + gold design system */
+/** Aurum PMS — "Petal & Cream" design system (matches web) */
 
 export const colors = {
   // Backgrounds
-  bg: "#0a0e17",
-  bgCard: "#131926",
-  bgCardGlass: "rgba(19, 25, 38, 0.75)",
-  bgElevated: "#1a2235",
-  bgInput: "#0d1220",
+  bg: "#fff6f1",
+  bgCard: "#fffdfc",
+  bgCardGlass: "rgba(255, 253, 252, 0.75)",
+  bgElevated: "#fdeef3",
+  bgInput: "#fff9f7",
 
-  // Brand
-  gold: "#d4af37",
-  goldLight: "#f0d27a",
-  goldDim: "rgba(212, 175, 55, 0.15)",
+  // Brand (pink)
+  primary: "#ec4899",
+  primaryHover: "#db2777",
+  primaryLight: "#fde5f0",
+  primaryDim: "rgba(236, 72, 153, 0.12)",
+
+  // Accent (rose-gold, for highlights/charts)
+  gold: "#e79a86",
+  goldLight: "#f3c9bd",
+  goldDim: "rgba(231, 154, 134, 0.15)",
 
   // Text
-  text: "#eef2f8",
-  textSecondary: "#8896ab",
-  muted: "#5a6a80",
+  text: "#43273c",
+  textSecondary: "#9b6f86",
+  muted: "#bb97aa",
 
   // Semantic
-  success: "#34d399",
-  warning: "#fbbf24",
-  danger: "#f87171",
-  info: "#60a5fa",
+  success: "#1fa97f",
+  successLight: "#e3f8f0",
+  warning: "#f59e0b",
+  warningLight: "#fdf2dc",
+  danger: "#e5484d",
+  dangerLight: "#fdeaea",
+  info: "#3a63c4",
+  infoLight: "#e8eefc",
 
-  // Lines
-  line: "rgba(255, 255, 255, 0.06)",
-  lineLight: "rgba(255, 255, 255, 0.12)",
+  // Lines / borders
+  line: "#f4d6e2",
+  lineLight: "#fbe9f0",
 
   // Chart palette
-  palette: ["#d4af37", "#f0d27a", "#9aa7bd", "#60a5fa", "#34d399"],
+  palette: ["#ec4899", "#f97394", "#e79a86", "#3a63c4", "#1fa97f"],
+
+  // White (for text on colored bg)
+  white: "#ffffff",
 } as const;
 
 export const spacing = {
@@ -58,17 +71,25 @@ export const font = {
 
 export const shadow = {
   card: {
-    shadowColor: "#000",
+    shadowColor: "#ec4899",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 6,
   },
+  primary: {
+    shadowColor: "#ec4899",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  // Keep "gold" alias for backward compat — now references primary shadow
   gold: {
-    shadowColor: "#d4af37",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 12,
+    shadowColor: "#ec4899",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 10,
   },
 };

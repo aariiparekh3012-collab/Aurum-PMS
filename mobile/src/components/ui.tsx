@@ -53,6 +53,7 @@ export function Button({
   loading,
   disabled,
   onPress,
+  style,
 }: {
   children: React.ReactNode;
   variant?: "primary" | "ghost" | "danger";
@@ -60,6 +61,7 @@ export function Button({
   loading?: boolean;
   disabled?: boolean;
   onPress?: () => void;
+  style?: ViewStyle;
 }) {
   const isDisabled = disabled || loading;
 
@@ -75,21 +77,22 @@ export function Button({
         disabled={isDisabled}
         style={({ pressed }) => ({
           opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1,
-          borderRadius: radius.md,
+          borderRadius: radius.full,
           overflow: "hidden",
           alignSelf: block ? "stretch" : "auto",
+          ...style,
         })}
       >
         <LinearGradient
-          colors={["#d4af37", "#c49b2a"]}
+          colors={["#ec4899", "#f97394", "#ffa56b"]}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.btn, shadow.gold]}
+          end={{ x: 1, y: 0.5 }}
+          style={[styles.btn, shadow.primary]}
         >
           {loading ? (
-            <ActivityIndicator color="#0a0e17" size="small" />
+            <ActivityIndicator color={colors.white} size="small" />
           ) : (
-            <Text style={[styles.btnText, { color: "#0a0e17" }]}>{children}</Text>
+            <Text style={[styles.btnText, { color: colors.white }]}>{children}</Text>
           )}
         </LinearGradient>
       </Pressable>
@@ -106,16 +109,17 @@ export function Button({
         variant === "danger" && styles.btnDanger,
         { opacity: isDisabled ? 0.5 : pressed ? 0.7 : 1 },
         block && { alignSelf: "stretch" as const },
+        style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.text} size="small" />
+        <ActivityIndicator color={variant === "danger" ? colors.white : colors.primary} size="small" />
       ) : (
         <Text
           style={[
             styles.btnText,
-            variant === "ghost" && { color: colors.gold },
-            variant === "danger" && { color: "#fff" },
+            variant === "ghost" && { color: colors.primaryHover },
+            variant === "danger" && { color: colors.white },
           ]}
         >
           {children}
@@ -137,7 +141,7 @@ export function Field({
       <TextInput
         style={[styles.input, error && styles.inputError]}
         placeholderTextColor={colors.muted}
-        selectionColor={colors.gold}
+        selectionColor={colors.primary}
         {...rest}
       />
       {error ? <Text style={styles.fieldError}>{error}</Text> : null}
@@ -194,13 +198,18 @@ const STATUS_COLORS: Record<string, string> = {
   ready: colors.success,
   agreement_signed: colors.success,
   kyc_verified: colors.success,
+  approved: colors.success,
+  filled: colors.success,
   under_review: colors.warning,
   agreement_pending: colors.warning,
+  pending_approval: colors.warning,
   risk_profiled: colors.info,
   kyc_pending: colors.info,
   draft: colors.info,
+  new: colors.info,
   rejected: colors.danger,
   kyc_rejected: colors.danger,
+  cancelled: colors.danger,
   dormant: colors.warning,
   closed: colors.danger,
 };
@@ -208,7 +217,7 @@ const STATUS_COLORS: Record<string, string> = {
 export function StatusBadge({ status }: { status: string }) {
   const color = STATUS_COLORS[status] ?? colors.gold;
   return (
-    <View style={[styles.badge, { backgroundColor: color + "20" }]}>
+    <View style={[styles.badge, { backgroundColor: color + "18" }]}>
       <Text style={[styles.badgeText, { color }]}>
         {status.replace(/_/g, " ")}
       </Text>
@@ -246,14 +255,18 @@ export function Toast({
     ]).start(() => onDismiss?.());
   }, []);
 
+  const bg = variant === "success" ? colors.successLight : colors.dangerLight;
+  const border = variant === "success" ? colors.success : colors.danger;
+  const textColor = variant === "success" ? colors.success : colors.danger;
+
   return (
     <Animated.View
       style={[
         styles.toast,
-        { opacity, backgroundColor: variant === "success" ? colors.success + "dd" : colors.danger + "dd" },
+        { opacity, backgroundColor: bg, borderColor: border, borderWidth: 1.5 },
       ]}
     >
-      <Text style={styles.toastText}>
+      <Text style={[styles.toastText, { color: textColor }]}>
         {variant === "success" ? "✓ " : "⚠ "}
         {message}
       </Text>
@@ -274,7 +287,7 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
               i === current && styles.stepDotActive,
             ]}
           >
-            <Text style={styles.stepDotText}>
+            <Text style={[styles.stepDotText, i <= current && { color: colors.white }]}>
               {i < current ? "✓" : `${i + 1}`}
             </Text>
           </View>
@@ -299,7 +312,7 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
 export function Loading({ text }: { text?: string }) {
   return (
     <View style={styles.loading}>
-      <ActivityIndicator size="large" color={colors.gold} />
+      <ActivityIndicator size="large" color={colors.primary} />
       {text && <Text style={styles.loadingText}>{text}</Text>}
     </View>
   );
@@ -311,8 +324,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard,
     borderRadius: radius.lg,
     padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.line,
+    borderWidth: 1.5,
+    borderColor: colors.lineLight,
   },
   cardGlass: {
     backgroundColor: colors.bgCardGlass,
@@ -321,37 +334,35 @@ const styles = StyleSheet.create({
   btn: {
     paddingVertical: 14,
     paddingHorizontal: 24,
-    borderRadius: radius.md,
+    borderRadius: radius.full,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
   },
   btnGhost: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: colors.gold + "40",
+    backgroundColor: colors.bgCard,
+    borderWidth: 1.5,
+    borderColor: colors.line,
   },
   btnDanger: {
     backgroundColor: colors.danger,
   },
   btnText: {
-    ...font.semibold,
+    ...font.bold,
     fontSize: 15,
     color: colors.text,
   },
   field: { marginBottom: spacing.md },
   label: {
-    ...font.medium,
+    ...font.semibold,
     fontSize: 13,
     color: colors.textSecondary,
     marginBottom: 6,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: colors.bgInput,
+    backgroundColor: colors.bgCard,
     borderRadius: radius.md,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.line,
     color: colors.text,
     paddingHorizontal: spacing.md,
@@ -367,24 +378,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: radius.full,
     backgroundColor: colors.bgInput,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.line,
   },
   selectChipActive: {
-    backgroundColor: colors.goldDim,
-    borderColor: colors.gold,
+    backgroundColor: colors.primaryDim,
+    borderColor: colors.primary,
   },
   selectChipText: { color: colors.textSecondary, fontSize: 14, ...font.medium },
-  selectChipTextActive: { color: colors.gold },
+  selectChipTextActive: { color: colors.primary },
   badge: {
     alignSelf: "flex-start",
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: radius.full,
   },
-  badgeText: { fontSize: 12, ...font.semibold, textTransform: "capitalize" },
+  badgeText: { fontSize: 12, ...font.bold, textTransform: "capitalize" },
   kpi: { flex: 1, alignItems: "center", padding: spacing.md },
-  kpiValue: { ...font.bold, fontSize: 28, color: colors.text },
+  kpiValue: { ...font.bold, fontSize: 26, color: colors.text },
   kpiLabel: { ...font.regular, fontSize: 12, color: colors.textSecondary, marginTop: 4 },
   toast: {
     position: "absolute",
@@ -395,7 +406,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     zIndex: 999,
   },
-  toastText: { color: "#fff", ...font.medium, fontSize: 14, textAlign: "center" },
+  toastText: { ...font.semibold, fontSize: 14, textAlign: "center" },
   stepper: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -407,16 +418,16 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.bgElevated,
+    backgroundColor: colors.primaryLight,
     borderWidth: 2,
     borderColor: colors.line,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 6,
   },
-  stepDotDone: { backgroundColor: colors.gold, borderColor: colors.gold },
-  stepDotActive: { borderColor: colors.gold },
-  stepDotText: { color: colors.text, fontSize: 13, ...font.semibold },
+  stepDotDone: { backgroundColor: colors.primary, borderColor: colors.primary },
+  stepDotActive: { borderColor: colors.primary, backgroundColor: colors.primaryDim },
+  stepDotText: { color: colors.textSecondary, fontSize: 13, ...font.semibold },
   stepLabel: { fontSize: 11, color: colors.muted, ...font.medium, textAlign: "center" },
   stepLine: {
     position: "absolute",
@@ -426,7 +437,7 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: colors.line,
   },
-  stepLineDone: { backgroundColor: colors.gold },
+  stepLineDone: { backgroundColor: colors.primary },
   loading: { flex: 1, alignItems: "center", justifyContent: "center", padding: 40 },
   loadingText: { color: colors.textSecondary, marginTop: 12, ...font.regular },
 });

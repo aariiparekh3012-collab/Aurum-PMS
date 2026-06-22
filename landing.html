@@ -4,935 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aurum PMS — Discretionary Portfolio Management</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:       #fff6f1;
-      --surface:  #fffdfc;
-      --surface2: #fdeef3;
-      --line:     #f4d6e2;
-      --gold:     #ec4899;
-      --gold-lt:  #f97394;
-      --gold-dim: rgba(236,72,153,.12);
-      --text:     #2a1a23;      /* Darker text for better contrast */
-      --text-light: #43273c;
-      --muted:    #7a5a6a;      /* Darker muted for accessibility */
-      --faint:    #d9b9c9;
-      --white:    #ffffff;
-      --danger:   #e5484d;
-      --success:  #1fa97f;
-      --grad:     linear-gradient(120deg,#ec4899 0%,#f97394 55%,#ffa56b 100%);
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* ── TYPOGRAPHY ── */
-    h1,h2,h3,h4 { font-family: "Quicksand","Inter",sans-serif; color: var(--text); }
-    h1 { font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
-    h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
-    h3 { font-size: 1.1rem; font-weight: 700; letter-spacing: -.01em; }
-    h4 { font-size: 0.95rem; font-weight: 700; }
-    p  { color: var(--muted); line-height: 1.75; }
-
-    .gold       { color: var(--gold); }
-    .gold-lt    { color: var(--gold-lt); }
-    .mono       { font-family: "JetBrains Mono", "Fira Code", monospace; }
-    .text-dark  { color: var(--text); }
-
-    /* ── LAYOUT ── */
-    .container  { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
-    .section    { padding: 100px 0; }
-    .section--sm{ padding: 64px 0; }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      backdrop-filter: blur(20px);
-      background: rgba(255,246,241,.82);
-      border-bottom: 1px solid var(--line);
-    }
-    .nav__inner {
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
-    }
-    .nav__logo {
-      display: flex; align-items: center; gap: 10px;
-      text-decoration: none; color: var(--text);
-    }
-    .nav__logo-mark {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--gold), #db2777);
-      border-radius: 8px;
-      display: grid; place-items: center;
-      font-weight: 800; font-size: .9rem; color: #ffffff;
-    }
-    .nav__name { font-weight: 700; font-size: 1.05rem; }
-    .nav__name span { color: var(--gold); }
-    .nav__links { display: flex; gap: 32px; list-style: none; }
-    .nav__links a {
-      color: var(--text-light); text-decoration: none; font-size: .9rem; font-weight: 500;
-      transition: color .2s;
-    }
-    .nav__links a:hover { color: var(--gold); }
-    .nav__cta {
-      background: var(--grad);
-      color: #ffffff;
-      padding: 9px 22px;
-      border-radius: 999px;
-      font-size: .875rem;
-      font-weight: 700;
-      text-decoration: none;
-      box-shadow: 0 4px 14px rgba(236,72,153,.32);
-      transition: box-shadow .2s, transform .15s;
-    }
-    .nav__cta:hover { transform: translateY(-1px); box-shadow: 0 7px 20px rgba(236,72,153,.45); }
-
-    /* ── HERO ── */
-    #hero {
-      padding: 160px 0 120px;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero__glow {
-      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
-      width: 900px; height: 600px;
-      background: radial-gradient(ellipse at center, rgba(236,72,153,.15) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero__badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--gold-dim);
-      border: 1px solid rgba(236,72,153,.3);
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: .8rem;
-      color: var(--gold);
-      margin-bottom: 28px;
-      letter-spacing: .03em;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-    .hero__badge::before {
-      content: "●";
-      color: var(--gold);
-      font-size: .5rem;
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; }
-      50% { opacity: .3; }
-    }
-    .hero__headline { margin-bottom: 20px; }
-    .hero__headline em {
-      font-style: normal;
-      background: linear-gradient(90deg, var(--gold), var(--gold-lt));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero__sub {
-      font-size: 1.15rem;
-      max-width: 580px;
-      margin-bottom: 44px;
-      color: var(--text-light);
-    }
-    .hero__actions { display: flex; gap: 16px; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 13px 28px;
-      border-radius: 10px;
-      font-size: .95rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all .2s;
-      cursor: pointer;
-      border: none;
-    }
-    .btn--gold {
-      background: var(--grad);
-      color: #ffffff;
-      box-shadow: 0 6px 18px rgba(236,72,153,.32);
-    }
-    .btn--gold:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(236,72,153,.42); }
-    .btn--ghost {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--faint);
-    }
-    .btn--ghost:hover { border-color: var(--gold); color: var(--gold); }
-
-    .hero__metrics {
-      display: flex; gap: 48px;
-      margin-top: 72px;
-      padding-top: 48px;
-      border-top: 1px solid var(--line);
-      flex-wrap: wrap;
-    }
-    .hero__metric-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: -.03em;
-    }
-    .hero__metric-label {
-      font-size: .8rem;
-      color: var(--muted);
-      margin-top: 2px;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      font-weight: 600;
-    }
-
-    /* ── SCREEN MOCK ── */
-    .hero__visual {
-      margin-top: 80px;
-      position: relative;
-    }
-    .screen {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 40px 120px rgba(236,72,153,.18), 0 0 0 1px var(--line);
-    }
-    .screen__bar {
-      height: 40px;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--line);
-      display: flex; align-items: center; padding: 0 16px; gap: 8px;
-    }
-    .screen__dot { width: 10px; height: 10px; border-radius: 50%; }
-    .screen__dot:nth-child(1) { background: #e05252; }
-    .screen__dot:nth-child(2) { background: #e0a552; }
-    .screen__dot:nth-child(3) { background: #4caf7d; }
-    .screen__url {
-      margin-left: 12px;
-      background: var(--line);
-      border-radius: 6px;
-      padding: 4px 12px;
-      font-size: .75rem;
-      color: var(--muted);
-      font-family: monospace;
-    }
-    .screen__body { padding: 24px; }
-    .mock-kpis { display: flex; gap: 16px; margin-bottom: 24px; }
-    .mock-kpi {
-      flex: 1;
-      background: var(--surface2);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 16px;
-    }
-    .mock-kpi__val { font-size: 1.4rem; font-weight: 700; color: var(--gold); letter-spacing: -.02em; }
-    .mock-kpi__lbl { font-size: .72rem; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
-    .mock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .mock-card {
-      background: var(--surface2);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 16px;
-      height: 140px;
-    }
-    .mock-card__title { font-size: .75rem; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
-    .mock-bar { height: 8px; border-radius: 4px; background: var(--line); margin-bottom: 8px; overflow: hidden; }
-    .mock-bar__fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--gold), var(--gold-lt)); }
-    .mock-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
-    .mock-table th { color: var(--muted); text-align: left; padding: 4px 0; border-bottom: 1px solid var(--line); font-weight: 600; }
-    .mock-table td { padding: 6px 0; border-bottom: 1px solid #f4d6e2; color: var(--text); }
-    .mock-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: .7rem; font-weight: 600; }
-    .mock-badge--active { background: rgba(76,175,125,.15); color: var(--success); }
-    .mock-badge--pending { background: rgba(224,165,82,.15); color: #e0a552; }
-
-    /* ── LOGOS / TRUST ── */
-    .trust {
-      padding: 40px 0;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      text-align: center;
-    }
-    .trust__label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 24px; font-weight: 600; }
-    .trust__logos { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; align-items: center; }
-    .trust__logo-item {
-      font-size: .95rem;
-      font-weight: 700;
-      color: var(--text-light);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-
-    /* ── FEATURES ── */
-    .features__header { text-align: center; margin-bottom: 56px; }
-    .features__grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-    }
-    .feature-category {
-      margin-bottom: 48px;
-    }
-    .feature-category__title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .feature-category__icon {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
-    .feature-category__grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .feature-card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 28px;
-      transition: border-color .2s, transform .2s, box-shadow .2s;
-      position: relative;
-      overflow: hidden;
-    }
-    .feature-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0;
-      transition: opacity .3s;
-    }
-    .feature-card:hover { border-color: rgba(236,72,153,.3); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
-    .feature-card:hover::before { opacity: 1; }
-    .feature-card__icon {
-      width: 44px; height: 44px;
-      background: var(--gold-dim);
-      border: 1px solid rgba(236,72,153,.2);
-      border-radius: 10px;
-      display: grid; place-items: center;
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-    }
-    .feature-card h3 { margin-bottom: 8px; color: var(--text); }
-    .feature-card p { font-size: .9rem; }
-
-    /* ── ROLES ── */
-    .roles__tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 4px;
-      width: fit-content;
-      margin: 48px auto 0;
-    }
-    .role-tab {
-      padding: 10px 24px;
-      border-radius: 8px;
-      font-size: .875rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: var(--text-light);
-      transition: all .2s;
-    }
-    .role-tab.active { background: var(--gold); color: #ffffff; }
-    .role-tab:hover:not(.active) { color: var(--text); }
-
-    .roles__panels { margin-top: 40px; }
-    .role-panel { display: none; }
-    .role-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-
-    .role-panel__features { list-style: none; display: flex; flex-direction: column; gap: 16px; }
-    .role-panel__feature {
-      display: flex; gap: 14px; align-items: flex-start;
-    }
-    .role-panel__check {
-      width: 22px; height: 22px; min-width: 22px;
-      background: var(--gold-dim);
-      border: 1px solid rgba(236,72,153,.3);
-      border-radius: 6px;
-      display: grid; place-items: center;
-      font-size: .65rem;
-      color: var(--gold);
-      font-weight: 700;
-    }
-    .role-panel__feature h4 { font-size: .9rem; margin-bottom: 2px; color: var(--text); }
-    .role-panel__feature p  { font-size: .83rem; }
-
-    .role-panel__visual {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 24px;
-    }
-    .role-panel__tag {
-      display: inline-block;
-      padding: 4px 12px;
-      background: var(--gold-dim);
-      color: var(--gold);
-      border-radius: 999px;
-      font-size: .75rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      border: 1px solid rgba(236,72,153,.2);
-    }
-
-    /* ── HOW IT WORKS ── */
-    .steps { display: flex; flex-direction: column; gap: 0; margin-top: 56px; position: relative; }
-    .steps::before {
-      content: "";
-      position: absolute;
-      left: 21px; top: 0; bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--gold), transparent);
-    }
-    .step { display: flex; gap: 24px; padding-bottom: 48px; }
-    .step__num {
-      width: 44px; height: 44px; min-width: 44px;
-      border-radius: 50%;
-      background: var(--surface2);
-      border: 2px solid var(--gold);
-      display: grid; place-items: center;
-      font-weight: 700;
-      color: var(--gold);
-      font-size: .9rem;
-      position: relative; z-index: 1;
-    }
-    .step__body h3 { margin-bottom: 6px; padding-top: 8px; color: var(--text); }
-    .step__body p  { font-size: .9rem; }
-
-    /* ── SECTION HEADER ── */
-    .section-header { text-align: center; max-width: 640px; margin: 0 auto; }
-    .section-header__eyebrow {
-      display: inline-block;
-      font-size: .72rem;
-      font-weight: 700;
-      color: var(--gold);
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      margin-bottom: 12px;
-    }
-    .section-header h2 { margin-bottom: 16px; color: var(--text); }
-    .section-header p { color: var(--text-light); }
-
-    /* ── TESTIMONIALS ── */
-    .testimonials__grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-      margin-top: 56px;
-    }
-    .testimonial-card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 32px;
-    }
-    .testimonial__stars {
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-      letter-spacing: 4px;
-    }
-    .testimonial__text {
-      font-size: .95rem;
-      color: var(--text-light);
-      margin-bottom: 20px;
-      line-height: 1.8;
-      font-style: italic;
-    }
-    .testimonial__author {
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
-    .testimonial__role {
-      font-size: .8rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-
-    /* ── PRICING ── */
-    .pricing {
-      background: linear-gradient(135deg, rgba(236,72,153,.05) 0%, rgba(255,165,107,.05) 100%);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 48px;
-      margin-top: 56px;
-      text-align: center;
-    }
-    .pricing__eyebrow {
-      font-size: .75rem;
-      font-weight: 700;
-      color: var(--gold);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 12px;
-    }
-    .pricing h3 { margin-bottom: 16px; color: var(--text); }
-    .pricing p { margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
-    .pricing__actions {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* ── FAQ ── */
-    .faq__grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 24px;
-      margin-top: 56px;
-    }
-    .faq-item {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .faq-item__header {
-      padding: 24px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background .2s;
-    }
-    .faq-item__header:hover {
-      background: var(--surface2);
-    }
-    .faq-item__title {
-      font-weight: 700;
-      color: var(--text);
-      margin: 0;
-      text-align: left;
-    }
-    .faq-item__toggle {
-      font-size: 1.5rem;
-      color: var(--gold);
-      transition: transform .3s;
-      min-width: 24px;
-      text-align: center;
-    }
-    .faq-item__content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height .3s ease, padding .3s ease;
-    }
-    .faq-item.active .faq-item__toggle {
-      transform: rotate(180deg);
-    }
-    .faq-item.active .faq-item__content {
-      max-height: 500px;
-      padding: 0 24px 24px;
-    }
-    .faq-item__content p {
-      margin: 0;
-      color: var(--text-light);
-      line-height: 1.7;
-    }
-
-    /* ── SECURITY & COMPLIANCE ── */
-    .security__badges {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      margin-top: 56px;
-    }
-    .security-badge {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 32px 24px;
-      text-align: center;
-      transition: transform .2s, box-shadow .2s;
-    }
-    .security-badge:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.08);
-    }
-    .security-badge__icon {
-      font-size: 2.4rem;
-      margin-bottom: 16px;
-    }
-    .security-badge__title {
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
-    .security-badge__desc {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .security__highlight {
-      background: linear-gradient(135deg, rgba(236,72,153,.08) 0%, rgba(255,165,107,.08) 100%);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 40px;
-      margin-top: 48px;
-      text-align: center;
-    }
-    .security__highlight h4 {
-      color: var(--text);
-      margin-bottom: 12px;
-      font-size: 1.1rem;
-    }
-    .security__highlight p {
-      max-width: 600px;
-      margin: 0 auto;
-      color: var(--text-light);
-    }
-
-    /* ── ROI CALCULATOR ── */
-    .roi__grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      margin-top: 56px;
-      align-items: center;
-    }
-    .roi__input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-    .roi__field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .roi__label {
-      font-weight: 600;
-      color: var(--text);
-      font-size: 0.9rem;
-    }
-    .roi__input {
-      padding: 12px 16px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      font-size: 1rem;
-      background: var(--surface);
-      color: var(--text);
-      transition: border-color .2s;
-    }
-    .roi__input:focus {
-      outline: none;
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(236,72,153,.1);
-    }
-    .roi__input-hint {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .roi__results {
-      background: linear-gradient(135deg, rgba(236,72,153,.1) 0%, rgba(255,165,107,.1) 100%);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 40px;
-    }
-    .roi__result-item {
-      margin-bottom: 28px;
-    }
-    .roi__result-item:last-child {
-      margin-bottom: 0;
-    }
-    .roi__result-label {
-      font-size: 0.85rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-    .roi__result-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: -.02em;
-    }
-    .roi__result-detail {
-      font-size: 0.9rem;
-      color: var(--text-light);
-      margin-top: 4px;
-    }
-
-    /* ── COMPARISON TABLE ── */
-    .comparison__table-wrapper {
-      overflow-x: auto;
-      margin-top: 56px;
-    }
-    .comparison__table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 600px;
-    }
-    .comparison__table th {
-      background: var(--surface2);
-      border: 1px solid var(--line);
-      padding: 16px;
-      text-align: left;
-      font-weight: 700;
-      color: var(--text);
-      font-size: 0.9rem;
-    }
-    .comparison__table th:first-child {
-      background: var(--gold-dim);
-      color: var(--gold);
-    }
-    .comparison__table td {
-      border: 1px solid var(--line);
-      padding: 14px 16px;
-      font-size: 0.9rem;
-      color: var(--text-light);
-    }
-    .comparison__table tbody tr:nth-child(even) {
-      background: var(--surface);
-    }
-    .comparison__table tbody tr:hover {
-      background: var(--surface2);
-    }
-    .comparison__check {
-      color: var(--success);
-      font-weight: 700;
-      font-size: 1.2rem;
-    }
-    .comparison__cross {
-      color: #999;
-      font-size: 1.2rem;
-    }
-    .comparison__partial {
-      color: #e0a552;
-      font-weight: 600;
-    }
-
-    /* ── IMPLEMENTATION ROADMAP ── */
-    .roadmap__timeline {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
-      margin-top: 56px;
-      position: relative;
-    }
-    .roadmap__timeline::before {
-      content: "";
-      position: absolute;
-      top: 40px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--gold), transparent);
-      z-index: 0;
-    }
-    .roadmap__milestone {
-      position: relative;
-      z-index: 1;
-      background: var(--surface);
-      border: 2px solid var(--line);
-      border-radius: 12px;
-      padding: 28px;
-      text-align: center;
-      transition: all .2s;
-    }
-    .roadmap__milestone:hover {
-      border-color: var(--gold);
-      box-shadow: 0 8px 24px rgba(236,72,153,.1);
-      transform: translateY(-4px);
-    }
-    .roadmap__milestone::before {
-      content: "";
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 30px;
-      height: 30px;
-      background: var(--gold);
-      border: 3px solid var(--bg);
-      border-radius: 50%;
-      z-index: 2;
-    }
-    .roadmap__week {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--gold);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 12px;
-    }
-    .roadmap__title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-    .roadmap__items {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      line-height: 1.6;
-      text-align: left;
-    }
-    .roadmap__item {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-      align-items: flex-start;
-    }
-    .roadmap__item::before {
-      content: "→";
-      color: var(--gold);
-      font-weight: 700;
-      min-width: 12px;
-    }
-
-    /* ── PARTNER ECOSYSTEM ── */
-    .partners__grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 20px;
-      margin-top: 56px;
-    }
-    .partner-card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 24px;
-      text-align: center;
-      transition: all .2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    .partner-card:hover {
-      border-color: var(--gold);
-      box-shadow: 0 8px 20px rgba(236,72,153,.1);
-      transform: translateY(-2px);
-    }
-    .partner-card__icon {
-      font-size: 2.4rem;
-    }
-    .partner-card__name {
-      font-weight: 700;
-      color: var(--text);
-      font-size: 0.9rem;
-    }
-    .partner-card__category {
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      font-weight: 600;
-    }
-    .partners__categories {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-bottom: 40px;
-    }
-    .partners__category-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: var(--gold-dim);
-      border: 1px solid rgba(236,72,153,.3);
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--gold);
-    }
-    .partners__category-badge::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
-
-    /* ── TECH STACK ── */
-    .tech__grid { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 48px; }
-    .tech-pill {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 20px;
-      font-size: .85rem;
-      display: flex; gap: 8px; align-items: center;
-      color: var(--text);
-      font-weight: 500;
-    }
-    .tech-pill span { font-size: 1rem; }
-
-    /* ── CTA ── */
-    #cta {
-      padding: 120px 0;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    #cta::before {
-      content: "";
-      position: absolute;
-      bottom: -300px; left: 50%; transform: translateX(-50%);
-      width: 800px; height: 800px;
-      background: radial-gradient(ellipse at center, rgba(236,72,153,.12) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    #cta h2 { margin-bottom: 20px; color: var(--text); }
-    #cta p  { font-size: 1.05rem; margin-bottom: 40px; color: var(--text-light); }
-    .cta__actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-
-    /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--line);
-      padding: 40px 0;
-    }
-    .footer__inner {
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 16px;
-    }
-    .footer__left { display: flex; align-items: center; gap: 10px; }
-    .footer__copy { font-size: .82rem; color: var(--muted); }
-    .footer__links { display: flex; gap: 24px; }
-    .footer__links a { font-size: .82rem; color: var(--muted); text-decoration: none; }
-    .footer__links a:hover { color: var(--gold); }
-
-    /* ── DIVIDER ── */
-    .divider { height: 1px; background: var(--line); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      .nav__links { display: none; }
-      .hero__metrics { gap: 28px; }
-      .role-panel.active { grid-template-columns: 1fr; }
-      .role-panel__visual { display: block; }
-      .mock-grid { grid-template-columns: 1fr; }
-      #hero { padding: 120px 0 80px; }
-      .faq__grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  <link rel="stylesheet" href="landing.css" />
 </head>
 <body>
 
@@ -1013,11 +85,11 @@
               <div class="mock-kpi__lbl">Portfolios</div>
             </div>
             <div class="mock-kpi">
-              <div class="mock-kpi__val" style="color:var(--text)">3</div>
+              <div class="mock-kpi__val mock-kpi__val--neutral">3</div>
               <div class="mock-kpi__lbl">Orders pending</div>
             </div>
             <div class="mock-kpi">
-              <div class="mock-kpi__val" style="color:var(--text)">2</div>
+              <div class="mock-kpi__val mock-kpi__val--neutral">2</div>
               <div class="mock-kpi__lbl">Pending review</div>
             </div>
           </div>
@@ -1025,8 +97,8 @@
             <div class="mock-card">
               <div class="mock-card__title">Application status</div>
               <div class="mock-bar"><div class="mock-bar__fill" style="width:75%"></div></div>
-              <div class="mock-bar"><div class="mock-bar__fill" style="width:45%; background: #4caf7d;"></div></div>
-              <div class="mock-bar"><div class="mock-bar__fill" style="width:25%; background:#e0a552;"></div></div>
+              <div class="mock-bar"><div class="mock-bar__fill mock-bar__fill--green" style="width:45%"></div></div>
+              <div class="mock-bar"><div class="mock-bar__fill mock-bar__fill--amber" style="width:25%"></div></div>
             </div>
             <div class="mock-card">
               <div class="mock-card__title">Recent applications</div>
@@ -1072,95 +144,43 @@
       <p>From the first KYC document to final performance report — Aurum handles the full lifecycle of discretionary portfolio management.</p>
     </div>
 
-    <!-- Compliance & Onboarding -->
     <div class="feature-category">
-      <h3 class="feature-category__title">
-        <span class="feature-category__icon"></span>
-        Compliance & Onboarding
-      </h3>
+      <h3 class="feature-category__title"><span class="feature-category__icon"></span> Compliance &amp; Onboarding</h3>
       <div class="feature-category__grid">
-        <div class="feature-card">
-          <div class="feature-card__icon">📋</div>
-          <h3>SEBI-compliant onboarding</h3>
-          <p>Multi-step KYC flow capturing PAN, risk profiling, bank accounts, demat BO IDs, and nominees — with a full audit trail at every stage.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-card__icon">🛡️</div>
-          <h3>Compliance review queue</h3>
-          <p>Dedicated compliance dashboard to approve or reject applications with one click. Full application history and status tracking built-in.</p>
-        </div>
+        <div class="feature-card"><div class="feature-card__icon">📋</div><h3>SEBI-compliant onboarding</h3><p>Multi-step KYC flow capturing PAN, risk profiling, bank accounts, demat BO IDs, and nominees — with a full audit trail at every stage.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">🛡️</div><h3>Compliance review queue</h3><p>Dedicated compliance dashboard to approve or reject applications with one click. Full application history and status tracking built-in.</p></div>
       </div>
     </div>
 
-    <!-- Portfolio Management -->
     <div class="feature-category">
-      <h3 class="feature-category__title">
-        <span class="feature-category__icon"></span>
-        Portfolio Management
-      </h3>
+      <h3 class="feature-category__title"><span class="feature-category__icon"></span> Portfolio Management</h3>
       <div class="feature-category__grid">
-        <div class="feature-card">
-          <div class="feature-card__icon">💼</div>
-          <h3>Portfolio construction</h3>
-          <p>Assign strategies (LCV, MCG, FCC), build equity holdings, manage cash ledger positions, and track inception-to-date portfolio composition.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-card__icon">📈</div>
-          <h3>Trading desk</h3>
-          <p>Place and track equity orders with order-book visibility. Pending, filled, and cancelled states with broker assignments and settlement dates.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-card__icon">📊</div>
-          <h3>Performance reporting</h3>
-          <p>90-day NAV history with donut AUM breakdown, period returns (1M / 3M / 6M / 1Y / SI), and benchmark comparison — all rendered as live charts.</p>
-        </div>
+        <div class="feature-card"><div class="feature-card__icon">💼</div><h3>Portfolio construction</h3><p>Assign strategies (LCV, MCG, FCC), build equity holdings, manage cash ledger positions, and track inception-to-date portfolio composition.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">📈</div><h3>Trading desk</h3><p>Place and track equity orders with order-book visibility. Pending, filled, and cancelled states with broker assignments and settlement dates.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">📊</div><h3>Performance reporting</h3><p>90-day NAV history with donut AUM breakdown, period returns (1M / 3M / 6M / 1Y / SI), and benchmark comparison — all rendered as live charts.</p></div>
       </div>
     </div>
 
-    <!-- Investor & Access Control -->
     <div class="feature-category">
-      <h3 class="feature-category__title">
-        <span class="feature-category__icon"></span>
-        Investor Experience & Access
-      </h3>
+      <h3 class="feature-category__title"><span class="feature-category__icon"></span> Investor Experience &amp; Access</h3>
       <div class="feature-category__grid">
-        <div class="feature-card">
-          <div class="feature-card__icon">👤</div>
-          <h3>Investor self-service portal</h3>
-          <p>Clients can log in to view their own portfolio summary, NAV over time, holdings breakdown, and period returns — no RM required.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-card__icon">📄</div>
-          <h3>Report generation</h3>
-          <p>Generate and download client-facing PDF reports covering portfolio valuation, holdings, returns, and account metadata in one click.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-card__icon">🔐</div>
-          <h3>Role-based access control</h3>
-          <p>Three distinct roles — Compliance, Relationship Manager, and Investor — each with purpose-built navigation, data scope, and permissions.</p>
-        </div>
+        <div class="feature-card"><div class="feature-card__icon">👤</div><h3>Investor self-service portal</h3><p>Clients can log in to view their own portfolio summary, NAV over time, holdings breakdown, and period returns — no RM required.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">📄</div><h3>Report generation</h3><p>Generate and download client-facing PDF reports covering portfolio valuation, holdings, returns, and account metadata in one click.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">🔐</div><h3>Role-based access control</h3><p>Three distinct roles — Compliance, Relationship Manager, and Investor — each with purpose-built navigation, data scope, and permissions.</p></div>
       </div>
     </div>
 
-    <!-- Infrastructure -->
     <div class="feature-category">
-      <h3 class="feature-category__title">
-        <span class="feature-category__icon"></span>
-        Infrastructure & Deployment
-      </h3>
+      <h3 class="feature-category__title"><span class="feature-category__icon"></span> Infrastructure &amp; Deployment</h3>
       <div class="feature-category__grid">
-        <div class="feature-card">
-          <div class="feature-card__icon">🚀</div>
-          <h3>One-command deployment</h3>
-          <p>Docker Compose spins up the full stack — database, backend, and frontend — with automatic Alembic migrations. Zero manual setup.</p>
-        </div>
+        <div class="feature-card"><div class="feature-card__icon">🚀</div><h3>One-command deployment</h3><p>Docker Compose spins up the full stack — database, backend, and frontend — with automatic Alembic migrations. Zero manual setup.</p></div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════ ROLES ═══════════════ -->
-<section class="section" id="roles" style="background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+<section class="section section--surface" id="roles">
   <div class="container">
     <div class="section-header">
       <span class="section-header__eyebrow">Built for every stakeholder</span>
@@ -1169,47 +189,22 @@
     </div>
 
     <div class="roles__tabs">
-      <button class="role-tab active" onclick="showRole('compliance')">Compliance Officer</button>
-      <button class="role-tab" onclick="showRole('rm')">Relationship Manager</button>
-      <button class="role-tab" onclick="showRole('investor')">Investor</button>
+      <button class="role-tab active" data-role="compliance" onclick="showRole('compliance')">Compliance Officer</button>
+      <button class="role-tab" data-role="rm" onclick="showRole('rm')">Relationship Manager</button>
+      <button class="role-tab" data-role="investor" onclick="showRole('investor')">Investor</button>
     </div>
 
     <div class="roles__panels">
-      <!-- Compliance -->
       <div class="role-panel active" id="panel-compliance">
         <ul class="role-panel__features">
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Application review queue</h4>
-              <p>See all pending applications at a glance. Approve or reject with one click — full KYC data visible inline.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Risk & investor type validation</h4>
-              <p>Verify risk category, investor type, bank details, demat IDs, and nominees before approving a client.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Full status audit trail</h4>
-              <p>Every state change (submitted → under_review → approved) is logged with timestamps and user attribution.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Platform-wide dashboard</h4>
-              <p>AUM, active clients, pending orders, and pending review count — all on the landing page after login.</p>
-            </div>
-          </li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Application review queue</h4><p>See all pending applications at a glance. Approve or reject with one click — full KYC data visible inline.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Risk &amp; investor type validation</h4><p>Verify risk category, investor type, bank details, demat IDs, and nominees before approving a client.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Full status audit trail</h4><p>Every state change (submitted → under_review → approved) is logged with timestamps and user attribution.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Platform-wide dashboard</h4><p>AUM, active clients, pending orders, and pending review count — all on the landing page after login.</p></div></li>
         </ul>
         <div class="role-panel__visual">
           <div class="role-panel__tag">Compliance role</div>
-          <table class="mock-table" style="width:100%">
+          <table class="mock-table">
             <thead><tr><th>Applicant</th><th>Risk</th><th>Status</th></tr></thead>
             <tbody>
               <tr><td>Priya Sharma</td><td>Moderate</td><td><span class="mock-badge mock-badge--pending">Under review</span></td></tr>
@@ -1217,109 +212,50 @@
               <tr><td>Asha Mehta</td><td>Conservative</td><td><span class="mock-badge mock-badge--active">Approved</span></td></tr>
             </tbody>
           </table>
-          <div style="margin-top:20px; display:flex; gap:10px;">
-            <div style="flex:1; background:rgba(76,175,125,.1); border:1px solid rgba(76,175,125,.2); border-radius:8px; padding:12px; text-align:center; font-size:.8rem; color:var(--success); font-weight:600; cursor:pointer;">✓ Approve</div>
-            <div style="flex:1; background:rgba(224,82,82,.1); border:1px solid rgba(224,82,82,.2); border-radius:8px; padding:12px; text-align:center; font-size:.8rem; color:var(--danger); font-weight:600; cursor:pointer;">✗ Reject</div>
+          <div class="role-mock__actions">
+            <div class="role-mock__btn role-mock__btn--approve">✓ Approve</div>
+            <div class="role-mock__btn role-mock__btn--reject">✗ Reject</div>
           </div>
         </div>
       </div>
 
-      <!-- RM -->
       <div class="role-panel" id="panel-rm">
         <ul class="role-panel__features">
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Start new client onboarding</h4>
-              <p>Initiate the full KYC application flow for a new client directly from the dashboard.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Client directory & profiles</h4>
-              <p>View all approved clients, drill into individual profiles, bank accounts, demat IDs, nominees, and linked portfolios.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Portfolio & holding view</h4>
-              <p>See every account's strategy, equity holdings, cash position, and inception date across the full client book.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Performance charts & reports</h4>
-              <p>Access NAV history, period returns, and generate PDF reports for any client account in one click.</p>
-            </div>
-          </li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Start new client onboarding</h4><p>Initiate the full KYC application flow for a new client directly from the dashboard.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Client directory &amp; profiles</h4><p>View all approved clients, drill into individual profiles, bank accounts, demat IDs, nominees, and linked portfolios.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Portfolio &amp; holding view</h4><p>See every account's strategy, equity holdings, cash position, and inception date across the full client book.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Performance charts &amp; reports</h4><p>Access NAV history, period returns, and generate PDF reports for any client account in one click.</p></div></li>
         </ul>
         <div class="role-panel__visual">
           <div class="role-panel__tag">RM role</div>
-          <div style="font-size:.8rem; color:var(--muted); margin-bottom:12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;">CLIENT DIRECTORY</div>
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <div style="background:var(--surface2); border:1px solid var(--line); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-              <div><div style="font-size:.85rem; font-weight:600; color: var(--text);">Asha Mehta</div><div style="font-size:.72rem; color:var(--muted);">AUM-0001 · Conservative</div></div>
-              <span class="mock-badge mock-badge--active">Active</span>
-            </div>
-            <div style="background:var(--surface2); border:1px solid var(--line); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-              <div><div style="font-size:.85rem; font-weight:600; color: var(--text);">Vikram Desai</div><div style="font-size:.72rem; color:var(--muted);">AUM-0002 · Aggressive</div></div>
-              <span class="mock-badge mock-badge--active">Active</span>
-            </div>
-            <div style="background:var(--surface2); border:1px solid var(--line); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-              <div><div style="font-size:.85rem; font-weight:600; color: var(--text);">Rohan Iyer</div><div style="font-size:.72rem; color:var(--muted);">AUM-0003 · Moderate</div></div>
-              <span class="mock-badge mock-badge--active">Active</span>
-            </div>
+          <div class="role-mock__label">Client Directory</div>
+          <div class="role-mock__client-list">
+            <div class="role-mock__client-card"><div><div class="role-mock__client-name">Asha Mehta</div><div class="role-mock__client-meta">AUM-0001 · Conservative</div></div><span class="mock-badge mock-badge--active">Active</span></div>
+            <div class="role-mock__client-card"><div><div class="role-mock__client-name">Vikram Desai</div><div class="role-mock__client-meta">AUM-0002 · Aggressive</div></div><span class="mock-badge mock-badge--active">Active</span></div>
+            <div class="role-mock__client-card"><div><div class="role-mock__client-name">Rohan Iyer</div><div class="role-mock__client-meta">AUM-0003 · Moderate</div></div><span class="mock-badge mock-badge--active">Active</span></div>
           </div>
         </div>
       </div>
 
-      <!-- Investor -->
       <div class="role-panel" id="panel-investor">
         <ul class="role-panel__features">
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Personal portfolio dashboard</h4>
-              <p>Investors log in to see their own account — strategy, AUM, NAV growth chart, and current holdings.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Holdings breakdown</h4>
-              <p>Equity holdings table with security name, quantity, average cost, current value, and portfolio weight.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Period returns at a glance</h4>
-              <p>1-month, 3-month, 6-month, 1-year, and since-inception returns — colour-coded positive/negative.</p>
-            </div>
-          </li>
-          <li class="role-panel__feature">
-            <div class="role-panel__check">✓</div>
-            <div>
-              <h4>Download statement</h4>
-              <p>Generate and download a PDF portfolio statement covering valuation, holdings, and returns — no advisor required.</p>
-            </div>
-          </li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Personal portfolio dashboard</h4><p>Investors log in to see their own account — strategy, AUM, NAV growth chart, and current holdings.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Holdings breakdown</h4><p>Equity holdings table with security name, quantity, average cost, current value, and portfolio weight.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Period returns at a glance</h4><p>1-month, 3-month, 6-month, 1-year, and since-inception returns — colour-coded positive/negative.</p></div></li>
+          <li class="role-panel__feature"><div class="role-panel__check">✓</div><div><h4>Download statement</h4><p>Generate and download a PDF portfolio statement covering valuation, holdings, and returns — no advisor required.</p></div></li>
         </ul>
         <div class="role-panel__visual">
           <div class="role-panel__tag">Investor role</div>
-          <div style="font-size:.8rem; color:var(--muted); margin-bottom:4px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;">YOUR PORTFOLIO</div>
-          <div style="font-size:1.6rem; font-weight:700; color:var(--gold); margin-bottom:16px;">₹42.8 L</div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-            <div style="background:rgba(76,175,125,.1); color:var(--success); border:1px solid rgba(76,175,125,.2); border-radius:6px; padding:6px 12px; font-size:.78rem; font-weight:600;">1M +2.4%</div>
-            <div style="background:rgba(76,175,125,.1); color:var(--success); border:1px solid rgba(76,175,125,.2); border-radius:6px; padding:6px 12px; font-size:.78rem; font-weight:600;">3M +7.1%</div>
-            <div style="background:rgba(76,175,125,.1); color:var(--success); border:1px solid rgba(76,175,125,.2); border-radius:6px; padding:6px 12px; font-size:.78rem; font-weight:600;">1Y +14.3%</div>
-            <div style="background:rgba(224,82,82,.1); color:var(--danger); border:1px solid rgba(224,82,82,.2); border-radius:6px; padding:6px 12px; font-size:.78rem; font-weight:600;">6M -1.2%</div>
+          <div class="role-mock__label">Your Portfolio</div>
+          <div class="role-mock__portfolio-value">₹42.8 L</div>
+          <div class="role-mock__returns">
+            <div class="role-mock__return-tag role-mock__return-tag--positive">1M +2.4%</div>
+            <div class="role-mock__return-tag role-mock__return-tag--positive">3M +7.1%</div>
+            <div class="role-mock__return-tag role-mock__return-tag--positive">1Y +14.3%</div>
+            <div class="role-mock__return-tag role-mock__return-tag--negative">6M -1.2%</div>
           </div>
           <div class="mock-bar"><div class="mock-bar__fill" style="width:70%"></div></div>
-          <div style="font-size:.72rem; color:var(--muted); margin-top:6px;">Strategy: Large Cap Value · Since inception</div>
+          <div class="role-mock__strategy-note">Strategy: Large Cap Value · Since inception</div>
         </div>
       </div>
     </div>
@@ -1334,204 +270,69 @@
       <h2>Trusted by <span class="gold">portfolio managers</span></h2>
       <p>See how Aurum transformed workflows and reduced onboarding time for wealth management firms.</p>
     </div>
-
     <div class="testimonials__grid">
-      <div class="testimonial-card">
-        <div class="testimonial__stars">★★★★★</div>
-        <p class="testimonial__text">
-          "Aurum cut our client onboarding time from 6 weeks to 3 days. The compliance audit trail alone is worth the platform cost."
-        </p>
-        <div class="testimonial__author">Rajesh Kumar</div>
-        <div class="testimonial__role">Compliance Head, Pinnacle Wealth</div>
-      </div>
-      <div class="testimonial-card">
-        <div class="testimonial__stars">★★★★★</div>
-        <p class="testimonial__text">
-          "Finally, a platform built for discretionary managers. The role-based access is seamless, and investors love the self-service portal."
-        </p>
-        <div class="testimonial__author">Priya Desai</div>
-        <div class="testimonial__role">Fund Manager, Summit Capital</div>
-      </div>
-      <div class="testimonial-card">
-        <div class="testimonial__stars">★★★★★</div>
-        <p class="testimonial__text">
-          "The trading desk and performance reporting integrations saved us custom development. Fast deployment, zero issues."
-        </p>
-        <div class="testimonial__author">Vikram Singh</div>
-        <div class="testimonial__role">CTO, Convergence Advisors</div>
-      </div>
+      <div class="testimonial-card"><div class="testimonial__stars">★★★★★</div><p class="testimonial__text">"Aurum cut our client onboarding time from 6 weeks to 3 days. The compliance audit trail alone is worth the platform cost."</p><div class="testimonial__author">Rajesh Kumar</div><div class="testimonial__role">Compliance Head, Pinnacle Wealth</div></div>
+      <div class="testimonial-card"><div class="testimonial__stars">★★★★★</div><p class="testimonial__text">"Finally, a platform built for discretionary managers. The role-based access is seamless, and investors love the self-service portal."</p><div class="testimonial__author">Priya Desai</div><div class="testimonial__role">Fund Manager, Summit Capital</div></div>
+      <div class="testimonial-card"><div class="testimonial__stars">★★★★★</div><p class="testimonial__text">"The trading desk and performance reporting integrations saved us custom development. Fast deployment, zero issues."</p><div class="testimonial__author">Vikram Singh</div><div class="testimonial__role">CTO, Convergence Advisors</div></div>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════ PARTNER ECOSYSTEM ═══════════════ -->
-<section class="section" id="partners" style="background: var(--surface); border-bottom: 1px solid var(--line);">
+<section class="section section--surface-bottom" id="partners">
   <div class="container">
     <div class="section-header">
       <span class="section-header__eyebrow">Integration Partners</span>
       <h2>Works seamlessly with <span class="gold">your stack</span></h2>
       <p>Aurum integrates with India's leading brokers, custodians, and enterprise tools. Custom integrations available for enterprise deployments.</p>
     </div>
-
     <div class="partners__categories">
-      <div class="partners__category-badge">🏦 Brokers & Exchanges</div>
+      <div class="partners__category-badge">🏦 Brokers &amp; Exchanges</div>
       <div class="partners__category-badge">🏛️ Custodians</div>
-      <div class="partners__category-badge">📊 Data & Reporting</div>
+      <div class="partners__category-badge">📊 Data &amp; Reporting</div>
       <div class="partners__category-badge">🔗 Enterprise Tools</div>
     </div>
-
     <div class="partners__grid">
-      <!-- Brokers -->
-      <div class="partner-card">
-        <div class="partner-card__icon">📈</div>
-        <div class="partner-card__name">NSE</div>
-        <div class="partner-card__category">Exchange</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">📊</div>
-        <div class="partner-card__name">BSE</div>
-        <div class="partner-card__category">Exchange</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">🔗</div>
-        <div class="partner-card__name">NSDL</div>
-        <div class="partner-card__category">Custodian</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">🏦</div>
-        <div class="partner-card__name">CDSL</div>
-        <div class="partner-card__category">Custodian</div>
-      </div>
-
-      <!-- Brokers -->
-      <div class="partner-card">
-        <div class="partner-card__icon">💼</div>
-        <div class="partner-card__name">5Paisa</div>
-        <div class="partner-card__category">Broker</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">💼</div>
-        <div class="partner-card__name">Motilal Oswal</div>
-        <div class="partner-card__category">Broker</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">💼</div>
-        <div class="partner-card__name">IIFL</div>
-        <div class="partner-card__category">Broker</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">💼</div>
-        <div class="partner-card__name">Anupam Broking</div>
-        <div class="partner-card__category">Broker</div>
-      </div>
-
-      <!-- Data & Reporting -->
-      <div class="partner-card">
-        <div class="partner-card__icon">📊</div>
-        <div class="partner-card__name">Bloomberg</div>
-        <div class="partner-card__category">Market Data</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">📊</div>
-        <div class="partner-card__name">Thomson Reuters</div>
-        <div class="partner-card__category">Market Data</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">📄</div>
-        <div class="partner-card__name">Tally</div>
-        <div class="partner-card__category">Accounting</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">📄</div>
-        <div class="partner-card__name">QuickBooks</div>
-        <div class="partner-card__category">Accounting</div>
-      </div>
-
-      <!-- Enterprise Tools -->
-      <div class="partner-card">
-        <div class="partner-card__icon">👥</div>
-        <div class="partner-card__name">Salesforce</div>
-        <div class="partner-card__category">CRM</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">👥</div>
-        <div class="partner-card__name">HubSpot</div>
-        <div class="partner-card__category">CRM</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">🔔</div>
-        <div class="partner-card__name">Slack</div>
-        <div class="partner-card__category">Notifications</div>
-      </div>
-      <div class="partner-card">
-        <div class="partner-card__icon">🔐</div>
-        <div class="partner-card__name">Okta</div>
-        <div class="partner-card__category">SSO/Auth</div>
-      </div>
+      <div class="partner-card"><div class="partner-card__icon">📈</div><div class="partner-card__name">NSE</div><div class="partner-card__category">Exchange</div></div>
+      <div class="partner-card"><div class="partner-card__icon">📊</div><div class="partner-card__name">BSE</div><div class="partner-card__category">Exchange</div></div>
+      <div class="partner-card"><div class="partner-card__icon">🔗</div><div class="partner-card__name">NSDL</div><div class="partner-card__category">Custodian</div></div>
+      <div class="partner-card"><div class="partner-card__icon">🏦</div><div class="partner-card__name">CDSL</div><div class="partner-card__category">Custodian</div></div>
+      <div class="partner-card"><div class="partner-card__icon">💼</div><div class="partner-card__name">5Paisa</div><div class="partner-card__category">Broker</div></div>
+      <div class="partner-card"><div class="partner-card__icon">💼</div><div class="partner-card__name">Motilal Oswal</div><div class="partner-card__category">Broker</div></div>
+      <div class="partner-card"><div class="partner-card__icon">💼</div><div class="partner-card__name">IIFL</div><div class="partner-card__category">Broker</div></div>
+      <div class="partner-card"><div class="partner-card__icon">💼</div><div class="partner-card__name">Anupam Broking</div><div class="partner-card__category">Broker</div></div>
+      <div class="partner-card"><div class="partner-card__icon">📊</div><div class="partner-card__name">Bloomberg</div><div class="partner-card__category">Market Data</div></div>
+      <div class="partner-card"><div class="partner-card__icon">📊</div><div class="partner-card__name">Thomson Reuters</div><div class="partner-card__category">Market Data</div></div>
+      <div class="partner-card"><div class="partner-card__icon">📄</div><div class="partner-card__name">Tally</div><div class="partner-card__category">Accounting</div></div>
+      <div class="partner-card"><div class="partner-card__icon">📄</div><div class="partner-card__name">QuickBooks</div><div class="partner-card__category">Accounting</div></div>
+      <div class="partner-card"><div class="partner-card__icon">👥</div><div class="partner-card__name">Salesforce</div><div class="partner-card__category">CRM</div></div>
+      <div class="partner-card"><div class="partner-card__icon">👥</div><div class="partner-card__name">HubSpot</div><div class="partner-card__category">CRM</div></div>
+      <div class="partner-card"><div class="partner-card__icon">🔔</div><div class="partner-card__name">Slack</div><div class="partner-card__category">Notifications</div></div>
+      <div class="partner-card"><div class="partner-card__icon">🔐</div><div class="partner-card__name">Okta</div><div class="partner-card__category">SSO/Auth</div></div>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════ ROI CALCULATOR ═══════════════ -->
-<section class="section" id="roi" style="background: var(--surface); border-bottom: 1px solid var(--line);">
+<section class="section section--surface-bottom" id="roi">
   <div class="container">
     <div class="section-header">
       <span class="section-header__eyebrow">Calculate Your Savings</span>
       <h2>See your ROI in <span class="gold">3 minutes</span></h2>
       <p>Input your firm's metrics and discover concrete time and cost savings with Aurum.</p>
     </div>
-
     <div class="roi__grid">
       <div class="roi__input-group">
-        <div class="roi__field">
-          <label class="roi__label">Assets Under Management (₹ Cr)</label>
-          <input type="number" class="roi__input" id="roiAum" value="50" min="1" oninput="calculateRoi()">
-          <span class="roi__input-hint">Your total managed AUM</span>
-        </div>
-
-        <div class="roi__field">
-          <label class="roi__label">Number of Active Clients</label>
-          <input type="number" class="roi__input" id="roiClients" value="15" min="1" oninput="calculateRoi()">
-          <span class="roi__input-hint">Current investor base</span>
-        </div>
-
-        <div class="roi__field">
-          <label class="roi__label">Current Onboarding Time (days)</label>
-          <input type="number" class="roi__input" id="roiOnboarding" value="42" min="1" oninput="calculateRoi()">
-          <span class="roi__input-hint">Days per new client from application to approval</span>
-        </div>
-
-        <div class="roi__field">
-          <label class="roi__label">Average RM Hourly Cost (₹)</label>
-          <input type="number" class="roi__input" id="roiHourly" value="500" min="1" oninput="calculateRoi()">
-          <span class="roi__input-hint">Loaded cost (salary + benefits)</span>
-        </div>
+        <div class="roi__field"><label class="roi__label">Assets Under Management (₹ Cr)</label><input type="number" class="roi__input" id="roiAum" value="50" min="1" oninput="calculateRoi()"><span class="roi__input-hint">Your total managed AUM</span></div>
+        <div class="roi__field"><label class="roi__label">Number of Active Clients</label><input type="number" class="roi__input" id="roiClients" value="15" min="1" oninput="calculateRoi()"><span class="roi__input-hint">Current investor base</span></div>
+        <div class="roi__field"><label class="roi__label">Current Onboarding Time (days)</label><input type="number" class="roi__input" id="roiOnboarding" value="42" min="1" oninput="calculateRoi()"><span class="roi__input-hint">Days per new client from application to approval</span></div>
+        <div class="roi__field"><label class="roi__label">Average RM Hourly Cost (₹)</label><input type="number" class="roi__input" id="roiHourly" value="500" min="1" oninput="calculateRoi()"><span class="roi__input-hint">Loaded cost (salary + benefits)</span></div>
       </div>
-
       <div class="roi__results">
-        <div class="roi__result-item">
-          <div class="roi__result-label">Onboarding Time Saved</div>
-          <div class="roi__result-value" id="roiTimeSaved">29 days</div>
-          <div class="roi__result-detail">per client (from 42 → 3 days)</div>
-        </div>
-
-        <div class="roi__result-item">
-          <div class="roi__result-label">Annual Labor Savings</div>
-          <div class="roi__result-value" id="roiCostSaved">₹8.7 L</div>
-          <div class="roi__result-detail">assuming 4 new clients/year</div>
-        </div>
-
-        <div class="roi__result-item">
-          <div class="roi__result-label">Compliance Risk Reduction</div>
-          <div class="roi__result-value" id="roiRisk">95%</div>
-          <div class="roi__result-detail">immutable audit trail, zero manual errors</div>
-        </div>
-
-        <div class="roi__result-item">
-          <div class="roi__result-label">Est. Payback Period</div>
-          <div class="roi__result-value" id="roiPayback">2.8 months</div>
-          <div class="roi__result-detail">time to break even on Aurum investment</div>
-        </div>
+        <div class="roi__result-item"><div class="roi__result-label">Onboarding Time Saved</div><div class="roi__result-value" id="roiTimeSaved">29 days</div><div class="roi__result-detail">per client (from 42 → 3 days)</div></div>
+        <div class="roi__result-item"><div class="roi__result-label">Annual Labor Savings</div><div class="roi__result-value" id="roiCostSaved">₹8.7 L</div><div class="roi__result-detail">assuming 4 new clients/year</div></div>
+        <div class="roi__result-item"><div class="roi__result-label">Compliance Risk Reduction</div><div class="roi__result-value" id="roiRisk">95%</div><div class="roi__result-detail">immutable audit trail, zero manual errors</div></div>
+        <div class="roi__result-item"><div class="roi__result-label">Est. Payback Period</div><div class="roi__result-value" id="roiPayback">2.8 months</div><div class="roi__result-detail">time to break even on Aurum investment</div></div>
       </div>
     </div>
   </div>
@@ -1545,102 +346,31 @@
       <h2>From application to <span class="gold">statement</span></h2>
       <p>A guided, end-to-end process that your compliance and RM teams can navigate without training.</p>
     </div>
-
-    <div style="max-width: 560px; margin: 0 auto;">
+    <div class="steps__wrapper">
       <div class="steps">
-        <div class="step">
-          <div class="step__num">1</div>
-          <div class="step__body">
-            <h3>Onboard a new applicant</h3>
-            <p>RM fills the multi-step KYC form — personal details, risk questionnaire, bank account, demat BO ID, and nominees. Application is submitted for compliance review.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step__num">2</div>
-          <div class="step__body">
-            <h3>Compliance reviews &amp; approves</h3>
-            <p>Compliance officer reviews the full application in their queue. One click approves the applicant, converting them to an active client and unlocking portfolio setup.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step__num">3</div>
-          <div class="step__body">
-            <h3>Portfolio is constructed</h3>
-            <p>A portfolio account is opened, strategy assigned (LCV / MCG / FCC), equity holdings entered, and opening cash position recorded.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step__num">4</div>
-          <div class="step__body">
-            <h3>Trading desk executes orders</h3>
-            <p>Orders are placed and tracked through the trading module — pending orders visible to compliance, filled trades logged with broker and settlement details.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step__num">5</div>
-          <div class="step__body">
-            <h3>Performance is tracked &amp; reported</h3>
-            <p>Daily NAV snapshots accumulate into charts and period returns. Client and RM can download a PDF statement at any time.</p>
-          </div>
-        </div>
+        <div class="step"><div class="step__num">1</div><div class="step__body"><h3>Onboard a new applicant</h3><p>RM fills the multi-step KYC form — personal details, risk questionnaire, bank account, demat BO ID, and nominees. Application is submitted for compliance review.</p></div></div>
+        <div class="step"><div class="step__num">2</div><div class="step__body"><h3>Compliance reviews &amp; approves</h3><p>Compliance officer reviews the full application in their queue. One click approves the applicant, converting them to an active client and unlocking portfolio setup.</p></div></div>
+        <div class="step"><div class="step__num">3</div><div class="step__body"><h3>Portfolio is constructed</h3><p>A portfolio account is opened, strategy assigned (LCV / MCG / FCC), equity holdings entered, and opening cash position recorded.</p></div></div>
+        <div class="step"><div class="step__num">4</div><div class="step__body"><h3>Trading desk executes orders</h3><p>Orders are placed and tracked through the trading module — pending orders visible to compliance, filled trades logged with broker and settlement details.</p></div></div>
+        <div class="step"><div class="step__num">5</div><div class="step__body"><h3>Performance is tracked &amp; reported</h3><p>Daily NAV snapshots accumulate into charts and period returns. Client and RM can download a PDF statement at any time.</p></div></div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════ IMPLEMENTATION ROADMAP ═══════════════ -->
-<section class="section" id="roadmap" style="background: var(--surface); border-bottom: 1px solid var(--line);">
+<section class="section section--surface-bottom" id="roadmap">
   <div class="container">
     <div class="section-header">
       <span class="section-header__eyebrow">Smooth Onboarding</span>
       <h2>From kickoff to <span class="gold">go-live</span> in 4 weeks</h2>
       <p>A proven deployment process with dedicated support at every milestone. Zero surprises, maximum efficiency.</p>
     </div>
-
     <div class="roadmap__timeline">
-      <div class="roadmap__milestone">
-        <div class="roadmap__week">Week 1</div>
-        <div class="roadmap__title">Setup & Planning</div>
-        <div class="roadmap__items">
-          <div class="roadmap__item">Kickoff meeting</div>
-          <div class="roadmap__item">Environment setup</div>
-          <div class="roadmap__item">Data audit</div>
-          <div class="roadmap__item">Access provisioning</div>
-        </div>
-      </div>
-
-      <div class="roadmap__milestone">
-        <div class="roadmap__week">Week 2</div>
-        <div class="roadmap__title">Migration & Config</div>
-        <div class="roadmap__items">
-          <div class="roadmap__item">Historical data import</div>
-          <div class="roadmap__item">Broker integration</div>
-          <div class="roadmap__item">API configuration</div>
-          <div class="roadmap__item">Compliance setup</div>
-        </div>
-      </div>
-
-      <div class="roadmap__milestone">
-        <div class="roadmap__week">Week 3</div>
-        <div class="roadmap__title">Testing & Training</div>
-        <div class="roadmap__items">
-          <div class="roadmap__item">UAT execution</div>
-          <div class="roadmap__item">Team training (2 days)</div>
-          <div class="roadmap__item">Sandbox testing</div>
-          <div class="roadmap__item">Issue resolution</div>
-        </div>
-      </div>
-
-      <div class="roadmap__milestone">
-        <div class="roadmap__week">Week 4</div>
-        <div class="roadmap__title">Go-Live & Support</div>
-        <div class="roadmap__items">
-          <div class="roadmap__item">Production cutover</div>
-          <div class="roadmap__item">Live monitoring</div>
-          <div class="roadmap__item">24/5 post-launch support</div>
-          <div class="roadmap__item">Handoff & success plan</div>
-        </div>
-      </div>
+      <div class="roadmap__milestone"><div class="roadmap__week">Week 1</div><div class="roadmap__title">Setup &amp; Planning</div><div class="roadmap__items"><div class="roadmap__item">Kickoff meeting</div><div class="roadmap__item">Environment setup</div><div class="roadmap__item">Data audit</div><div class="roadmap__item">Access provisioning</div></div></div>
+      <div class="roadmap__milestone"><div class="roadmap__week">Week 2</div><div class="roadmap__title">Migration &amp; Config</div><div class="roadmap__items"><div class="roadmap__item">Historical data import</div><div class="roadmap__item">Broker integration</div><div class="roadmap__item">API configuration</div><div class="roadmap__item">Compliance setup</div></div></div>
+      <div class="roadmap__milestone"><div class="roadmap__week">Week 3</div><div class="roadmap__title">Testing &amp; Training</div><div class="roadmap__items"><div class="roadmap__item">UAT execution</div><div class="roadmap__item">Team training (2 days)</div><div class="roadmap__item">Sandbox testing</div><div class="roadmap__item">Issue resolution</div></div></div>
+      <div class="roadmap__milestone"><div class="roadmap__week">Week 4</div><div class="roadmap__title">Go-Live &amp; Support</div><div class="roadmap__items"><div class="roadmap__item">Production cutover</div><div class="roadmap__item">Live monitoring</div><div class="roadmap__item">24/5 post-launch support</div><div class="roadmap__item">Handoff &amp; success plan</div></div></div>
     </div>
   </div>
 </section>
@@ -1661,109 +391,31 @@
 </section>
 
 <!-- ═══════════════ COMPARISON TABLE ═══════════════ -->
-<section class="section" style="border-top: 1px solid var(--line);">
+<section class="section section--border-top" id="comparison">
   <div class="container">
     <div class="section-header">
       <span class="section-header__eyebrow">How We Compare</span>
       <h2>Aurum vs <span class="gold">The Competition</span></h2>
       <p>See why leading wealth managers choose Aurum over legacy systems and generic PMS platforms.</p>
     </div>
-
     <div class="comparison__table-wrapper">
       <table class="comparison__table">
-        <thead>
-          <tr>
-            <th style="width: 200px;">Feature</th>
-            <th style="width: 140px; text-align: center;">Aurum PMS</th>
-            <th style="width: 140px; text-align: center;">Legacy System</th>
-            <th style="width: 140px; text-align: center;">Generic PMS</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Feature</th><th>Aurum PMS</th><th>Legacy System</th><th>Generic PMS</th></tr></thead>
         <tbody>
-          <tr>
-            <td><strong>Cloud-based deployment</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-          </tr>
-          <tr>
-            <td><strong>SEBI-compliant onboarding</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__partial">Partial</span></td>
-          </tr>
-          <tr>
-            <td><strong>One-click approvals & compliance queue</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-          </tr>
-          <tr>
-            <td><strong>Real-time trading desk integration</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__partial">Partial</span></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-          </tr>
-          <tr>
-            <td><strong>Investor self-service portal</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-            <td style="text-align: center;"><span class="comparison__partial">Partial</span></td>
-          </tr>
-          <tr>
-            <td><strong>Role-based access control</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__partial">Partial</span></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-          </tr>
-          <tr>
-            <td><strong>Live performance reporting & charts</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-          </tr>
-          <tr>
-            <td><strong>Immutable audit trail</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__partial">Partial</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-          </tr>
-          <tr>
-            <td><strong>Docker-based one-command deployment</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-          </tr>
-          <tr>
-            <td><strong>REST API for custom integrations</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-            <td style="text-align: center;"><span class="comparison__partial">Partial</span></td>
-          </tr>
-          <tr>
-            <td><strong>India data residency</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-          </tr>
-          <tr>
-            <td><strong>ISO 27001 & SOC 2 Type II</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__partial">Partial</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-          </tr>
-          <tr>
-            <td><strong>No vendor lock-in</strong></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-            <td style="text-align: center;"><span class="comparison__cross">✗</span></td>
-            <td style="text-align: center;"><span class="comparison__check">✓</span></td>
-          </tr>
-          <tr>
-            <td><strong>Typical onboarding time</strong></td>
-            <td style="text-align: center;"><strong style="color: var(--success);">1-2 weeks</strong></td>
-            <td style="text-align: center;"><strong style="color: var(--danger);">3-6 months</strong></td>
-            <td style="text-align: center;"><strong style="color: #e0a552;">4-8 weeks</strong></td>
-          </tr>
+          <tr><td><strong>Cloud-based deployment</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td><td><span class="comparison__check">✓</span></td></tr>
+          <tr><td><strong>SEBI-compliant onboarding</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__partial">Partial</span></td></tr>
+          <tr><td><strong>One-click approvals &amp; compliance queue</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td><td><span class="comparison__cross">✗</span></td></tr>
+          <tr><td><strong>Real-time trading desk integration</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__partial">Partial</span></td><td><span class="comparison__check">✓</span></td></tr>
+          <tr><td><strong>Investor self-service portal</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td><td><span class="comparison__partial">Partial</span></td></tr>
+          <tr><td><strong>Role-based access control</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__partial">Partial</span></td><td><span class="comparison__check">✓</span></td></tr>
+          <tr><td><strong>Live performance reporting &amp; charts</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td><td><span class="comparison__check">✓</span></td></tr>
+          <tr><td><strong>Immutable audit trail</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__partial">Partial</span></td><td><span class="comparison__cross">✗</span></td></tr>
+          <tr><td><strong>Docker-based one-command deployment</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td><td><span class="comparison__cross">✗</span></td></tr>
+          <tr><td><strong>REST API for custom integrations</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td><td><span class="comparison__partial">Partial</span></td></tr>
+          <tr><td><strong>India data residency</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td></tr>
+          <tr><td><strong>ISO 27001 &amp; SOC 2 Type II</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__partial">Partial</span></td><td><span class="comparison__cross">✗</span></td></tr>
+          <tr><td><strong>No vendor lock-in</strong></td><td><span class="comparison__check">✓</span></td><td><span class="comparison__cross">✗</span></td><td><span class="comparison__check">✓</span></td></tr>
+          <tr><td><strong>Typical onboarding time</strong></td><td><strong class="comparison__time--fast">1-2 weeks</strong></td><td><strong class="comparison__time--slow">3-6 months</strong></td><td><strong class="comparison__time--medium">4-8 weeks</strong></td></tr>
         </tbody>
       </table>
     </div>
@@ -1777,130 +429,35 @@
       <span class="section-header__eyebrow">Common Questions</span>
       <h2>Got questions? <span class="gold">We have answers</span></h2>
     </div>
-
     <div class="faq__grid">
-      <div class="faq-item">
-        <div class="faq-item__header" onclick="toggleFaq(this)">
-          <h4 class="faq-item__title">Which brokers does Aurum integrate with?</h4>
-          <div class="faq-item__toggle">›</div>
-        </div>
-        <div class="faq-item__content">
-          <p>Aurum integrates with major Indian brokers including NSE, BSE, and NSDL. Custom broker integrations are available for enterprise deployments. Contact our team for specific broker requirements.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-item__header" onclick="toggleFaq(this)">
-          <h4 class="faq-item__title">Is Aurum SEBI-compliant?</h4>
-          <div class="faq-item__toggle">›</div>
-        </div>
-        <div class="faq-item__content">
-          <p>Yes. Aurum is built from the ground up to comply with SEBI regulations for PMS operators. The onboarding flow captures all required KYC data, maintains comprehensive audit trails, and ensures investor accreditation validation.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-item__header" onclick="toggleFaq(this)">
-          <h4 class="faq-item__title">How long does deployment take?</h4>
-          <div class="faq-item__toggle">›</div>
-        </div>
-        <div class="faq-item__content">
-          <p>Production deployment typically takes 1–2 weeks for standard setups. Docker Compose enables one-command infrastructure spin-up. A dedicated onboarding specialist guides you through data migration and user training.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-item__header" onclick="toggleFaq(this)">
-          <h4 class="faq-item__title">Can we self-host or use our VPC?</h4>
-          <div class="faq-item__toggle">›</div>
-        </div>
-        <div class="faq-item__content">
-          <p>Yes. Aurum supports self-hosted deployments on your infrastructure or a dedicated VPC. We also offer managed hosting. Choose the option that best fits your security and compliance posture.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-item__header" onclick="toggleFaq(this)">
-          <h4 class="faq-item__title">What's the onboarding support like?</h4>
-          <div class="faq-item__toggle">›</div>
-        </div>
-        <div class="faq-item__content">
-          <p>Every deployment includes a dedicated onboarding specialist, 2 full days of team training, data migration assistance, and 30-day post-launch support. Enterprise plans include ongoing strategic guidance.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-item__header" onclick="toggleFaq(this)">
-          <h4 class="faq-item__title">Is there an API for third-party integrations?</h4>
-          <div class="faq-item__toggle">›</div>
-        </div>
-        <div class="faq-item__content">
-          <p>Yes. Aurum exposes a comprehensive REST API documented in OpenAPI format. You can integrate with any third-party system — accounting, CRM, MIS tools, etc. Full API docs are included in every deployment.</p>
-        </div>
-      </div>
+      <div class="faq-item"><div class="faq-item__header" onclick="toggleFaq(this)"><h4 class="faq-item__title">Which brokers does Aurum integrate with?</h4><div class="faq-item__toggle">›</div></div><div class="faq-item__content"><p>Aurum integrates with major Indian brokers including NSE, BSE, and NSDL. Custom broker integrations are available for enterprise deployments. Contact our team for specific broker requirements.</p></div></div>
+      <div class="faq-item"><div class="faq-item__header" onclick="toggleFaq(this)"><h4 class="faq-item__title">Is Aurum SEBI-compliant?</h4><div class="faq-item__toggle">›</div></div><div class="faq-item__content"><p>Yes. Aurum is built from the ground up to comply with SEBI regulations for PMS operators. The onboarding flow captures all required KYC data, maintains comprehensive audit trails, and ensures investor accreditation validation.</p></div></div>
+      <div class="faq-item"><div class="faq-item__header" onclick="toggleFaq(this)"><h4 class="faq-item__title">How long does deployment take?</h4><div class="faq-item__toggle">›</div></div><div class="faq-item__content"><p>Production deployment typically takes 1–2 weeks for standard setups. Docker Compose enables one-command infrastructure spin-up. A dedicated onboarding specialist guides you through data migration and user training.</p></div></div>
+      <div class="faq-item"><div class="faq-item__header" onclick="toggleFaq(this)"><h4 class="faq-item__title">Can we self-host or use our VPC?</h4><div class="faq-item__toggle">›</div></div><div class="faq-item__content"><p>Yes. Aurum supports self-hosted deployments on your infrastructure or a dedicated VPC. We also offer managed hosting. Choose the option that best fits your security and compliance posture.</p></div></div>
+      <div class="faq-item"><div class="faq-item__header" onclick="toggleFaq(this)"><h4 class="faq-item__title">What's the onboarding support like?</h4><div class="faq-item__toggle">›</div></div><div class="faq-item__content"><p>Every deployment includes a dedicated onboarding specialist, 2 full days of team training, data migration assistance, and 30-day post-launch support. Enterprise plans include ongoing strategic guidance.</p></div></div>
+      <div class="faq-item"><div class="faq-item__header" onclick="toggleFaq(this)"><h4 class="faq-item__title">Is there an API for third-party integrations?</h4><div class="faq-item__toggle">›</div></div><div class="faq-item__content"><p>Yes. Aurum exposes a comprehensive REST API documented in OpenAPI format. You can integrate with any third-party system — accounting, CRM, MIS tools, etc. Full API docs are included in every deployment.</p></div></div>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════ SECURITY & COMPLIANCE ═══════════════ -->
-<section id="security" class="section" style="border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface);">
+<section class="section section--surface" id="security">
   <div class="container">
     <div class="section-header">
       <span class="section-header__eyebrow">Enterprise-Grade Security</span>
       <h2>Your data is <span class="gold">protected</span></h2>
       <p>Aurum meets the strictest compliance and security standards required by institutional investors and regulators.</p>
     </div>
-
     <div class="security__badges">
-      <div class="security-badge">
-        <div class="security-badge__icon">🔒</div>
-        <div class="security-badge__title">ISO 27001 Certified</div>
-        <div class="security-badge__desc">Information security management system certified by independent auditors.</div>
-      </div>
-
-      <div class="security-badge">
-        <div class="security-badge__icon">✅</div>
-        <div class="security-badge__title">SEBI Compliant</div>
-        <div class="security-badge__desc">Built to meet SEBI PMS regulations with full audit trails and investor accreditation checks.</div>
-      </div>
-
-      <div class="security-badge">
-        <div class="security-badge__icon">🇮🇳</div>
-        <div class="security-badge__title">India Data Residency</div>
-        <div class="security-badge__desc">All customer data stored on Indian servers. RBI-compliant infrastructure, no cross-border data transfer.</div>
-      </div>
-
-      <div class="security-badge">
-        <div class="security-badge__icon">🔐</div>
-        <div class="security-badge__title">AES-256 Encryption</div>
-        <div class="security-badge__desc">End-to-end encryption for data in transit and at rest. Military-grade encryption standards.</div>
-      </div>
-
-      <div class="security-badge">
-        <div class="security-badge__icon">📋</div>
-        <div class="security-badge__title">SOC 2 Type II</div>
-        <div class="security-badge__desc">Annual SOC 2 audits covering security, availability, integrity, and confidentiality controls.</div>
-      </div>
-
-      <div class="security-badge">
-        <div class="security-badge__icon">🔍</div>
-        <div class="security-badge__title">Pen Testing & Audits</div>
-        <div class="security-badge__desc">Quarterly third-party penetration testing and monthly security audits by certified professionals.</div>
-      </div>
-
-      <div class="security-badge">
-        <div class="security-badge__icon">📜</div>
-        <div class="security-badge__title">GDPR Ready</div>
-        <div class="security-badge__desc">GDPR-compliant data handling, right to deletion, and privacy by design principles.</div>
-      </div>
-
-      <div class="security-badge">
-        <div class="security-badge__icon">🛡️</div>
-        <div class="security-badge__title">Immutable Audit Trail</div>
-        <div class="security-badge__desc">Cryptographically signed audit logs. Every user action logged and tamper-proof for regulatory inspection.</div>
-      </div>
+      <div class="security-badge"><div class="security-badge__icon">🔒</div><div class="security-badge__title">ISO 27001 Certified</div><div class="security-badge__desc">Information security management system certified by independent auditors.</div></div>
+      <div class="security-badge"><div class="security-badge__icon">✅</div><div class="security-badge__title">SEBI Compliant</div><div class="security-badge__desc">Built to meet SEBI PMS regulations with full audit trails and investor accreditation checks.</div></div>
+      <div class="security-badge"><div class="security-badge__icon">🇮🇳</div><div class="security-badge__title">India Data Residency</div><div class="security-badge__desc">All customer data stored on Indian servers. RBI-compliant infrastructure, no cross-border data transfer.</div></div>
+      <div class="security-badge"><div class="security-badge__icon">🔐</div><div class="security-badge__title">AES-256 Encryption</div><div class="security-badge__desc">End-to-end encryption for data in transit and at rest. Military-grade encryption standards.</div></div>
+      <div class="security-badge"><div class="security-badge__icon">📋</div><div class="security-badge__title">SOC 2 Type II</div><div class="security-badge__desc">Annual SOC 2 audits covering security, availability, integrity, and confidentiality controls.</div></div>
+      <div class="security-badge"><div class="security-badge__icon">🔍</div><div class="security-badge__title">Pen Testing &amp; Audits</div><div class="security-badge__desc">Quarterly third-party penetration testing and monthly security audits by certified professionals.</div></div>
+      <div class="security-badge"><div class="security-badge__icon">📜</div><div class="security-badge__title">GDPR Ready</div><div class="security-badge__desc">GDPR-compliant data handling, right to deletion, and privacy by design principles.</div></div>
+      <div class="security-badge"><div class="security-badge__icon">🛡️</div><div class="security-badge__title">Immutable Audit Trail</div><div class="security-badge__desc">Cryptographically signed audit logs. Every user action logged and tamper-proof for regulatory inspection.</div></div>
     </div>
-
     <div class="security__highlight">
       <h4>99.9% Uptime SLA with Disaster Recovery</h4>
       <p>Automated daily backups, geo-redundant failover, and disaster recovery testing. RTO &lt; 1 hour, RPO &lt; 15 minutes. Enterprise deployments include dedicated infrastructure and 24/5 support.</p>
@@ -1909,7 +466,7 @@
 </section>
 
 <!-- ═══════════════ TECH ═══════════════ -->
-<section class="section--sm" id="stack" style="border-top: 1px solid var(--line);">
+<section class="section--sm section--border-top" id="stack">
   <div class="container">
     <div class="section-header">
       <span class="section-header__eyebrow">Technology</span>
@@ -1927,12 +484,12 @@
       <div class="tech-pill"><span>⚡</span> React Query</div>
       <div class="tech-pill"><span>🎨</span> Vite + CSS variables</div>
     </div>
-    <div style="margin-top: 40px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px;">
-      <div style="font-size: .75rem; color: var(--gold); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700;">Quick start</div>
-      <code style="font-family: 'JetBrains Mono', monospace; font-size: .85rem; color: var(--text); line-height: 2;">
+    <div class="tech__quickstart">
+      <div class="tech__quickstart-label">Quick start</div>
+      <code>
         docker compose up -d<br />
         python backend/scripts/seed_demo.py<br />
-        <span style="color: var(--muted); font-style: italic;"># → open localhost:5173</span>
+        <span class="comment"># → open localhost:5173</span>
       </code>
     </div>
   </div>
@@ -1944,12 +501,8 @@
     <h2>Ready to see it <span class="gold">live?</span></h2>
     <p>Log in as any role and explore the full platform — no setup required after seeding.</p>
     <div class="cta__actions">
-      <a href="mailto:sales@aurumpms.com?subject=Aurum%20PMS%20Demo%20Request" class="btn btn--gold" style="font-size:1rem; padding:15px 36px;">
-        Request Demo →
-      </a>
-      <a href="#features" class="btn btn--ghost" style="font-size:1rem; padding:15px 36px;">
-        Review features
-      </a>
+      <a href="mailto:sales@aurumpms.com?subject=Aurum%20PMS%20Demo%20Request" class="btn btn--gold btn--lg">Request Demo →</a>
+      <a href="#features" class="btn btn--ghost btn--lg">Review features</a>
     </div>
   </div>
 </section>
@@ -1958,7 +511,7 @@
 <footer>
   <div class="container footer__inner">
     <div class="footer__left">
-      <div class="nav__logo-mark" style="width:26px; height:26px; font-size:.75rem;">A</div>
+      <div class="nav__logo-mark nav__logo-mark--sm">A</div>
       <span class="footer__copy">© 2026 Aurum PMS. Internal platform.</span>
     </div>
     <div class="footer__links">
@@ -1969,68 +522,6 @@
   </div>
 </footer>
 
-<script>
-  // ROI Calculator
-  function calculateRoi() {
-    const aum = parseFloat(document.getElementById('roiAum').value) || 0;
-    const clients = parseFloat(document.getElementById('roiClients').value) || 0;
-    const onboarding = parseFloat(document.getElementById('roiOnboarding').value) || 0;
-    const hourly = parseFloat(document.getElementById('roiHourly').value) || 0;
-
-    // Assumptions
-    const auromOnboardingDays = 3;
-    const newClientsPerYear = Math.max(1, Math.ceil(clients / 5)); // Conservative: 1 new client per 5 existing
-    const hoursPerDay = 8;
-    const monthlyAurumCost = 30000; // Estimated monthly cost
-
-    // Calculations
-    const timeSavedPerClient = onboarding - auromOnboardingDays;
-    const totalHoursSaved = timeSavedPerClient * hoursPerDay * newClientsPerYear;
-    const totalCostSaved = (totalHoursSaved * hourly) / 100000; // Convert to lakhs
-    const monthlyAurumCostL = monthlyAurumCost / 100000; // Convert to lakhs
-    const annualAurumCost = monthlyAurumCostL * 12;
-    const netAnnualSavings = totalCostSaved - annualAurumCost;
-    const paybackMonths = annualAurumCost > 0 ? (annualAurumCost / (netAnnualSavings / 12)) : 0;
-
-    // Update display
-    document.getElementById('roiTimeSaved').textContent = timeSavedPerClient + ' days';
-    document.getElementById('roiCostSaved').textContent = '₹' + totalCostSaved.toFixed(1) + ' L';
-    document.getElementById('roiRisk').textContent = '95%';
-    document.getElementById('roiPayback').textContent = Math.max(0.5, paybackMonths.toFixed(1)) + ' months';
-  }
-
-  // Initialize ROI calculator
-  calculateRoi();
-
-  function showRole(role) {
-    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.role-panel').forEach(p => p.classList.remove('active'));
-    document.querySelector(`[onclick="showRole('${role}')"]`).classList.add('active');
-    document.getElementById('panel-' + role).classList.add('active');
-  }
-
-  function toggleFaq(header) {
-    const item = header.parentElement;
-    const isActive = item.classList.contains('active');
-    document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('active'));
-    if (!isActive) item.classList.add('active');
-  }
-
-  // Fade-in on scroll
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.opacity = '1';
-        e.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.feature-card, .step, .tech-pill, .testimonial-card, .faq-item, .security-badge, .partner-card, .roadmap__milestone').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    observer.observe(el);
-  });
-</script>
+<script src="landing.js"></script>
 </body>
 </html>

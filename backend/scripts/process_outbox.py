@@ -53,7 +53,7 @@ from app.core.database import get_session_factory
 from app.core.logging import get_logger
 from app.application.client.use_cases.provision_client import ProvisionClientUseCase
 from app.infrastructure.db.client_repository import SqlAlchemyClientRepository
-from app.infrastructure.db.repositories import SqlAlchemyOnboardingRepository
+from app.infrastructure.db.repository import SqlAlchemyOnboardingRepository
 from app.infrastructure.events.outbox_dispatcher import OutboxDispatcher
 from app.infrastructure.events.message_bus import NoOpMessageBus
 from app.infrastructure.external.redis_message_bus import RedisMessageBus

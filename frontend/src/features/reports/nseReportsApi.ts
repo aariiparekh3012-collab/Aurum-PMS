@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiClient } from "./apiClient";
 
 const BASE = "/api/v1/nse-reports";
 
@@ -20,7 +20,7 @@ export interface BhavCopyListResponse {
 export const nseReportsApi = {
   /** Last N calendar days (default 7) */
   list: async (days = 7): Promise<BhavCopyListResponse> => {
-    const { data } = await axios.get<BhavCopyListResponse>(BASE + "/", {
+    const { data } = await apiClient.get<BhavCopyListResponse>(BASE + "/", {
       params: { days },
     });
     return data;
@@ -28,7 +28,7 @@ export const nseReportsApi = {
 
   /** Full paginated history */
   listAll: async (limit = 50, offset = 0): Promise<BhavCopyListResponse> => {
-    const { data } = await axios.get<BhavCopyListResponse>(BASE + "/all", {
+    const { data } = await apiClient.get<BhavCopyListResponse>(BASE + "/all", {
       params: { limit, offset },
     });
     return data;
@@ -40,7 +40,7 @@ export const nseReportsApi = {
 
   /** Staff only — manually kick off a download */
   triggerDownload: async (fileDate?: string): Promise<{ message: string; date: string }> => {
-    const { data } = await axios.post(`${BASE}/trigger`, null, {
+    const { data } = await apiClient.post(`${BASE}/trigger`, null, {
       params: fileDate ? { file_date: fileDate } : undefined,
     });
     return data;

@@ -147,19 +147,22 @@ def _upsert_record(
     error: str | None = None,
 ) -> NseBhavCopyReportModel:
     """Insert or update the DB row for *trade_date* (unique constraint keeps one row per day)."""
-    db: Session = NseSessionLocal()()
+    from sqlalchemy import select
+
+    factory = NseSessionLocal()
+    db: Session = factory()
     try:
-        from sqlalchemy import select
         existing = db.scalar(
             select(NseBhavCopyReportModel).where(
                 NseBhavCopyReportModel.file_date == trade_date
             )
         )
+        now_utc = dt.datetime.now(dt.timezone.utc)
         if existing:
             existing.file_name = file_name
             existing.file_path = file_path
             existing.file_size_bytes = file_size
-            existing.downloaded_at = dt.datetime.now(dt.timezone.utc) if status == "downloaded" else existing.downloaded_at
+            existing.downloaded_at = now_utc if status == "downloaded" else existing.downloaded_at
             existing.status = status
             existing.error_message = error
             record = existing
@@ -170,7 +173,7 @@ def _upsert_record(
                 file_name=file_name,
                 file_path=file_path,
                 file_size_bytes=file_size,
-                downloaded_at=dt.datetime.now(dt.timezone.utc) if status == "downloaded" else None,
+                downloaded_at=now_utc if status == "downloaded" else None,
                 status=status,
                 error_message=error,
             )
@@ -178,6 +181,9 @@ def _upsert_record(
         db.commit()
         db.refresh(record)
         return record
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
 

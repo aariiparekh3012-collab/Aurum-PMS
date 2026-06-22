@@ -43,7 +43,7 @@ jobs:
       REDIS_URL: redis://localhost:6379/0
       FERNET_KEY: "dGVzdC1rZXktMzItYnl0ZXMtdXJsLXNhZmU="
       JWT_SECRET: ci-test-secret-min-32-characters-long
-      ENVIRONMENT: local
+      ENVIRONMENT: test
       DEBUG: "true"
 
     steps:
@@ -68,14 +68,16 @@ jobs:
         run: alembic upgrade head
 
       - name: Unit & integration tests
-        run: pytest -v --tb=short --junitxml=test-results.xml
+        run: pytest -v --tb=short --junitxml=test-results.xml --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-results
-          path: backend/test-results.xml
+          path: |
+            backend/test-results.xml
+            backend/coverage.xml
 
   # ── Frontend: type check → build ─────────────────────────────────────────
   frontend:
@@ -99,6 +101,9 @@ jobs:
 
       - name: Type check
         run: npx tsc --noEmit
+
+      - name: Tests
+        run: npm test
 
       - name: Build
         run: npm run build

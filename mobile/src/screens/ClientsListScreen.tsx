@@ -49,7 +49,7 @@ export function ClientsListScreen() {
         placeholderTextColor={colors.muted}
         value={search}
         onChangeText={setSearch}
-        selectionColor={colors.gold}
+        selectionColor={colors.primary}
       />
 
       <FlatList
@@ -57,7 +57,7 @@ export function ClientsListScreen() {
         keyExtractor={(c) => c.id}
         contentContainerStyle={{ paddingBottom: 40 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
         ListEmptyComponent={
           <Text style={styles.empty}>
@@ -112,11 +112,11 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.goldDim,
+    backgroundColor: colors.primaryDim,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { ...font.bold, fontSize: 18, color: colors.gold },
+  avatarText: { ...font.bold, fontSize: 18, color: colors.primary },
   clientName: { ...font.semibold, fontSize: 15, color: colors.text },
   clientCode: { ...font.regular, fontSize: 12, color: colors.muted, marginTop: 2 },
   riskText: { ...font.regular, fontSize: 12, color: colors.textSecondary, textTransform: "capitalize" },

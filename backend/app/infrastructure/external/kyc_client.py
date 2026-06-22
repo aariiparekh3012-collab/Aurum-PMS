@@ -2,8 +2,10 @@
 
 All KYC adapter implementations now live in kra_client.py (Surepass).
 """
-from app.infrastructure.external.kra_client import (  # noqa: F401
+from app.infrastructure.external.kra_client import (
     FakeKycAdapter,
     KraKycAdapter,
     SurepassKycAdapter,
 )
+
+__all__ = ["FakeKycAdapter", "KraKycAdapter", "SurepassKycAdapter"]

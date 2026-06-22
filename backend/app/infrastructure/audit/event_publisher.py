@@ -12,7 +12,7 @@ import datetime as dt
 from sqlalchemy.orm import Session
 
 from app.application.onboarding.ports import EventPublisher
-from app.infrastructure.db.models import OutboxModel
+from app.infrastructure.db.models_outbox import OutboxModel
 
 
 class OutboxEventPublisher(EventPublisher):

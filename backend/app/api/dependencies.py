@@ -23,11 +23,10 @@ from app.application.portfolio.use_cases.provision_client import (
 )
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
-from app.core.exceptions import DomainError
 from app.core.security import decode_access_token
 from app.domain.onboarding.services import RiskProfilingService
 from app.infrastructure.audit.event_publisher import OutboxEventPublisher
-from app.infrastructure.db.repositories import SqlAlchemyOnboardingRepository
+from app.infrastructure.db.repository import SqlAlchemyOnboardingRepository
 from app.infrastructure.db.client_repository import SqlAlchemyClientRepository
 from app.infrastructure.db.portfolio_repository import (
     SqlAlchemyClientRepository as SqlAlchemyPortfolioClientRepository,

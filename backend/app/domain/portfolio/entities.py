@@ -11,7 +11,6 @@ from app.domain.portfolio.enums import (
     AssetKind, CashEntryType, ClientStatus, FlowType,
     OrderSide, OrderStatus, PortfolioStatus,
 )
-from app.domain.portfolio.value_objects import Price, Quantity
 
 
 # ── Client (provisioned from onboarding) ─────────────────────────────────

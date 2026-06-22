@@ -18,17 +18,17 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
 });
 
-const DarkTheme = {
+const LightTheme = {
   ...DefaultTheme,
-  dark: true,
+  dark: false,
   colors: {
     ...DefaultTheme.colors,
-    primary: colors.gold,
+    primary: colors.primary,
     background: colors.bg,
     card: colors.bgCard,
     text: colors.text,
     border: colors.line,
-    notification: colors.gold,
+    notification: colors.primary,
   },
 };
 
@@ -94,7 +94,7 @@ export default function App() {
   if (!ready) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" color={colors.gold} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -104,8 +104,8 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center", padding: 40 }}>
-          <StatusBar style="light" />
-          <Text style={{ ...font.bold, fontSize: 28, color: colors.gold, marginBottom: 8 }}>Aurum PMS</Text>
+          <StatusBar style="dark" />
+          <Text style={{ ...font.bold, fontSize: 28, color: colors.primary, marginBottom: 8 }}>Aurum PMS</Text>
           <Text style={{ ...font.regular, fontSize: 14, color: colors.textSecondary, marginBottom: 32, textAlign: "center" }}>
             Authenticate to unlock your session
           </Text>
@@ -121,8 +121,8 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <NavigationContainer theme={DarkTheme} onReady={onLayoutRootView}>
-          <StatusBar style="light" />
+        <NavigationContainer theme={LightTheme} onReady={onLayoutRootView}>
+          <StatusBar style="dark" />
           {loggedIn ? (
             <AppNavigator
               onLogout={() => {

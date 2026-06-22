@@ -85,7 +85,7 @@ export function ComplianceReviewScreen() {
         data={apps}
         keyExtractor={(a) => a.id}
         contentContainerStyle={{ paddingBottom: 40 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListEmptyComponent={
           isLoading
             ? <Loading text="Loading review queue..." />
@@ -136,7 +136,7 @@ export function ComplianceReviewScreen() {
                       value={rejectReason}
                       onChangeText={setRejectReason}
                       multiline
-                      selectionColor={colors.gold}
+                      selectionColor={colors.primary}
                     />
 
                     <View style={styles.actions}>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   appHeader: { flexDirection: "row", alignItems: "flex-start" },
   appName: { ...font.semibold, fontSize: 16, color: colors.text },
   appMeta: { ...font.regular, fontSize: 12, color: colors.muted, marginTop: 2 },
-  appAmount: { ...font.semibold, fontSize: 15, color: colors.gold },
+  appAmount: { ...font.semibold, fontSize: 15, color: colors.primary },
   detailSection: { marginTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: spacing.md },
   detailRow: {
     flexDirection: "row", justifyContent: "space-between",

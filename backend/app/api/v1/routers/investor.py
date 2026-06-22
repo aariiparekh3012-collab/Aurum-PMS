@@ -24,7 +24,7 @@ from app.infrastructure.db.models_portfolio import (
     PortfolioAccountModel,
 )
 from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
-from app.infrastructure.db.models import OnboardingApplicationModel
+from app.infrastructure.db.models_onboarding import OnboardingApplicationModel
 
 router = APIRouter(prefix="/investor", tags=["investor portal"])
 

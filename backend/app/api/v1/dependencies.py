@@ -14,20 +14,17 @@ from app.core.database import get_db
 from app.core.security import decode_access_token
 
 # ── Ports / adapters ─────────────────────────────────────────────────────
-from app.infrastructure.audit.audit_logger import AuditLogger
 from app.infrastructure.audit.event_publisher import OutboxEventPublisher
 from app.infrastructure.db.repository import SqlAlchemyOnboardingRepository
 from app.infrastructure.external.bank_verification_client import (
     FakeBankVerificationAdapter,
-    PennyDropAdapter,
     SurepassPennyDropAdapter,
 )
 from app.infrastructure.external.esign_client import (
-    AadhaarEsignAdapter,
     DigioEsignAdapter,
     FakeEsignAdapter,
 )
-from app.infrastructure.external.kyc_client import FakeKycAdapter, KraKycAdapter, SurepassKycAdapter
+from app.infrastructure.external.kyc_client import FakeKycAdapter, SurepassKycAdapter
 
 # ── Use cases ────────────────────────────────────────────────────────────
 from app.application.onboarding.use_cases.approve_onboarding import ApproveOnboardingUseCase

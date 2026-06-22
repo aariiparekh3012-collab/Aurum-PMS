@@ -86,7 +86,7 @@ export function SecuritiesScreen() {
         placeholderTextColor={colors.muted}
         value={search}
         onChangeText={setSearch}
-        selectionColor={colors.gold}
+        selectionColor={colors.primary}
         autoCapitalize="characters"
       />
 
@@ -126,7 +126,7 @@ export function SecuritiesScreen() {
         data={securities}
         keyExtractor={(s) => s.id}
         contentContainerStyle={{ paddingBottom: 40 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListEmptyComponent={
           isLoading
             ? <Loading text="Loading securities..." />

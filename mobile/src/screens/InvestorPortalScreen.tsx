@@ -65,7 +65,7 @@ export function InvestorPortalScreen() {
         </FadeIn>
         <Card style={{ marginTop: spacing.md }}>
           <View style={styles.onboardRow}>
-            <Ionicons name="document-text-outline" size={24} color={colors.gold} />
+            <Ionicons name="document-text-outline" size={24} color={colors.primary} />
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.onboardLabel}>Application Status</Text>
               <StatusBadge status={onboarding.status} />
@@ -88,7 +88,7 @@ export function InvestorPortalScreen() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 40 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
       <FadeIn>
         <Text style={styles.title}>My Portfolio</Text>
@@ -135,11 +135,11 @@ export function InvestorPortalScreen() {
         <>
           <View style={styles.tabRow}>
             <Pressable onPress={() => setDetailTab("holdings")} style={[styles.tabBtn, detailTab === "holdings" && styles.tabBtnActive]}>
-              <Ionicons name="bar-chart-outline" size={16} color={detailTab === "holdings" ? colors.gold : colors.muted} />
+              <Ionicons name="bar-chart-outline" size={16} color={detailTab === "holdings" ? colors.primary : colors.muted} />
               <Text style={[styles.tabText, detailTab === "holdings" && styles.tabTextActive]}>Holdings</Text>
             </Pressable>
             <Pressable onPress={() => setDetailTab("cash")} style={[styles.tabBtn, detailTab === "cash" && styles.tabBtnActive]}>
-              <Ionicons name="wallet-outline" size={16} color={detailTab === "cash" ? colors.gold : colors.muted} />
+              <Ionicons name="wallet-outline" size={16} color={detailTab === "cash" ? colors.primary : colors.muted} />
               <Text style={[styles.tabText, detailTab === "cash" && styles.tabTextActive]}>Cash</Text>
             </Pressable>
           </View>
@@ -203,10 +203,10 @@ const styles = StyleSheet.create({
   infoLabel: { ...font.regular, fontSize: 13, color: colors.muted },
   infoValue: { ...font.medium, fontSize: 14, color: colors.text },
   portfolioCard: { marginBottom: spacing.sm },
-  portfolioCardActive: { borderColor: colors.gold, borderWidth: 1 },
+  portfolioCardActive: { borderColor: colors.primary, borderWidth: 1 },
   portfolioHeader: { flexDirection: "row", alignItems: "flex-start", marginBottom: 8 },
   acctCode: { ...font.semibold, fontSize: 16, color: colors.text },
-  stratName: { ...font.regular, fontSize: 12, color: colors.gold, marginTop: 2 },
+  stratName: { ...font.regular, fontSize: 12, color: colors.primary, marginTop: 2 },
   portfolioMeta: { flexDirection: "row", gap: spacing.md, flexWrap: "wrap" },
   metaItem: { ...font.regular, fontSize: 12, color: colors.muted },
   tabRow: { flexDirection: "row", gap: spacing.sm, marginVertical: spacing.md },
@@ -215,9 +215,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12, borderRadius: radius.md, backgroundColor: colors.bgInput,
     borderWidth: 1, borderColor: colors.line,
   },
-  tabBtnActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  tabBtnActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   tabText: { ...font.medium, fontSize: 14, color: colors.muted },
-  tabTextActive: { color: colors.gold },
+  tabTextActive: { color: colors.primary },
   holdingRow: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
     paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.line,

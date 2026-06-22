@@ -70,7 +70,7 @@ export function PortfolioScreen() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 40 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
       <FadeIn>
         <Text style={styles.title}>Portfolio</Text>
@@ -97,7 +97,7 @@ export function PortfolioScreen() {
                 onPress={() => setSelectedAccount(a.id)}
                 style={[styles.acctChip, selectedAccount === a.id && styles.acctChipActive]}
               >
-                <Text style={[styles.acctCode, selectedAccount === a.id && { color: colors.gold }]}>
+                <Text style={[styles.acctCode, selectedAccount === a.id && { color: colors.primary }]}>
                   {a.account_code}
                 </Text>
                 <Text style={styles.acctStrategy}>{stratMap[a.strategy_id] || ""}</Text>
@@ -112,11 +112,11 @@ export function PortfolioScreen() {
           {/* Tab toggle */}
           <View style={styles.tabRow}>
             <Pressable onPress={() => setTab("holdings")} style={[styles.tabBtn, tab === "holdings" && styles.tabBtnActive]}>
-              <Ionicons name="bar-chart-outline" size={16} color={tab === "holdings" ? colors.gold : colors.muted} />
+              <Ionicons name="bar-chart-outline" size={16} color={tab === "holdings" ? colors.primary : colors.muted} />
               <Text style={[styles.tabText, tab === "holdings" && styles.tabTextActive]}>Holdings</Text>
             </Pressable>
             <Pressable onPress={() => setTab("cash")} style={[styles.tabBtn, tab === "cash" && styles.tabBtnActive]}>
-              <Ionicons name="wallet-outline" size={16} color={tab === "cash" ? colors.gold : colors.muted} />
+              <Ionicons name="wallet-outline" size={16} color={tab === "cash" ? colors.primary : colors.muted} />
               <Text style={[styles.tabText, tab === "cash" && styles.tabTextActive]}>Cash Ledger</Text>
             </Pressable>
           </View>
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  acctChipActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  acctChipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   acctCode: { ...font.semibold, fontSize: 14, color: colors.text },
   acctStrategy: { ...font.regular, fontSize: 11, color: colors.muted, marginTop: 2 },
   tabRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
@@ -204,9 +204,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  tabBtnActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  tabBtnActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   tabText: { ...font.medium, fontSize: 14, color: colors.muted },
-  tabTextActive: { color: colors.gold },
+  tabTextActive: { color: colors.primary },
   holdingRow: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -6,7 +6,6 @@ Admin/staff also get a manual trigger endpoint.
 from __future__ import annotations
 
 import datetime as dt
-import os
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -92,9 +91,11 @@ def list_all_reports(
         .limit(limit)
         .offset(offset)
     ).all()
+    from sqlalchemy import func
+
     total = db.scalar(
-        select(NseBhavCopyReportModel.id).count()
-    ) or 0
+        select(func.count()).select_from(NseBhavCopyReportModel)
+) or 0
     return BhavCopyListResponse(
         records=[BhavCopyRecord.from_orm_model(r) for r in rows],
         total=total,

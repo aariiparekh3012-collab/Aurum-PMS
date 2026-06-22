@@ -1,13 +1,13 @@
 [project]
 name = "pms-onboarding"
 version = "1.0.0"
-description = "SEBI-compliant discretionary PMS — Client Onboarding & KYC service"
+description = "SEBI-compliant discretionary PMS - Client Onboarding and KYC service"
 requires-python = ">=3.12"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q --cov=app --cov-report=term-missing --cov-fail-under=30"
 
 [tool.ruff]
 line-length = 95

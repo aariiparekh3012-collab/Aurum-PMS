@@ -1,25 +1,26 @@
 """SQLAlchemy implementations of portfolio repository ports."""
 from __future__ import annotations
 
-import datetime as dt
 import uuid
 
 from sqlalchemy.orm import Session, joinedload
 
 from app.domain.portfolio.entities import (
-    CapitalFlow, CashLedgerEntry, Client, Holding, HoldingLot,
+    Client, Holding, HoldingLot,
     PortfolioAccount, Trade,
 )
 from app.domain.portfolio.enums import (
-    AssetKind, CashEntryType, ClientStatus, FlowType, OrderSide, PortfolioStatus,
+    ClientStatus, OrderSide, PortfolioStatus,
 )
 from app.domain.portfolio.repositories import (
     ClientRepository, PortfolioAccountRepository, TradeRepository,
 )
-from app.infrastructure.db.portfolio_models import (
-    CapitalFlowModel, CashLedgerModel, ClientModel, HoldingLotModel,
-    HoldingModel, PortfolioAccountModel, TradeModel,
+from app.infrastructure.db.models_client import ClientModel
+from app.infrastructure.db.models_portfolio import (
+    CapitalFlowModel, CashLedgerModel, HoldingLotModel,
+    HoldingModel, PortfolioAccountModel,
 )
+from app.infrastructure.db.models_trading import TradeModel
 
 
 # ── Client ──────────────────────────────────────────────────────────────

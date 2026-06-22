@@ -9,7 +9,7 @@ import { colors, font, spacing, radius, shadow } from "../lib/theme";
 function InfoRow({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
-      <Ionicons name={icon} size={20} color={colors.gold} style={{ width: 28 }} />
+      <Ionicons name={icon} size={20} color={colors.primary} style={{ width: 28 }} />
       <View style={{ flex: 1 }}>
         <Text style={styles.infoLabel}>{label}</Text>
         <Text style={styles.infoValue}>{value}</Text>
@@ -48,7 +48,7 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
       {/* Profile Header */}
       <View style={styles.headerWrap}>
         <LinearGradient
-          colors={["#1a2235", colors.bg]}
+          colors={[colors.bgElevated, colors.bg]}
           style={styles.headerBg}
         />
         <View style={[styles.avatar, shadow.gold]}>
@@ -98,21 +98,21 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.md,
   },
-  avatarText: { ...font.bold, fontSize: 32, color: colors.bg },
+  avatarText: { ...font.bold, fontSize: 32, color: colors.white },
   name: { ...font.bold, fontSize: 24, color: colors.text },
   roleBadge: {
     marginTop: 8,
     paddingVertical: 4,
     paddingHorizontal: 14,
     borderRadius: radius.full,
-    backgroundColor: colors.goldDim,
+    backgroundColor: colors.primaryDim,
   },
-  roleText: { ...font.medium, fontSize: 13, color: colors.gold },
+  roleText: { ...font.medium, fontSize: 13, color: colors.primary },
   sectionTitle: { ...font.semibold, fontSize: 16, color: colors.text, marginBottom: spacing.md },
   infoRow: {
     flexDirection: "row",

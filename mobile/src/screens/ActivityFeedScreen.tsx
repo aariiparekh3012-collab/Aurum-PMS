@@ -97,7 +97,7 @@ export function ActivityFeedScreen() {
         <KPI value={unread} label="Unread" />
         {unread > 0 && (
           <Pressable onPress={() => markAll.mutate()} style={styles.markAllBtn}>
-            <Ionicons name="checkmark-done-outline" size={16} color={colors.gold} />
+            <Ionicons name="checkmark-done-outline" size={16} color={colors.primary} />
             <Text style={styles.markAllText}>Mark all</Text>
           </Pressable>
         )}
@@ -123,7 +123,7 @@ export function ActivityFeedScreen() {
         data={items}
         keyExtractor={(a) => a.id}
         contentContainerStyle={{ paddingBottom: 40 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListEmptyComponent={
           isLoading
             ? <Loading text="Loading activity..." />
@@ -135,7 +135,7 @@ export function ActivityFeedScreen() {
             style={[styles.activityRow, !a.is_read && styles.activityUnread]}
           >
             <View style={[styles.iconCircle, !a.is_read && styles.iconCircleUnread]}>
-              <Ionicons name={getIcon(a.action)} size={18} color={a.is_read ? colors.muted : colors.gold} />
+              <Ionicons name={getIcon(a.action)} size={18} color={a.is_read ? colors.muted : colors.primary} />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <View style={styles.actorRow}>
@@ -143,7 +143,7 @@ export function ActivityFeedScreen() {
                 <Text style={styles.actorRole}>({a.actor_role})</Text>
               </View>
               <Text style={styles.actionText}>
-                <Text style={{ color: colors.gold }}>{a.action}</Text>
+                <Text style={{ color: colors.primary }}>{a.action}</Text>
                 <Text style={{ color: colors.muted }}> on </Text>
                 <Text style={{ ...font.medium }}>{a.entity_type}</Text>
                 {a.entity_id ? <Text style={styles.entityId}> {a.entity_id.slice(0, 8)}</Text> : null}
@@ -162,11 +162,11 @@ export function ActivityFeedScreen() {
       {totalPages > 1 && (
         <View style={styles.paginationRow}>
           <Pressable onPress={() => setPage(Math.max(0, page - 1))} disabled={page === 0}>
-            <Ionicons name="chevron-back" size={20} color={page === 0 ? colors.line : colors.gold} />
+            <Ionicons name="chevron-back" size={20} color={page === 0 ? colors.line : colors.primary} />
           </Pressable>
           <Text style={styles.pageText}>Page {page + 1} of {totalPages}</Text>
           <Pressable onPress={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1}>
-            <Ionicons name="chevron-forward" size={20} color={page >= totalPages - 1 ? colors.line : colors.gold} />
+            <Ionicons name="chevron-forward" size={20} color={page >= totalPages - 1 ? colors.line : colors.primary} />
           </Pressable>
         </View>
       )}
@@ -182,15 +182,15 @@ const styles = StyleSheet.create({
   subtitle: { ...font.regular, fontSize: 13, color: colors.textSecondary, marginTop: 2, marginBottom: spacing.md },
   kpiRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md, alignItems: "center" },
   markAllBtn: { flexDirection: "row", alignItems: "center", gap: 4, marginLeft: "auto" },
-  markAllText: { ...font.medium, fontSize: 12, color: colors.gold },
+  markAllText: { ...font.medium, fontSize: 12, color: colors.primary },
   filterRow: { gap: 8, paddingBottom: spacing.md },
   chip: {
     paddingVertical: 8, paddingHorizontal: 16, borderRadius: radius.full,
     backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.line,
   },
-  chipActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  chipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   chipText: { color: colors.textSecondary, fontSize: 13, ...font.medium, textTransform: "capitalize" },
-  chipTextActive: { color: colors.gold },
+  chipTextActive: { color: colors.primary },
   empty: { color: colors.muted, ...font.regular, textAlign: "center", paddingVertical: 40 },
   activityRow: {
     flexDirection: "row", alignItems: "flex-start",
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.line,
     alignItems: "center", justifyContent: "center",
   },
-  iconCircleUnread: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  iconCircleUnread: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   actorRow: { flexDirection: "row", alignItems: "center", gap: 4, marginBottom: 2 },
   actorName: { ...font.semibold, fontSize: 14, color: colors.text },
   actorRole: { ...font.regular, fontSize: 12, color: colors.muted },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   entityId: { fontFamily: "monospace", fontSize: 11, color: colors.muted },
   detail: { ...font.regular, fontSize: 12, color: colors.muted, marginTop: 4 },
   timeText: { ...font.regular, fontSize: 11, color: colors.muted },
-  unreadDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.gold, marginTop: 4 },
+  unreadDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary, marginTop: 4 },
   paginationRow: {
     flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 16,
     paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.line,

@@ -10,7 +10,9 @@ from app.core.config import get_settings
 from app.core.database import Base
 
 # Import ALL model files so their tables register on Base.metadata
-from app.infrastructure.db import models  # noqa: F401  (onboarding / public)
+from app.infrastructure.db import models_onboarding  # noqa: F401
+from app.infrastructure.db import models_audit  # noqa: F401
+from app.infrastructure.db import models_outbox  # noqa: F401
 from app.infrastructure.db import models_client  # noqa: F401
 from app.infrastructure.db import models_reference  # noqa: F401
 from app.infrastructure.db import models_trading  # noqa: F401

@@ -1,17 +1,52 @@
-"""Auth endpoints — JWT token issuance.
+"""Auth endpoints — JWT token issuance, registration, login, phone/email verification.
 
-In production this would be backed by a real identity provider (Keycloak, Auth0).
-For dev/demo, this issues tokens directly given a username and role.
+In production the dev /token endpoint is disabled; real auth uses email + password.
 """
 from __future__ import annotations
 
-from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException
+import datetime as _dtmod
+import logging
+import secrets
+import uuid
 
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.api.v1.dependencies import get_current_user
 from app.core.config import get_settings
-from app.core.security import create_access_token
+from app.core.database import get_db
+from app.core.security import (
+    create_access_token,
+    generate_verification_token,
+    hash_password,
+    hash_token,
+    verify_password,
+)
+from app.infrastructure.db.models_auth import (
+    EmailVerificationTokenModel,
+    PhoneVerificationCodeModel,
+    UserModel,
+)
+from app.infrastructure.external.email_client import get_email_sender
+from app.infrastructure.external.sms_client import get_sms_sender
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+_ROLE_ALIASES = {"rm": "relationship_manager"}
+_VALID_ROLES = ("investor", "relationship_manager", "compliance")
+
+
+def _now():
+    return _dtmod.datetime.now(_dtmod.timezone.utc)
+
+
+def _expires_in() -> int:
+    return get_settings().jwt_expiry_minutes * 60
+
+
+# ── Schemas ────────────────────────────────────────────────────────────────
 
 
 class LoginRequest(BaseModel):
@@ -24,50 +59,54 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
-@router.post("/token", response_model=TokenResponse)
-def issue_token(body: LoginRequest):
-    """Dev-only endpoint — issue a JWT for the given username/role.
-    Disabled in production environments."""
-    if get_settings().environment not in ("local", "development", "test"):
-        raise HTTPException(status_code=404, detail="Not found")
-    token = create_access_token(sub=body.username, role=body.role)
-    return TokenResponse(access_token=token)
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    full_name: str
+    role: str = "investor"
+    phone: str | None = None
 
 
-# ── Email + password registration / login ───────────────────────────────────
-import uuid  # noqa: E402
-import secrets  # noqa: E402
-import logging  # noqa: E402
-import datetime as _dtmod  # noqa: E402
-from fastapi import Depends  # noqa: E402
-from sqlalchemy import select  # noqa: E402
-from sqlalchemy.orm import Session  # noqa: E402
-from app.core.database import get_db  # noqa: E402
-from app.core.security import (  # noqa: E402
-    hash_password,
-    verify_password,
-    generate_verification_token,
-    hash_token,
-)
-from app.api.v1.dependencies import get_current_user  # noqa: E402
-from app.infrastructure.db.models_auth import (  # noqa: E402
-    UserModel,
-    EmailVerificationTokenModel,
-    PhoneVerificationCodeModel,
-)
-from app.infrastructure.external.email_client import get_email_sender  # noqa: E402
-from app.infrastructure.external.sms_client import get_sms_sender  # noqa: E402
+class RegisterResponse(BaseModel):
+    access_token: str
+    refresh_token: str = ""
+    token_type: str = "bearer"
+    expires_in: int = 1800
 
 
-def _now():
-    return _dtmod.datetime.now(_dtmod.timezone.utc)
-
-_ROLE_ALIASES = {"rm": "relationship_manager"}
-_VALID_ROLES = ("investor", "relationship_manager", "compliance")
+class LoginCredentials(BaseModel):
+    email: str
+    password: str
 
 
-def _expires_in() -> int:
-    return get_settings().jwt_expiry_minutes * 60
+class UserProfileResponse(BaseModel):
+    id: uuid.UUID
+    email: str
+    full_name: str
+    role: str
+    is_active: bool
+    email_verified: bool
+    phone: str | None = None
+    phone_verified: bool = False
+    created_at: _dtmod.datetime
+    last_login_at: _dtmod.datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class PhoneRequest(BaseModel):
+    phone: str | None = None
+
+
+class VerifyPhoneRequest(BaseModel):
+    code: str
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
+# ── Helpers ────────────────────────────────────────────────────────────────
 
 
 def _issue_email_verification(db: Session, user: UserModel) -> None:
@@ -126,47 +165,24 @@ def _issue_phone_otp(db: Session, user: UserModel, phone: str) -> None:
     get_sms_sender().send_otp(phone=phone, code=code)
 
 
-class RegisterRequest(BaseModel):
-    email: str
-    password: str
-    full_name: str
-    role: str = "investor"
-    phone: str | None = None
+def _current_user_record(db: Session, current: dict) -> UserModel:
+    record = db.query(UserModel).filter_by(email=current.get("sub", "").lower()).first()
+    if record is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return record
 
 
-class RegisterResponse(BaseModel):
-    access_token: str
-    refresh_token: str = ""
-    token_type: str = "bearer"
-    expires_in: int = 1800
+# ── Endpoints ──────────────────────────────────────────────────────────────
 
 
-class LoginCredentials(BaseModel):
-    email: str
-    password: str
-
-
-class UserProfileResponse(BaseModel):
-    id: uuid.UUID
-    email: str
-    full_name: str
-    role: str
-    is_active: bool
-    email_verified: bool
-    phone: str | None = None
-    phone_verified: bool = False
-    created_at: _dtmod.datetime
-    last_login_at: _dtmod.datetime | None = None
-
-    model_config = {"from_attributes": True}
-
-
-class PhoneRequest(BaseModel):
-    phone: str | None = None
-
-
-class VerifyPhoneRequest(BaseModel):
-    code: str
+@router.post("/token", response_model=TokenResponse)
+def issue_token(body: LoginRequest):
+    """Dev-only endpoint — issue a JWT for the given username/role.
+    Disabled in production environments."""
+    if get_settings().environment not in ("local", "development", "test"):
+        raise HTTPException(status_code=404, detail="Not found")
+    token = create_access_token(sub=body.username, role=body.role)
+    return TokenResponse(access_token=token)
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=201)
@@ -237,17 +253,6 @@ def me(current=Depends(get_current_user), db: Session = Depends(get_db)):
     if record is None:
         raise HTTPException(status_code=404, detail="User not found")
     return record
-
-
-def _current_user_record(db: Session, current: dict) -> UserModel:
-    record = db.query(UserModel).filter_by(email=current.get("sub", "").lower()).first()
-    if record is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return record
-
-
-class MessageResponse(BaseModel):
-    message: str
 
 
 @router.post("/send-phone-otp", response_model=MessageResponse)

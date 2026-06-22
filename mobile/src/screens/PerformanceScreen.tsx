@@ -54,7 +54,7 @@ export function PerformanceScreen() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 40 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
       <FadeIn>
         <Text style={styles.title}>Performance</Text>
@@ -74,7 +74,7 @@ export function PerformanceScreen() {
                 onPress={() => setSelectedAccount(a.id)}
                 style={[styles.chip, selectedAccount === a.id && styles.chipActive]}
               >
-                <Text style={[styles.chipCode, selectedAccount === a.id && { color: colors.gold }]}>
+                <Text style={[styles.chipCode, selectedAccount === a.id && { color: colors.primary }]}>
                   {a.account_code}
                 </Text>
                 <Text style={styles.chipStrat}>{stratMap[a.strategy_id] || ""}</Text>
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10, paddingHorizontal: 16, borderRadius: radius.md,
     backgroundColor: colors.bgInput, borderWidth: 1, borderColor: colors.line,
   },
-  chipActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  chipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   chipCode: { ...font.semibold, fontSize: 14, color: colors.text },
   chipStrat: { ...font.regular, fontSize: 11, color: colors.muted, marginTop: 2 },
   tableHeader: {

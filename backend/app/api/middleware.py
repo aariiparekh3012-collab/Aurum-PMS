@@ -61,21 +61,36 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     NOTE: In production, replace with Redis-backed rate limiter for multi-instance.
     """
 
+    _PURGE_INTERVAL = 300  # purge stale keys every 5 minutes
+
     def __init__(self, app):
         super().__init__(app)
         self._buckets: dict[str, list[float]] = defaultdict(list)
+        self._last_purge: float = time.time()
         self._limits: dict[str, tuple[int, int]] = {
             "/api/v1/auth/login": (10, 60),
             "/api/v1/auth/register": (5, 60),
             "/api/v1/auth/forgot-password": (3, 3600),
             "/api/v1/auth/refresh": (30, 60),
         }
+        self._max_window = max(w for _, w in self._limits.values())
 
     def _get_client_ip(self, request: Request) -> str:
         forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
             return forwarded.split(",")[0].strip()
         return request.client.host if request.client else "unknown"
+
+    def _purge_stale_keys(self) -> None:
+        """Remove bucket keys whose entries are all expired to prevent unbounded memory growth."""
+        now = time.time()
+        if now - self._last_purge < self._PURGE_INTERVAL:
+            return
+        self._last_purge = now
+        cutoff = now - self._max_window
+        stale = [k for k, v in self._buckets.items() if not v or v[-1] < cutoff]
+        for k in stale:
+            del self._buckets[k]
 
     def _is_rate_limited(self, key: str, max_requests: int, window_seconds: int) -> bool:
         now = time.time()
@@ -94,6 +109,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
         if request.method == "POST" and path in self._limits:
+            self._purge_stale_keys()
             ip = self._get_client_ip(request)
             max_req, window = self._limits[path]
             key = f"{path}:{ip}"

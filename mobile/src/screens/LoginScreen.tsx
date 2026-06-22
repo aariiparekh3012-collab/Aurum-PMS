@@ -27,13 +27,11 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
     setLoading(true);
     setError(null);
     try {
-      // Real backend auth: credentials are verified server-side.
       const { data } = await apiClient.post("/auth/login", {
         email: email.trim(),
         password,
       });
       await auth.setSession(data.access_token, { subject: email.trim(), role: "" });
-      // Fetch profile to get the server-assigned role.
       const me = await apiClient.get("/auth/me");
       await auth.setSession(data.access_token, {
         subject: me.data.full_name || me.data.email,
@@ -49,7 +47,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
   };
 
   return (
-    <LinearGradient colors={["#0a0e17", "#111827", "#0a0e17"]} style={styles.gradient}>
+    <View style={styles.screen}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -60,15 +58,18 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         >
           {/* Brand */}
           <View style={styles.brand}>
-            <View style={[styles.brandMark, shadow.gold]}>
-              <Text style={styles.brandLetter}>P</Text>
-            </View>
+            <LinearGradient
+              colors={["#ec4899", "#db2777"]}
+              style={[styles.brandMark, shadow.primary]}
+            >
+              <Text style={styles.brandLetter}>A</Text>
+            </LinearGradient>
             <Text style={styles.title}>Aurum PMS</Text>
             <Text style={styles.subtitle}>
               Discretionary Portfolio Management
             </Text>
             <LinearGradient
-              colors={["transparent", colors.gold, "transparent"]}
+              colors={["transparent", colors.primary, "transparent"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.divider}
@@ -99,18 +100,18 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
               </Button>
             </View>
             <Text style={styles.footerNote}>
-              SEBI-registered · Secure sign-in
+              SEBI-registered PMS · Secure sign-in
             </Text>
           </Card>
         </ScrollView>
       </KeyboardAvoidingView>
       {error && <Toast message={error} onDismiss={() => setError(null)} />}
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
+  screen: { flex: 1, backgroundColor: colors.bg },
   scroll: {
     flexGrow: 1,
     justifyContent: "center",
@@ -121,7 +122,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: colors.gold,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.md,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   brandLetter: {
     ...font.bold,
     fontSize: 28,
-    color: "#0a0e17",
+    color: colors.white,
   },
   title: {
     ...font.bold,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   formTitle: {
-    ...font.semibold,
+    ...font.bold,
     fontSize: 20,
     color: colors.text,
     marginBottom: 20,
@@ -161,5 +161,6 @@ const styles = StyleSheet.create({
     color: colors.muted,
     textAlign: "center",
     marginTop: 20,
+    letterSpacing: 0.3,
   },
 });

@@ -108,7 +108,7 @@ export function ApplicationsScreen() {
         keyExtractor={(a) => a.id}
         contentContainerStyle={{ paddingBottom: 40 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
         ListEmptyComponent={
           <Text style={styles.empty}>No applications in this view.</Text>
@@ -170,9 +170,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  chipActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  chipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   chipText: { color: colors.textSecondary, fontSize: 13, ...font.medium, textTransform: "capitalize" },
-  chipTextActive: { color: colors.gold },
+  chipTextActive: { color: colors.primary },
   appCard: { marginBottom: spacing.sm },
   appTop: { flexDirection: "row", alignItems: "flex-start" },
   appName: { ...font.semibold, fontSize: 16, color: colors.text },

@@ -10,7 +10,7 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from app.infrastructure.db.models import AuditLogModel
+from app.infrastructure.db.models_audit import AuditLogModel
 
 
 class AuditLogger:

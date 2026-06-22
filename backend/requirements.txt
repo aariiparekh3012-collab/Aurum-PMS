@@ -26,6 +26,7 @@ structlog==24.4.0
 
 # Dev / Testing
 pytest==8.3.4
+pytest-cov==6.0.0
 ruff==0.8.6
 mypy==1.14.1
 httpx  # also used as TestClient transport

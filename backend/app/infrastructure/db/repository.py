@@ -1,7 +1,6 @@
 """SQLAlchemy implementation of OnboardingRepository (Data Mapper pattern)."""
 from __future__ import annotations
 
-import datetime as dt
 import uuid
 
 from sqlalchemy.orm import Session
@@ -15,7 +14,7 @@ from app.domain.onboarding.repositories import OnboardingRepository
 from app.domain.onboarding.value_objects import (
     PAN, Aadhaar, BankAccount, DematAccount, Money,
 )
-from app.infrastructure.db.models import OnboardingApplicationModel
+from app.infrastructure.db.models_onboarding import OnboardingApplicationModel
 
 
 class SqlAlchemyOnboardingRepository(OnboardingRepository):

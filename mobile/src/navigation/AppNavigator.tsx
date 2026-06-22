@@ -99,7 +99,7 @@ export function AppNavigator({ onLogout }: { onLogout: () => void }) {
           paddingBottom: 28,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: colors.gold,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: { ...font.medium, fontSize: 11 },
         tabBarIcon: ({ color, size }) => (

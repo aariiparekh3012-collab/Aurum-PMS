@@ -27,8 +27,15 @@ def decrypt(ciphertext: str) -> str:
 
 
 def hash_pan(pan: str) -> str:
-    """SHA-256 hash of uppercased PAN — used for dedup lookups without decryption."""
-    return hashlib.sha256(pan.upper().encode()).hexdigest()
+    """HMAC-SHA256 of uppercased PAN keyed on the server secret.
+
+    Plain SHA-256 is unsafe here because the PAN keyspace is small
+    (~3 billion values: AAAAA0000A–ZZZZZ9999Z) and trivially brute-forced.
+    Using HMAC with a secret key makes offline rainbow tables infeasible.
+    """
+    import hmac as _hmac
+    secret = get_settings().jwt_secret.encode()
+    return _hmac.new(secret, pan.upper().encode(), hashlib.sha256).hexdigest()
 
 
 def create_access_token(*, sub: str, role: str, extra: dict | None = None) -> str:

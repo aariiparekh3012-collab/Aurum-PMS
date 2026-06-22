@@ -23,13 +23,12 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://pms:pms@localhost:5432/pms"
 
     # ── NSE Reports Database (separate DB for daily Bhavcopy downloads)
-    nse_database_url: str = "postgresql://postgres:aarya123@localhost:5432/downloaddailyreport"
+    nse_database_url: str = "postgresql://postgres:localdev123@localhost:5432/downloaddailyreport"
 
     # ── Auth / JWT
     jwt_secret: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
     jwt_expiry_minutes: int = 60
-    jwt_access_ttl_minutes: int = 30
 
     # ── PII encryption
     fernet_key: str = ""
@@ -37,18 +36,6 @@ class Settings(BaseSettings):
 
     # ── SEBI business rules
     min_investment_inr: int = 5_000_000
-
-    # ── External services (legacy — kept for backward compat)
-    bank_verify_base_url: str = ""
-    bank_verify_api_key: str = ""
-    kyc_base_url: str = ""
-    kra_base_url: str = ""
-    kyc_api_key: str = ""
-    kra_api_key: str = ""
-    ckyc_base_url: str = ""
-    ckyc_api_key: str = ""
-    esign_base_url: str = ""
-    esign_api_key: str = ""
 
     # ── Surepass (KYC + bank verification)
     surepass_base_url: str = "https://kyc-api.surepass.io/api/v1"
@@ -65,8 +52,7 @@ class Settings(BaseSettings):
     # ── Public app URL (used to build verification links in emails)
     app_base_url: str = "http://localhost:5173"
 
-    # ── Email (SMTP). If smtp_host is blank, a dev console sender is used
-    #    (the email body is logged instead of actually sent).
+    # ── Email (SMTP). If smtp_host is blank, a dev console sender is used.
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_user: str = ""
@@ -74,8 +60,7 @@ class Settings(BaseSettings):
     smtp_from: str = "Aurum PMS <no-reply@aurumpms.com>"
     smtp_use_tls: bool = True
 
-    # ── SMS / OTP (MSG91). If msg91_auth_key is blank, a dev console sender
-    #    is used (the OTP is logged instead of texted).
+    # ── SMS / OTP (MSG91). If msg91_auth_key is blank, OTP is logged.
     msg91_auth_key: str = ""
     msg91_sender_id: str = "AURUMP"
     msg91_route: str = "4"
@@ -97,6 +82,8 @@ class Settings(BaseSettings):
             raise RuntimeError("JWT_SECRET is insecure — set a strong secret for production")
         if not self.effective_fernet_key:
             raise RuntimeError("PII_ENCRYPTION_KEY must be set in production")
+        if "localdev123" in self.database_url or "localdev123" in self.nse_database_url:
+            raise RuntimeError("Database URLs still contain default dev password — set real credentials")
 
 
 @lru_cache

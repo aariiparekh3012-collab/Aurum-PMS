@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
 from app.core.database import get_db
-from app.infrastructure.db.models import OnboardingApplicationModel
+from app.infrastructure.db.models_onboarding import OnboardingApplicationModel
 from app.infrastructure.db.models_client import ClientModel, ClientRiskProfileModel
 from app.infrastructure.db.models_portfolio import PortfolioAccountModel
 from app.infrastructure.db.models_performance import ValuationSnapshotModel

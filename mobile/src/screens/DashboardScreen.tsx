@@ -54,13 +54,13 @@ export function DashboardScreen() {
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 40 }}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       {/* Header */}
       <FadeIn><View style={styles.header}>
         <Text style={styles.greeting}>
-          Welcome back, <Text style={{ color: colors.gold }}>{user?.subject ?? "User"}</Text>
+          Welcome back, <Text style={{ color: colors.primary }}>{user?.subject ?? "User"}</Text>
         </Text>
         <Text style={styles.subGreeting}>Aurum PMS — Platform overview</Text>
       </View></FadeIn>
@@ -91,7 +91,7 @@ export function DashboardScreen() {
             style={styles.actionCard}
             onPress={() => nav.navigate(a.route)}
           >
-            <Ionicons name={a.icon} size={28} color={colors.gold} />
+            <Ionicons name={a.icon} size={28} color={colors.primary} />
             <Text style={styles.actionTitle}>{a.title}</Text>
             <Text style={styles.actionSub}>{a.sub}</Text>
           </Card>

@@ -1,7 +1,6 @@
 """Portfolio application DTOs."""
 from __future__ import annotations
 import uuid
-import datetime as dt
 from dataclasses import dataclass
 
 

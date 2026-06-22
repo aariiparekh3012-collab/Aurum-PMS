@@ -1,6 +1,5 @@
-"""SQLAlchemy ORM models — the persistence representation of the aggregate.
+"""SQLAlchemy ORM models for the onboarding domain.
 
-Deliberately separate from domain entities (Data Mapper, not Active Record).
 PII columns store encrypted ciphertext; only masked/derived values are queryable.
 """
 from __future__ import annotations
@@ -17,7 +16,7 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -81,30 +80,3 @@ class OnboardingDocumentModel(Base):
     uploaded_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     application: Mapped[OnboardingApplicationModel] = relationship(back_populates="documents")
-
-
-class AuditLogModel(Base):
-    """Append-only audit trail (SEBI record-keeping). No updates/deletes allowed."""
-
-    __tablename__ = "audit_logs"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    aggregate_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
-    actor: Mapped[str] = mapped_column(String(120), nullable=False)
-    action: Mapped[str] = mapped_column(String(80), nullable=False)
-    payload: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
-    correlation_id: Mapped[str | None] = mapped_column(String(64))
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-
-
-class OutboxModel(Base):
-    """Transactional outbox — domain events persisted with the same DB transaction."""
-
-    __tablename__ = "event_outbox"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    aggregate_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
-    event_type: Mapped[str] = mapped_column(String(80), nullable=False)
-    payload: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
-    published: Mapped[bool] = mapped_column(default=False, index=True)
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)

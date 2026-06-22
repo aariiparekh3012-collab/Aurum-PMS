@@ -86,6 +86,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxChecked: { backgroundColor: colors.gold, borderColor: colors.gold },
+  checkboxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
   checkLabel: { ...font.regular, fontSize: 14, color: colors.textSecondary, flex: 1 },
 });

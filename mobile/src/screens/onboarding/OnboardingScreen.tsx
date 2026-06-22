@@ -61,7 +61,7 @@ export function OnboardingScreen() {
               <Text style={styles.successTitle}>Submitted for review</Text>
               <Text style={styles.successSub}>
                 Application {app.id.slice(0, 8)} is now{" "}
-                <Text style={{ color: colors.gold }}>
+                <Text style={{ color: colors.primary }}>
                   {app.status.replace(/_/g, " ")}
                 </Text>
                 . Compliance will activate the account shortly.

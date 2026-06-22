@@ -9,16 +9,15 @@ from sqlalchemy.orm import Session
 from app.api import dependencies as deps
 from app.api.v1.dependencies import get_current_user, require_role
 from app.core.database import get_db
-from app.infrastructure.db.portfolio_models import (
-    ClientModel, PortfolioAccountModel, SecurityModel, StrategyModel,
-    TradeModel, HoldingModel, CapitalFlowModel, CashLedgerModel,
+from app.infrastructure.db.models_portfolio import (
+    PortfolioAccountModel, HoldingModel, CashLedgerModel,
 )
+from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
 from app.infrastructure.db.portfolio_repository import (
     SqlAlchemyClientRepository, SqlAlchemyPortfolioAccountRepository,
     SqlAlchemyTradeRepository,
 )
 from app.infrastructure.db.repository import SqlAlchemyOnboardingRepository
-from app.infrastructure.audit.event_publisher import OutboxEventPublisher
 from app.application.portfolio.use_cases.provision_client import ProvisionClientUseCase
 from app.application.portfolio.use_cases.create_portfolio import CreatePortfolioUseCase
 from app.application.portfolio.use_cases.record_trade import RecordTradeUseCase

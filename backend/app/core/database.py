@@ -32,11 +32,17 @@ def get_session_factory() -> sessionmaker[Session]:
 
 
 def get_db() -> Generator[Session, None, None]:
+    """Yield a session; auto-commit only when the session has pending changes.
+
+    This avoids issuing a pointless COMMIT on read-only requests while still
+    committing writes made via flush() in route handlers.
+    """
     factory = get_session_factory()
     db = factory()
     try:
         yield db
-        db.commit()
+        if db.new or db.dirty or db.deleted:
+            db.commit()
     except Exception:
         db.rollback()
         raise

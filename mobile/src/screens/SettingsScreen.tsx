@@ -90,7 +90,7 @@ export function SettingsScreen() {
             onPress={() => setTab(t.key)}
             style={[styles.tabBtn, tab === t.key && styles.tabBtnActive]}
           >
-            <Ionicons name={t.icon} size={16} color={tab === t.key ? colors.gold : colors.muted} />
+            <Ionicons name={t.icon} size={16} color={tab === t.key ? colors.primary : colors.muted} />
             <Text style={[styles.tabText, tab === t.key && styles.tabTextActive]}>{t.label}</Text>
           </Pressable>
         ))}
@@ -154,7 +154,7 @@ export function SettingsScreen() {
               <Switch
                 value={prefs[key]}
                 onValueChange={() => togglePref(key)}
-                trackColor={{ false: colors.bgInput, true: colors.gold }}
+                trackColor={{ false: colors.bgInput, true: colors.primary }}
                 thumbColor={prefs[key] ? colors.bg : colors.muted}
               />
             </View>
@@ -209,17 +209,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12, borderRadius: radius.md, backgroundColor: colors.bgInput,
     borderWidth: 1, borderColor: colors.line,
   },
-  tabBtnActive: { backgroundColor: colors.goldDim, borderColor: colors.gold },
+  tabBtnActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary },
   tabText: { ...font.medium, fontSize: 13, color: colors.muted },
-  tabTextActive: { color: colors.gold },
+  tabTextActive: { color: colors.primary },
   profileHeader: { flexDirection: "row", alignItems: "center", marginBottom: spacing.md },
   avatar: {
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: colors.gold, alignItems: "center", justifyContent: "center",
+    backgroundColor: colors.primary, alignItems: "center", justifyContent: "center",
   },
-  avatarText: { ...font.bold, fontSize: 22, color: "#1a1305" },
+  avatarText: { ...font.bold, fontSize: 22, color: colors.white },
   profileName: { ...font.semibold, fontSize: 18, color: colors.text },
-  profileRole: { ...font.regular, fontSize: 13, color: colors.gold, textTransform: "capitalize", marginTop: 2 },
+  profileRole: { ...font.regular, fontSize: 13, color: colors.primary, textTransform: "capitalize", marginTop: 2 },
   infoRow: {
     flexDirection: "row", justifyContent: "space-between",
     paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.line,
@@ -241,6 +241,6 @@ const styles = StyleSheet.create({
   },
   appearLabel: { ...font.medium, fontSize: 15, color: colors.text },
   appearDesc: { ...font.regular, fontSize: 12, color: colors.muted, marginTop: 2 },
-  appearValue: { ...font.medium, fontSize: 13, color: colors.gold },
+  appearValue: { ...font.medium, fontSize: 13, color: colors.primary },
   futureNote: { ...font.regular, fontSize: 12, color: colors.muted, marginTop: spacing.md },
 });

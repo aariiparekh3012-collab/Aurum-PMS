@@ -4,7 +4,6 @@ from __future__ import annotations
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-import pydantic
 
 allowed_origins: str = pydantic.Field(default="http://localhost:5173", validation_alias="CORS_ORIGINS")
 class Settings(BaseSettings):

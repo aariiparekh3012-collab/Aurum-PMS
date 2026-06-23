@@ -4,7 +4,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
@@ -97,9 +97,10 @@ def list_orders(
     db: Session = Depends(get_db),
     _user: dict = Depends(deps.require_staff),
 ):
-    stmt = select(OrderModel).order_by(desc(OrderModel.created_at)).limit(200)
+    stmt = select(OrderModel)
     if status:
         stmt = stmt.where(OrderModel.status == status)
+    stmt = stmt.order_by(desc(OrderModel.created_at)).limit(200)
     return db.scalars(stmt).all()
 
 
@@ -133,8 +134,9 @@ def decide_order(
 ):
     order = db.get(OrderModel, order_id)
     if not order:
-        from app.core.exceptions import DomainError
-        raise DomainError("Order not found", code="not_found")
+        raise HTTPException(404, "Order not found")
+    if order.status != "pending_approval":
+        raise HTTPException(409, f"Order already decided (status={order.status})")
     order.status = "approved" if body.approve else "rejected"
     db.commit()
     db.refresh(order)
@@ -179,9 +181,10 @@ def list_trades(
     db: Session = Depends(get_db),
     _user: dict = Depends(deps.require_staff),
 ):
-    stmt = select(TradeModel).order_by(desc(TradeModel.traded_at)).limit(500)
+    stmt = select(TradeModel)
     if portfolio_account_id:
         stmt = stmt.where(TradeModel.portfolio_account_id == portfolio_account_id)
+    stmt = stmt.order_by(desc(TradeModel.traded_at)).limit(500)
     return db.scalars(stmt).all()
 
 

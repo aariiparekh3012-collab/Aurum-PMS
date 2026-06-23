@@ -10,14 +10,14 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "ignoreDeprecations": "6.0",
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "paths": { "@/*": ["src/*"] },
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"]
 }

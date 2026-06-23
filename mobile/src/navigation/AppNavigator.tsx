@@ -17,6 +17,7 @@ import { ComplianceReviewScreen } from "../screens/ComplianceReviewScreen";
 import { ActivityFeedScreen } from "../screens/ActivityFeedScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { SecuritiesScreen } from "../screens/SecuritiesScreen";
+import { MessagesScreen } from "../screens/MessagesScreen";
 import { auth, canSeeTab } from "../lib/auth";
 import { colors, font } from "../lib/theme";
 
@@ -50,6 +51,7 @@ const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   InvestorTab: "wallet-outline",
   PerformanceTab: "trending-up-outline",
   ReportsTab: "document-text-outline",
+  MessagesTab: "chatbubbles-outline",
   ActivityTab: "notifications-outline",
   SettingsTab: "settings-outline",
   ProfileTab: "person-circle-outline",
@@ -77,6 +79,7 @@ export function AppNavigator({ onLogout }: { onLogout: () => void }) {
     { name: "InvestorTab", title: "My Portfolio", component: InvestorPortalScreen },
     { name: "PerformanceTab", title: "Perf", component: PerformanceScreen },
     { name: "ReportsTab", title: "Reports", component: ReportsScreen },
+    { name: "MessagesTab", title: "Messages", component: MessagesScreen },
     { name: "ActivityTab", title: "Activity", component: ActivityFeedScreen },
     { name: "SettingsTab", title: "Settings", component: SettingsScreen },
     { name: "ProfileTab", title: "Profile", component: ProfileScreen, renderFn: (logout) => <ProfileScreen onLogout={logout} /> },

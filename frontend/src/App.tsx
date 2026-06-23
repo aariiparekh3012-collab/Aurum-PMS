@@ -30,6 +30,7 @@ import { StrategiesPage } from "@/features/reference/StrategiesPage";
 import { BrokersPage } from "@/features/reference/BrokersPage";
 import { FeeSchedulesPage } from "@/features/reference/FeeSchedulesPage";
 import { InvestorPortal } from "@/features/investor/InvestorPortal";
+import { MessagesPage } from "@/features/messaging/MessagesPage";
 import { NotFoundPage } from "@/features/misc/NotFoundPage";
 
 function ProtectedRoutes() {
@@ -80,7 +81,8 @@ function ProtectedRoutes() {
         {isStaff && <Route path="/brokers" element={<BrokersPage />} />}
         {isStaff && <Route path="/fee-schedules" element={<FeeSchedulesPage />} />}
 
-        {/* Notifications & Settings */}
+        {/* Messaging, Notifications & Settings */}
+        <Route path="/messages" element={<MessagesPage />} />
         <Route path="/activity" element={<ActivityFeedPage />} />
         <Route path="/settings" element={<SettingsPage />} />
 

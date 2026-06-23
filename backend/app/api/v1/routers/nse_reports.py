@@ -11,7 +11,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from sqlalchemy import select, desc
+from sqlalchemy import func, select, desc
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
@@ -91,11 +91,9 @@ def list_all_reports(
         .limit(limit)
         .offset(offset)
     ).all()
-    from sqlalchemy import func
-
     total = db.scalar(
         select(func.count()).select_from(NseBhavCopyReportModel)
-) or 0
+    ) or 0
     return BhavCopyListResponse(
         records=[BhavCopyRecord.from_orm_model(r) for r in rows],
         total=total,

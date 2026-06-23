@@ -146,12 +146,19 @@ class EsignAgreementUseCase:
         return to_view(app)
 
     @staticmethod
-    def _generate_pms_agreement(app) -> bytes:
+    def _mask_pan(pan: str) -> str:
+        """Mask PAN for display — show only last 4 characters."""
+        if len(pan) <= 4:
+            return "X" * len(pan)
+        return "X" * (len(pan) - 4) + pan[-4:]
+
+    def _generate_pms_agreement(self, app) -> bytes:
         """Generate PMS agreement PDF from template.
 
         This is a placeholder that returns a minimal PDF.
         In production, use a PDF generation library (e.g., ReportLab, Jinja2 + weasyprint)
         """
+        masked_pan = self._mask_pan(app.pan.value)
         # Minimal PDF content
         pdf_content = b"""%PDF-1.4
 1 0 obj
@@ -173,7 +180,7 @@ BT
 0 -30 Td
 (Client: """ + app.full_name.encode() + b""") Tj
 0 -30 Td
-(PAN: """ + app.pan.value.encode() + b""") Tj
+(PAN: """ + masked_pan.encode() + b""") Tj
 ET
 endstream
 endobj

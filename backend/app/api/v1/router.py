@@ -11,6 +11,7 @@ from app.api.v1.routers import (
     dashboard,
     health,
     investor,
+    messaging,
     notifications,
     nse_reports,
     onboarding,
@@ -37,3 +38,4 @@ api_router.include_router(performance.router)
 api_router.include_router(reports.router)
 api_router.include_router(nse_reports.router)
 api_router.include_router(notifications.router)
+api_router.include_router(messaging.router)

@@ -189,12 +189,80 @@ def _upsert_record(
 
 
 # ---------------------------------------------------------------------------
+# Backfill — catch up on any dates missed while the server was down
+# ---------------------------------------------------------------------------
+
+# Weekdays only; NSE doesn't publish on Sat/Sun. Public holidays still
+# produce a "failed" record (no file on NSE) which is fine — it shows intent.
+_BACKFILL_DAYS = 7
+
+
+def _trading_dates(n: int) -> list[dt.date]:
+    """Return the last *n* weekday dates up to and including today IST."""
+    today = dt.datetime.now(IST).date()
+    dates: list[dt.date] = []
+    d = today
+    while len(dates) < n:
+        if d.weekday() < 5:  # Mon–Fri
+            dates.append(d)
+        d -= dt.timedelta(days=1)
+    return dates
+
+
+async def backfill_missing() -> int:
+    """Download Bhavcopy for any of the last N trading days that aren't in the DB.
+
+    Returns the number of dates attempted.
+    """
+    from sqlalchemy import select as sa_select
+
+    factory = NseSessionLocal()
+    db: Session = factory()
+    try:
+        dates = _trading_dates(_BACKFILL_DAYS)
+        existing = set(
+            db.scalars(
+                sa_select(NseBhavCopyReportModel.file_date).where(
+                    NseBhavCopyReportModel.file_date.in_(dates),
+                    NseBhavCopyReportModel.status == "downloaded",
+                )
+            ).all()
+        )
+    finally:
+        db.close()
+
+    missing = [d for d in dates if d not in existing]
+    if not missing:
+        logger.info("NSE Bhavcopy backfill: all %d recent trading days present", len(dates))
+        return 0
+
+    logger.info("NSE Bhavcopy backfill: %d missing dates → %s", len(missing), missing)
+    for trade_date in sorted(missing):
+        try:
+            await download_bhavcopy(trade_date)
+        except Exception as exc:
+            logger.error("Backfill download failed for %s: %s", trade_date, exc)
+        await asyncio.sleep(2)  # be polite to NSE
+    return len(missing)
+
+
+# ---------------------------------------------------------------------------
 # Scheduler — runs inside FastAPI lifespan as a background asyncio task
 # ---------------------------------------------------------------------------
 
 async def _scheduler_loop() -> None:
-    """Infinite loop: fire download every day at 20:00 IST."""
+    """On startup, backfill missing dates. Then fire download every day at 20:00 IST."""
     logger.info("NSE Bhavcopy scheduler started")
+
+    # ── Startup backfill ──────────────────────────────────────────────
+    try:
+        filled = await backfill_missing()
+        if filled:
+            logger.info("NSE Bhavcopy backfill completed (%d dates attempted)", filled)
+    except Exception as exc:
+        logger.error("NSE Bhavcopy backfill error: %s", exc)
+
+    # ── Daily 20:00 IST loop ──────────────────────────────────────────
     while True:
         now_ist = dt.datetime.now(IST)
         # Next 20:00 IST

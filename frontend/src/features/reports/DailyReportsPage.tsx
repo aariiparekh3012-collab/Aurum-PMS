@@ -219,18 +219,17 @@ export function DailyReportsPage() {
                     </td>
                     <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--border)" }}>
                       {r.status === "downloaded" && (
-                        <a
-                          href={nseReportsApi.downloadUrl(r.file_date)}
-                          download={r.file_name}
+                        <button
+                          onClick={() => nseReportsApi.download(r.file_date, r.file_name)}
                           style={{
                             display: "inline-flex", alignItems: "center", gap: 4,
                             fontSize: 12, color: "var(--primary)", fontWeight: 600,
                             padding: "4px 10px", border: "1.5px solid var(--primary)",
-                            borderRadius: 8, textDecoration: "none",
+                            borderRadius: 8, background: "transparent", cursor: "pointer",
                           }}
                         >
                           ↓ ZIP
-                        </a>
+                        </button>
                       )}
                     </td>
                   </tr>

@@ -346,6 +346,7 @@ def seed_security(
         sector=body.sector,
     )
     db.add(sec)
+    db.flush()
     return {"id": str(sec.id), "isin": sec.isin, "symbol": sec.symbol}
 
 
@@ -371,6 +372,7 @@ def seed_strategy(
 ):
     strat = StrategyModel(name=body.name, approach=body.approach)
     db.add(strat)
+    db.flush()
     return {"id": str(strat.id), "name": strat.name}
 
 
@@ -462,6 +464,12 @@ def add_cash_entry(
     # keep the account's running cash balance in sync for dashboards
     account = db.get(PortfolioAccountModel, account_id)
     if account is not None:
-        account.cash_balance_paise = balance
+        if body.balance_paise is not None:
+            # Explicit balance override (for seeding / corrections only)
+            account.cash_balance_paise = body.balance_paise
+        else:
+            # Normal flow: adjust the running balance by the entry amount
+            account.cash_balance_paise += body.amount_paise
     db.flush()
-    return {"id": str(entry.id), "entry_type": body.entry_type, "balance_inr": balance / 100}
+    new_balance = account.cash_balance_paise if account else body.amount_paise
+    return {"id": str(entry.id), "entry_type": body.entry_type, "balance_inr": new_balance / 100}

@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
 from app.core.database import get_db
-from app.core.exceptions import DomainError
+from app.core.exceptions import AuthorizationError, NotFoundError
 from app.core.security import decrypt_pii
 from app.infrastructure.db.models_client import ClientModel
 from app.infrastructure.db.models_portfolio import (
@@ -199,12 +199,12 @@ def investor_holdings(
     subject = user.get("sub", "")
     client = _find_client(db, subject)
     if not client:
-        raise DomainError("Client record not found", code="not_found")
+        raise NotFoundError("Client record not found")
 
     # Verify account belongs to this investor
     acct = db.get(PortfolioAccountModel, account_id)
     if not acct or acct.client_id != client.id:
-        raise DomainError("Portfolio account not found or access denied", code="forbidden")
+        raise AuthorizationError("Portfolio account not found or access denied")
 
     holdings = db.scalars(
         select(HoldingModel).where(HoldingModel.portfolio_account_id == account_id)
@@ -234,11 +234,11 @@ def investor_cash(
     subject = user.get("sub", "")
     client = _find_client(db, subject)
     if not client:
-        raise DomainError("Client record not found", code="not_found")
+        raise NotFoundError("Client record not found")
 
     acct = db.get(PortfolioAccountModel, account_id)
     if not acct or acct.client_id != client.id:
-        raise DomainError("Portfolio account not found or access denied", code="forbidden")
+        raise AuthorizationError("Portfolio account not found or access denied")
 
     entries = db.scalars(
         select(CashLedgerModel)

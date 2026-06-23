@@ -133,6 +133,9 @@ export function PerformancePage() {
                 color: summary.unrealised_pnl_paise >= 0 ? "var(--success)" : "var(--danger)"
               }}>
                 {inr(summary.unrealised_pnl_paise)}
+                <span style={{ fontSize: ".75em", marginLeft: 6, opacity: 0.8 }}>
+                  ({pctFmt(summary.unrealised_pnl_pct)})
+                </span>
               </span>
               <span className="kpi__label">Unrealised P&amp;L</span>
             </div>
@@ -216,6 +219,7 @@ export function PerformancePage() {
                   <tr>
                     <th>Period</th>
                     <th style={{ textAlign: "right" }}>TWRR</th>
+                    <th style={{ textAlign: "right" }}>MWRR</th>
                     <th style={{ textAlign: "right" }}>Benchmark</th>
                     <th style={{ textAlign: "right" }}>Alpha</th>
                   </tr>
@@ -232,11 +236,11 @@ export function PerformancePage() {
                           <td style={{ textAlign: "right", color: r.twrr_pct >= 0 ? "var(--success)" : "var(--danger)" }}>
                             {pctFmt(r.twrr_pct)}
                           </td>
+                          <td style={{ textAlign: "right", color: r.mwrr_pct != null ? (r.mwrr_pct >= 0 ? "var(--success)" : "var(--danger)") : undefined }}>
+                            {r.mwrr_pct != null ? pctFmt(r.mwrr_pct) : "—"}
+                          </td>
                           <td style={{ textAlign: "right" }}>{r.benchmark_pct != null ? pctFmt(r.benchmark_pct) : "—"}</td>
-                          <td style={{
-                            textAlign: "right",
-                            color: alpha != null ? (alpha >= 0 ? "var(--success)" : "var(--danger)") : undefined
-                          }}>
+                          <td style={{ textAlign: "right", color: alpha != null ? (alpha >= 0 ? "var(--success)" : "var(--danger)") : undefined }}>
                             {alpha != null ? pctFmt(alpha) : "—"}
                           </td>
                         </tr>
@@ -245,9 +249,9 @@ export function PerformancePage() {
                 </tbody>
               </table>
             )}
-          </Card>
-        </>
-      )}
-    </div>
+            </Card>
+          </>
+        )}
+      </div>
   );
 }

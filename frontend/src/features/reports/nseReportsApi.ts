@@ -1,6 +1,6 @@
 import { apiClient } from "./apiClient";
 
-const BASE = "/api/v1/nse-reports";
+const BASE = "/nse-reports";
 
 export interface BhavCopyRecord {
   id: string;
@@ -34,9 +34,24 @@ export const nseReportsApi = {
     return data;
   },
 
-  /** Returns a URL to stream-download the ZIP */
+  /** Returns a URL to stream-download the ZIP (unauthenticated — for legacy use) */
   downloadUrl: (fileDate: string): string =>
     `${BASE}/download/${fileDate}`,
+
+  /** Authenticated download — fetches the ZIP as a blob and triggers a browser save */
+  download: async (fileDate: string, fileName: string): Promise<void> => {
+    const resp = await apiClient.get(`${BASE}/download/${fileDate}`, {
+      responseType: "blob",
+    });
+    const url = URL.createObjectURL(resp.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  },
 
   /** Staff only — manually kick off a download */
   triggerDownload: async (fileDate?: string): Promise<{ message: string; date: string }> => {

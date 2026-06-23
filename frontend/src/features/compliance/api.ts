@@ -24,7 +24,7 @@ interface ReviewListResponse {
 export const complianceApi = {
   listForReview: (limit: number = 50, offset: number = 0): Promise<ReviewListResponse> =>
     apiClient
-      .get("/onboarding/applications/review/pending", { params: { limit, offset } })
+      .get("/onboarding/applications", { params: { status: "under_review", limit, offset } })
       .then((r) => r.data),
 
   getApplicationDetail: (applicationId: string): Promise<ReviewApplication> =>

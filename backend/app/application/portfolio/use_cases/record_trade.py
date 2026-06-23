@@ -24,8 +24,11 @@ class RecordTradeUseCase:
         else:
             trade, _ = account.record_sell(cmd.security_id, cmd.quantity, price_paise)
 
+        trade.order_id = cmd.order_id
+        trade.broker_id = cmd.broker_id
+
         self._portfolios.update(account)
-        self._trades.add(trade)
+        self._trades.add(trade, contract_note=cmd.contract_note)
         return TradeView(
             id=trade.id, side=trade.side.value, security_name="",
             quantity=trade.quantity, price_inr=trade.price_paise / 100,

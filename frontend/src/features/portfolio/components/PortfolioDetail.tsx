@@ -98,8 +98,8 @@ function HoldingsTab({ holdings }: { holdings: HoldingRow[] }) {
               <td style={{ fontWeight: 600 }}>{h.symbol || h.name}</td>
               <td style={{ fontSize: 13, color: "var(--text-secondary)" }}>{h.isin}</td>
               <td>{fmt(h.quantity)}</td>
-              <td>{fmt(h.avg_cost_inr)}</td>
-              <td>{fmt(h.total_cost_inr)}</td>
+              <td>{fmt(h.avg_cost_paise / 100)}</td>
+              <td>{fmt((h.total_cost_paise ?? h.avg_cost_paise * h.quantity) / 100)}</td>
               <td>{h.lots_count}</td>
             </tr>
           ))}

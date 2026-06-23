@@ -15,15 +15,15 @@ export const ROLE_TABS: Record<string, string[]> = {
   compliance: [
     "DashboardTab", "OnboardingTab", "ApplicationsTab", "ComplianceTab",
     "ClientsTab", "SecuritiesTab", "PortfolioTab", "TradingTab",
-    "PerformanceTab", "ReportsTab", "ActivityTab", "SettingsTab", "ProfileTab",
+    "PerformanceTab", "ReportsTab", "MessagesTab", "ActivityTab", "SettingsTab", "ProfileTab",
   ],
   rm: [
     "DashboardTab", "OnboardingTab", "ApplicationsTab",
     "ClientsTab", "SecuritiesTab", "PortfolioTab", "TradingTab",
-    "PerformanceTab", "ReportsTab", "ActivityTab", "SettingsTab", "ProfileTab",
+    "PerformanceTab", "ReportsTab", "MessagesTab", "ActivityTab", "SettingsTab", "ProfileTab",
   ],
   investor: [
-    "OnboardingTab", "InvestorTab", "ReportsTab", "ActivityTab", "SettingsTab", "ProfileTab",
+    "OnboardingTab", "InvestorTab", "ReportsTab", "MessagesTab", "ActivityTab", "SettingsTab", "ProfileTab",
   ],
 };
 

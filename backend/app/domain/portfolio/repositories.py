@@ -2,8 +2,7 @@
 from __future__ import annotations
 import uuid
 from abc import ABC, abstractmethod
-from app.domain.portfolio.entities import Client, PortfolioAccount, Trade, Order
-
+from app.domain.portfolio.entities import Client, PortfolioAccount, Trade
 
 class ClientRepository(ABC):
     @abstractmethod
@@ -29,17 +28,6 @@ class PortfolioAccountRepository(ABC):
 
 class TradeRepository(ABC):
     @abstractmethod
-    def add(self, trade: Trade) -> None: ...
+    def add(self, trade: Trade, *, contract_note: str | None = None) -> None: ...
     @abstractmethod
     def list_by_portfolio(self, portfolio_id: uuid.UUID, *, limit: int = 50) -> list[Trade]: ...
-
-
-class OrderRepository(ABC):
-    @abstractmethod
-    def add(self, order: Order) -> None: ...
-    @abstractmethod
-    def get(self, order_id: uuid.UUID) -> Order | None: ...
-    @abstractmethod
-    def update(self, order: Order) -> None: ...
-    @abstractmethod
-    def list_by_strategy(self, strategy_id: uuid.UUID) -> list[Order]: ...

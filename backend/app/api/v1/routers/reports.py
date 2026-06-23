@@ -134,9 +134,6 @@ class FeeInvoice(BaseModel):
 # ---------------------------------------------------------------------------
 
 def _get_account(db: Session, account_id: uuid.UUID, user: dict) -> PortfolioAccountModel:
-    """Fetch an account, enforcing that investors may only access their own.
-
-    Returns 404 (not 403) for someone else's account so UUIDs can't be probed."""
     acct = db.get(PortfolioAccountModel, account_id)
     if not acct:
         raise HTTPException(404, "Portfolio account not found")
@@ -175,12 +172,11 @@ def portfolio_statement(
     strat_name = _strategy_name(db, acct.strategy_id)
     sec_map = _security_map(db)
 
-    # Holdings
     holdings_db = db.scalars(
         select(HoldingModel).where(HoldingModel.portfolio_account_id == account_id)
     ).all()
 
-    total_cost = sum(int(h.quantity * h.avg_cost_paise) for h in holdings_db) or 1
+    total_cost = sum(int(h.quantity * h.avg_cost_paise) for h in holdings_db)
     holding_rows = []
     for h in holdings_db:
         sec = sec_map.get(h.security_id)
@@ -192,10 +188,9 @@ def portfolio_statement(
             quantity=float(h.quantity),
             avg_cost_paise=h.avg_cost_paise,
             market_value_paise=cost_val,
-            weight_pct=round(cost_val / total_cost * 100, 2) if total_cost else 0,
+            weight_pct=round(cost_val / total_cost * 100, 2) if total_cost > 0 else 0,
         ))
 
-    # Latest snapshot for market value
     latest_snap = db.scalar(
         select(ValuationSnapshotModel)
         .where(ValuationSnapshotModel.portfolio_account_id == account_id)
@@ -206,7 +201,6 @@ def portfolio_statement(
     cv = latest_snap.cost_value_paise if latest_snap else total_cost
     cash = latest_snap.cash_paise if latest_snap else 0
 
-    # Cash ledger (last 50 entries)
     cash_rows_db = db.scalars(
         select(CashLedgerModel)
         .where(CashLedgerModel.portfolio_account_id == account_id)
@@ -369,7 +363,6 @@ def fee_invoice(
     acct = _get_account(db, account_id, user)
     strat_name = _strategy_name(db, acct.strategy_id)
 
-    # AUM = latest market value snapshot in the period
     snap = db.scalar(
         select(ValuationSnapshotModel)
         .where(and_(
@@ -381,17 +374,14 @@ def fee_invoice(
     )
     aum = snap.market_value_paise if snap else 0
 
-    # Fee schedule
     fee_sched = db.get(FeeScheduleModel, acct.fee_schedule_id) if acct.fee_schedule_id else None
     sched_name = fee_sched.name if fee_sched else "Standard"
     mgmt_pct = float(fee_sched.mgmt_fee_pct) if fee_sched else 2.0
     perf_pct = float(fee_sched.perf_fee_pct) if fee_sched else 20.0
 
-    # Prorate management fee for the period
     days = (period_to - period_from).days or 1
     mgmt_fee = int(aum * mgmt_pct / 100 * days / 365)
 
-    # Performance fee (simplified: on unrealised gains in the period)
     snap_start = db.scalar(
         select(ValuationSnapshotModel)
         .where(and_(
@@ -407,7 +397,7 @@ def fee_invoice(
 
     items = [
         FeeLineItem(
-            description="Management fee (pro-rated {days}d)".format(days=days),
+            description="Management fee (pro-rated {}d)".format(days),
             basis_paise=aum,
             rate_pct=mgmt_pct,
             amount_paise=mgmt_fee,

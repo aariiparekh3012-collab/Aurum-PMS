@@ -36,4 +36,5 @@ class PerformanceReturnModel(Base):
     period: Mapped[str] = mapped_column(String(8), nullable=False)  # 1M, 3M, 6M, 1Y, 3Y, SI
     as_of: Mapped[date] = mapped_column(Date, nullable=False)
     twrr_pct: Mapped[float] = mapped_column(Numeric(9, 4), nullable=False)
+    mwrr_pct: Mapped[float | None] = mapped_column(Numeric(9, 4))
     benchmark_pct: Mapped[float | None] = mapped_column(Numeric(9, 4))

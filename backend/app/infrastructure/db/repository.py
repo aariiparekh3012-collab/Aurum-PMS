@@ -57,12 +57,12 @@ class SqlAlchemyOnboardingRepository(OnboardingRepository):
         if m.bank_account_enc:
             bank = BankAccount(
                 account_number=decrypt(m.bank_account_enc),
-                ifsc=m.bank_ifsc,  # type: ignore[arg-type]
-                holder_name=m.bank_holder_name,  # type: ignore[arg-type]
+                ifsc=m.bank_ifsc,
+                holder_name=m.bank_holder_name,
             )
         demat = None
         if m.demat_bo_id:
-            demat = DematAccount(bo_id=m.demat_bo_id, depository=m.demat_depository)  # type: ignore[arg-type]
+            demat = DematAccount(bo_id=m.demat_bo_id, depository=m.demat_depository)
         aadhaar = Aadhaar(last4=m.aadhaar_last4) if m.aadhaar_last4 else None
 
         return OnboardingApplication(
@@ -110,7 +110,6 @@ class SqlAlchemyOnboardingRepository(OnboardingRepository):
         m = self._s.get(OnboardingApplicationModel, application.id)
         if m is None:
             raise ValueError(f"Application {application.id} not found for update")
-        # update all mutable fields
         m.status = application.status.value
         m.aadhaar_last4 = application.aadhaar.last4 if application.aadhaar else None
         m.aadhaar_enc = encrypt(application.aadhaar.last4) if application.aadhaar else None
@@ -127,6 +126,14 @@ class SqlAlchemyOnboardingRepository(OnboardingRepository):
         m.rejection_reason = application.rejection_reason
         m.updated_at = application.updated_at
         self._s.flush()
+
+    def list(self, *, offset: int = 0, limit: int = 50) -> list[OnboardingApplication]:
+        rows = (
+            self._s.query(OnboardingApplicationModel)
+            .order_by(OnboardingApplicationModel.created_at.desc())
+            .offset(offset).limit(limit).all()
+        )
+        return [self._to_entity(r) for r in rows]
 
     def list_by_status(
         self, status: OnboardingStatus, *, offset: int = 0, limit: int = 50,

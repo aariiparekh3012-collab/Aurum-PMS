@@ -32,17 +32,18 @@ def get_session_factory() -> sessionmaker[Session]:
 
 
 def get_db() -> Generator[Session, None, None]:
-    """Yield a session; auto-commit only when the session has pending changes.
+    """Yield a session and always commit on success.
 
-    This avoids issuing a pointless COMMIT on read-only requests while still
-    committing writes made via flush() in route handlers.
+    An empty COMMIT is essentially free, and the previous ``db.new or
+    db.dirty`` guard silently skipped commits after flush() — objects move
+    out of db.new once flushed, so the condition was False even when the
+    transaction held uncommitted writes.
     """
     factory = get_session_factory()
     db = factory()
     try:
         yield db
-        if db.new or db.dirty or db.deleted:
-            db.commit()
+        db.commit()
     except Exception:
         db.rollback()
         raise

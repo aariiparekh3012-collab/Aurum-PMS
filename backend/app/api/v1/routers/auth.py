@@ -175,6 +175,12 @@ def _current_user_record(db: Session, current: dict) -> UserModel:
 # ── Endpoints ──────────────────────────────────────────────────────────────
 
 
+@router.post("/logout", status_code=204)
+def logout():
+    """Stateless logout — client discards the token. No-op server-side."""
+    return None
+
+
 @router.post("/token", response_model=TokenResponse)
 def issue_token(body: LoginRequest):
     """Dev-only endpoint — issue a JWT for the given username/role.

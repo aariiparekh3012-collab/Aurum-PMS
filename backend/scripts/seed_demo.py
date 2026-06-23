@@ -79,7 +79,8 @@ def seed_one(c: httpx.Client, applicant, approve: bool = True) -> str | None:
         "mobile": mobile, "pan": pan, "proposed_investment_inr": inv,
     })
     if r.status_code >= 400:
-        print(f"  skip {name}: {r.json().get('error', {}).get('message', r.text)}")
+        body = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+        print(f"  skip {name}: {body.get('message', r.text)}")
         return None
     app_id = r.json()["id"]
 
@@ -107,21 +108,31 @@ def seed_one(c: httpx.Client, applicant, approve: bool = True) -> str | None:
 
 # ── Phase 2: Reference master data ───────────────────────────────────────────
 
+def _safe_json(r: httpx.Response) -> list | dict:
+    """Parse JSON or return empty list on failure."""
+    try:
+        return r.json()
+    except Exception:
+        print(f"    ⚠ non-JSON response ({r.status_code}): {r.text[:120]}")
+        return []
+
+
 def seed_reference(c: httpx.Client) -> dict:
     """Call the built-in reference seed endpoint, return entity maps."""
     r = c.post("/reference/seed")
     if r.status_code < 400:
-        d = r.json()
-        print(f"  ✓ reference: {d.get('securities',0)} securities, "
-              f"{d.get('strategies',0)} strategies, "
-              f"{d.get('brokers',0)} brokers")
+        d = _safe_json(r)
+        if isinstance(d, dict):
+            print(f"  ✓ reference: {d.get('securities',0)} securities, "
+                  f"{d.get('strategies',0)} strategies, "
+                  f"{d.get('brokers',0)} brokers")
     else:
         print(f"  reference seed warn: {r.text[:120]}")
 
     # Fetch back IDs we'll need
-    securities = {s["symbol"]: s["id"] for s in c.get("/reference/securities").json()}
-    strategies = {s["code"]: s["id"] for s in c.get("/reference/strategies").json()}
-    brokers    = [b["id"] for b in c.get("/reference/brokers").json()]
+    securities = {s["symbol"]: s["id"] for s in _safe_json(c.get("/reference/securities"))}
+    strategies = {s["code"]: s["id"] for s in _safe_json(c.get("/reference/strategies"))}
+    brokers    = [b["id"] for b in _safe_json(c.get("/reference/brokers"))]
     return {"securities": securities, "strategies": strategies, "brokers": brokers}
 
 

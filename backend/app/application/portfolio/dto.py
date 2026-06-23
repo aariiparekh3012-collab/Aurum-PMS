@@ -18,12 +18,12 @@ class CreatePortfolioCommand:
 class RecordTradeCommand:
     portfolio_account_id: uuid.UUID
     security_id: uuid.UUID
-    side: str
+    side: str   # buy | sell
     quantity: float
     price_inr: float
-    order_id: uuid.UUID | None = None      # NEW
-    broker_id: uuid.UUID | None = None     # NEW
-    contract_note: str | None = None       # NEW
+    order_id: uuid.UUID | None = None
+    broker_id: uuid.UUID | None = None
+    contract_note: str | None = None
 
 @dataclass(frozen=True)
 class CapitalFlowCommand:

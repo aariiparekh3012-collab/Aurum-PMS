@@ -7,7 +7,26 @@ requires-python = ">=3.12"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-addopts = "-q --cov=app --cov-report=term-missing --cov-fail-under=30"
+# Coverage: phase 1 target 50%, phase 2 target 70% for critical paths
+addopts = "-q --cov=app --cov-report=term-missing --cov-report=html --cov-fail-under=30"
+markers = [
+    "critical: critical path tests (auth, KYC, portfolio)",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: integration tests requiring external services",
+    "security: security-focused tests",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+# Timeout for slow tests (seconds)
+timeout = 10
+# Show most informative failure info
+console_output_style = "progress"
+# Filter warnings
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
 
 [tool.ruff]
 line-length = 95

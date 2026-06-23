@@ -10,6 +10,7 @@ export interface Client {
 export interface PortfolioAccount {
   id: string;
   account_code: string;
+  strategy_id: string;
   strategy_name?: string;
   status: string;
   inception_date: string;
@@ -19,13 +20,14 @@ export interface PortfolioAccount {
 }
 
 export interface HoldingRow {
+  id: string;
   security_id: string;
   isin: string;
   symbol: string;
   name: string;
   quantity: number;
-  avg_cost_inr: number;
-  total_cost_inr: number;
+  avg_cost_paise: number;
+  total_cost_paise?: number;
   lots_count: number;
 }
 

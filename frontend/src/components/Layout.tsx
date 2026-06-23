@@ -29,6 +29,7 @@ const icons: Record<string, string> = {
   strategies: "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z M4 22v-7",
   brokers:    "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z",
   fees:       "M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6",
+  messages:   "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
   activity:   "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0",
   settings:   "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
   signout:    "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9",
@@ -52,6 +53,7 @@ const sections: NavSection[] = [
     label: "Overview",
     items: [
       { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+      { to: "/messages", label: "Messages", icon: "messages" },
       { to: "/activity", label: "Activity", icon: "activity" },
     ],
   },
@@ -155,7 +157,7 @@ export default function Layout() {
               <div className="sidebar__user-name">{displayName}</div>
               <div className="sidebar__user-role">{roleName}</div>
             </div>
-          </div>
+            </div>
           <button className="sidebar__signout" onClick={logout}>
             <Icon d={icons.signout} width={14} height={14} />
             Sign Out

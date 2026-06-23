@@ -15,6 +15,7 @@ export interface PerformanceReturn {
   period: string;
   as_of: string;
   twrr_pct: number;
+  mwrr_pct: number | null;
   benchmark_pct: number | null;
 }
 
@@ -23,6 +24,7 @@ export interface PerformanceSummary {
   latest_cost_value_paise: number;
   latest_cash_paise: number;
   unrealised_pnl_paise: number;
+  unrealised_pnl_pct: number;
   returns: PerformanceReturn[];
   history: Snapshot[];
 }

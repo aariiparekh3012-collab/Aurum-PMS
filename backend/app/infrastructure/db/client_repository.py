@@ -6,13 +6,12 @@ encryption/decryption and PAN hashing (same scheme as onboarding).
 from __future__ import annotations
 
 import datetime as dt
-import hashlib
 import uuid
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.security import decrypt_pii, encrypt_pii
+from app.core.security import decrypt_pii, encrypt_pii, hash_pan
 from app.domain.client.entities import (
     Client,
     ClientBankAccount,
@@ -34,7 +33,8 @@ from app.infrastructure.db.models_client import (
 
 
 def _pan_hash(pan: str) -> str:
-    return hashlib.sha256(pan.upper().encode()).hexdigest()
+    """Delegate to the canonical HMAC-based hash in core.security."""
+    return hash_pan(pan)
 
 
 class SqlAlchemyClientRepository(ClientRepository):

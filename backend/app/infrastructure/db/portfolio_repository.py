@@ -224,13 +224,14 @@ class SqlAlchemyTradeRepository(TradeRepository):
     def __init__(self, db: Session) -> None:
         self._db = db
 
-    def add(self, trade: Trade) -> None:
+    def add(self, trade: Trade, *, contract_note: str | None = None) -> None:
         self._db.add(TradeModel(
             id=trade.id, order_id=trade.order_id,
             portfolio_account_id=trade.portfolio_account_id,
             security_id=trade.security_id, broker_id=trade.broker_id,
             side=trade.side.value, quantity=trade.quantity,
             price_paise=trade.price_paise, traded_at=trade.traded_at,
+            contract_note=contract_note,
         ))
 
     def list_by_portfolio(self, portfolio_id: uuid.UUID, *, limit: int = 50) -> list[Trade]:

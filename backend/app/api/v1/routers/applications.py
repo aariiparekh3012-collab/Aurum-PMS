@@ -5,7 +5,7 @@ These power the frontend Applications / compliance panel.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.api import dependencies as deps
 from app.api.v1.schemas import ApplicationResponse
@@ -15,13 +15,13 @@ from app.domain.onboarding.enums import OnboardingStatus
 router = APIRouter(prefix="/onboarding/applications", tags=["applications"])
 
 
-@router.get("", response_model=list[ApplicationResponse])
+@router.get("")
 def list_applications(
     status: str | None = None,
-    limit: int = 100,
-    offset: int = 0,
+    limit: int = Query(100, le=500),
+    offset: int = Query(0, ge=0),
     repo=Depends(deps.get_repo),
-    _user: dict = Depends(deps.get_current_user),
+    _user: dict = Depends(deps.require_staff),
 ):
     if status:
         try:
@@ -30,4 +30,5 @@ def list_applications(
             apps = []
     else:
         apps = repo.list(limit=limit, offset=offset)
-    return [ApplicationResponse(**to_view(a).__dict__) for a in apps]
+    items = [ApplicationResponse(**to_view(a).__dict__) for a in apps]
+    return {"applications": items, "total": len(items), "limit": limit, "offset": offset}

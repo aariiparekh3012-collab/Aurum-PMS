@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { colors, radius, spacing, font, shadow } from "../lib/theme";
+import type { ViewStyleProp } from "../lib/rnStyleProp";
 
 // ── Card ──
 export function Card({
@@ -23,7 +24,7 @@ export function Card({
 }: {
   children: React.ReactNode;
   glass?: boolean;
-  style?: ViewStyle;
+  style?: ViewStyleProp;
   onPress?: () => void;
 }) {
   const inner = (

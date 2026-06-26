@@ -33,4 +33,4 @@ export interface ApplicationResponse {
   kyc_source: string | null;
 }
 
-export type OnboardingStep = "personal" | "kyc" | "risk" | "agreement" | "done";
+export type OnboardingStep = "personal" | "kyc" | "documents" | "risk" | "agreement" | "done";

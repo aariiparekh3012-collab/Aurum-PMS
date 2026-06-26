@@ -5,12 +5,16 @@ from fastapi import APIRouter
 
 from app.api.v1.routers import (
     applications,
+    audit,
     auth,
     auth_recovery,
     clients,
     dashboard,
+    documents,
+    fees,
     health,
     investor,
+    market_data,
     messaging,
     notifications,
     nse_reports,
@@ -38,4 +42,8 @@ api_router.include_router(performance.router)
 api_router.include_router(reports.router)
 api_router.include_router(nse_reports.router)
 api_router.include_router(notifications.router)
+api_router.include_router(market_data.router)
+api_router.include_router(fees.router)
+api_router.include_router(documents.router)
 api_router.include_router(messaging.router)
+api_router.include_router(audit.router)

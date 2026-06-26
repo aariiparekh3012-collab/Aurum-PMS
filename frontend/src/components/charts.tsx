@@ -1,5 +1,6 @@
 /** Dependency-free SVG charts for the PMS design system.
- *  All charts are pure SVG — no external charting library. */
+ *  All charts are pure SVG — no external charting library.
+ *  Uses CSS variable references via getComputedStyle for theme-aware colors. */
 
 export interface Slice {
   label: string;
@@ -35,7 +36,7 @@ export function DonutChart({ data, size = 168 }: { data: Slice[]; size?: number 
   return (
     <div className="row" style={{ gap: 24, alignItems: "center" }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f4d6e2" strokeWidth={16} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth={16} />
         {data.map((d) => {
           const len = (d.value / total) * circ;
           const el = (
@@ -52,8 +53,8 @@ export function DonutChart({ data, size = 168 }: { data: Slice[]; size?: number 
           return el;
         })}
         <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
-          transform={`rotate(90 ${cx} ${cy})`} fill="#eef2f8"
-          style={{ font: "600 1.6rem Fraunces, serif" }}>
+          transform={`rotate(90 ${cx} ${cy})`} fill="var(--text)"
+          style={{ font: "600 1.6rem Segoe UI Variable, Segoe UI, sans-serif" }}>
           {total}
         </text>
       </svg>
@@ -82,7 +83,7 @@ export function BarChart({ data }: { data: Slice[] }) {
             <span style={{ textTransform: "capitalize", fontSize: ".85rem" }}>{d.label}</span>
             <span className="faint" style={{ fontSize: ".82rem" }}>{d.value}</span>
           </div>
-          <div style={{ height: 8, background: "#f4d6e2", borderRadius: 4, overflow: "hidden" }}>
+          <div style={{ height: 8, background: "var(--border-light)", borderRadius: 4, overflow: "hidden" }}>
             <div style={{
               width: `${(d.value / max) * 100}%`, height: "100%", borderRadius: 4,
               background: `linear-gradient(90deg, ${d.color}, ${d.color}cc)`,
@@ -147,8 +148,8 @@ export function AreaChart({
         const val = minY + t * rangeY;
         return (
           <g key={t}>
-            <line x1={pad.left} y1={y} x2={pad.left + w} y2={y} stroke="#f4d6e2" />
-            <text x={pad.left - 8} y={y + 4} textAnchor="end" fill="#9b6f86" fontSize="10">
+            <line x1={pad.left} y1={y} x2={pad.left + w} y2={y} stroke="var(--border)" />
+            <text x={pad.left - 8} y={y + 4} textAnchor="end" fill="var(--muted)" fontSize="10">
               {formatY(val)}
             </text>
           </g>
@@ -163,7 +164,7 @@ export function AreaChart({
       {pts
         .filter((_, i) => i % Math.max(1, Math.floor(pts.length / 6)) === 0 || i === pts.length - 1)
         .map((p) => (
-          <text key={p.label} x={p.x} y={pad.top + h + 16} textAnchor="middle" fill="#9b6f86" fontSize="9">
+          <text key={p.label} x={p.x} y={pad.top + h + 16} textAnchor="middle" fill="var(--muted)" fontSize="9">
             {p.label}
           </text>
         ))}
@@ -208,8 +209,8 @@ export function MultiLineChart({
         const y = pad.top + h - t * h;
         return (
           <g key={t}>
-            <line x1={pad.left} y1={y} x2={pad.left + w} y2={y} stroke="#f4d6e2" />
-            <text x={pad.left - 8} y={y + 4} textAnchor="end" fill="#9b6f86" fontSize="10">
+            <line x1={pad.left} y1={y} x2={pad.left + w} y2={y} stroke="var(--border)" />
+            <text x={pad.left - 8} y={y + 4} textAnchor="end" fill="var(--muted)" fontSize="10">
               {formatY(minY + t * rangeY)}
             </text>
           </g>
@@ -238,7 +239,7 @@ export function MultiLineChart({
         .map((d, i) => {
           const x = pad.left + ((series[0].data.indexOf(d)) / (series[0].data.length - 1)) * w;
           return (
-            <text key={i} x={x} y={pad.top + h + 16} textAnchor="middle" fill="#9b6f86" fontSize="9">
+            <text key={i} x={x} y={pad.top + h + 16} textAnchor="middle" fill="var(--muted)" fontSize="9">
               {d.x}
             </text>
           );
@@ -249,7 +250,7 @@ export function MultiLineChart({
         <g key={s.label} transform={`translate(${pad.left + i * 140}, ${height - 8})`}>
           <line x1={0} y1={-3} x2={16} y2={-3} stroke={s.color} strokeWidth={2}
             strokeDasharray={i === 0 ? "none" : "6 3"} />
-          <text x={20} y={0} fill="#9b6f86" fontSize="10">{s.label}</text>
+          <text x={20} y={0} fill="var(--muted)" fontSize="10">{s.label}</text>
         </g>
       ))}
     </svg>
@@ -301,14 +302,14 @@ export function GaugeChart({
 
   return (
     <svg viewBox={`0 0 ${size} ${size}`} style={{ width: size, height: size }}>
-      <path d={describeArc(startAngle, endAngle)} fill="none" stroke="#f4d6e2" strokeWidth={10} strokeLinecap="round" />
+      <path d={describeArc(startAngle, endAngle)} fill="none" stroke="var(--border)" strokeWidth={10} strokeLinecap="round" />
       <path d={describeArc(startAngle, valueAngle)} fill="none" stroke={getColor()} strokeWidth={10} strokeLinecap="round"
         style={{ transition: "d .6s ease" }} />
-      <text x={cx} y={cy - 4} textAnchor="middle" fill="#eef2f8" style={{ font: "600 1.4rem Fraunces, serif" }}>
+      <text x={cx} y={cy - 4} textAnchor="middle" fill="var(--text)" style={{ font: "600 1.4rem Segoe UI Variable, Segoe UI, sans-serif" }}>
         {value}
       </text>
       {label && (
-        <text x={cx} y={cy + 16} textAnchor="middle" fill="#9b6f86" fontSize="10">
+        <text x={cx} y={cy + 16} textAnchor="middle" fill="var(--muted)" fontSize="10">
           {label}
         </text>
       )}
@@ -362,7 +363,7 @@ export function HorizontalBarChart({ data, maxWidth = 500 }: { data: Slice[]; ma
       {data.map((d) => (
         <div key={d.label} style={{ display: "grid", gridTemplateColumns: "100px 1fr 50px", gap: 12, alignItems: "center" }}>
           <span style={{ textTransform: "capitalize", fontSize: ".85rem", textAlign: "right" }}>{d.label}</span>
-          <div style={{ height: 20, background: "#fbe9f0", borderRadius: 6, overflow: "hidden", position: "relative" }}>
+          <div style={{ height: 20, background: "var(--border-light)", borderRadius: 6, overflow: "hidden", position: "relative" }}>
             <div style={{
               width: `${(d.value / max) * 100}%`,
               height: "100%",

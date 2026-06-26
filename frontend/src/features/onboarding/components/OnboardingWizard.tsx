@@ -2,6 +2,7 @@ import { useState } from "react";
 import Stepper from "@/components/ui/Stepper";
 import PersonalDetailsStep from "./PersonalDetailsStep";
 import KycStep from "./KycStep";
+import DocumentUploadStep from "./DocumentUploadStep";
 import RiskProfileStep from "./RiskProfileStep";
 import AgreementStep from "./AgreementStep";
 import type { ApplicationResponse, OnboardingStep } from "../types";
@@ -9,6 +10,7 @@ import type { ApplicationResponse, OnboardingStep } from "../types";
 const STEPS = [
   { label: "Personal Details", key: "personal" },
   { label: "KYC Verification", key: "kyc" },
+  { label: "Documents", key: "documents" },
   { label: "Risk Profile", key: "risk" },
   { label: "Agreement", key: "agreement" },
 ];
@@ -25,6 +27,10 @@ export default function OnboardingWizard() {
   const handleKycDone = (app: ApplicationResponse) => {
     setApplication(app);
     if (app.status === "kyc_rejected") return; // stay on KYC step to show error
+    setStep("documents");
+  };
+
+  const handleDocsDone = () => {
     setStep("risk");
   };
 
@@ -66,6 +72,7 @@ export default function OnboardingWizard() {
       <div className="card">
         {step === "personal" && <PersonalDetailsStep onComplete={handleCreated} />}
         {step === "kyc" && application && <KycStep applicationId={application.id} onComplete={handleKycDone} />}
+        {step === "documents" && application && <DocumentUploadStep applicationId={application.id} onComplete={handleDocsDone} />}
         {step === "risk" && application && <RiskProfileStep applicationId={application.id} onComplete={handleRiskDone} />}
         {step === "agreement" && application && <AgreementStep applicationId={application.id} onComplete={handleEsignDone} />}
       </div>

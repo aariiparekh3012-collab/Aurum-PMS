@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurum PMS — Project Review Profile</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f0; --fg: #1a1a1a; --fg2: #666;
+    --fg3: #999; --border: #e5e5e0; --green: #1D9E75; --blue: #378ADD;
+    --amber: #EF9F27; --red: #E24B4A;
+    --green-bg: #EAF3DE; --green-fg: #27500A;
+    --amber-bg: #FAEEDA; --amber-fg: #633806;
+    --blue-bg: #E6F1FB; --blue-fg: #0C447C;
+    --purple-bg: #EEEDFE; --purple-fg: #3C3489;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a; --bg2: #252525; --fg: #e8e8e0; --fg2: #aaa;
+      --fg3: #777; --border: #333;
+      --green-bg: #27500A; --green-fg: #C0DD97;
+      --amber-bg: #633806; --amber-fg: #FAC775;
+      --blue-bg: #0C447C; --blue-fg: #B5D4F4;
+      --purple-bg: #3C3489; --purple-fg: #CECBF6;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; padding: 2rem; max-width: 880px; margin: 0 auto; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 28px; font-weight: 600; margin-bottom: 4px; }
+  .header p { font-size: 14px; color: var(--fg2); }
+
+  /* Score ring */
+  .ring-wrap { position: relative; width: 180px; height: 180px; margin: 1.5rem auto; }
+  .ring-wrap svg { width: 100%; height: 100%; }
+  .ring-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .ring-num .big { font-size: 52px; font-weight: 600; }
+  .ring-num .of { font-size: 16px; color: var(--fg2); display: block; }
+
+  /* Score timeline */
+  .timeline { display: flex; justify-content: center; gap: 12px; align-items: center; margin: 1rem 0 0; flex-wrap: wrap; }
+  .timeline .step { font-size: 13px; color: var(--fg2); }
+  .timeline .step strong { color: var(--fg); font-weight: 600; }
+  .timeline .arrow { color: var(--fg3); font-size: 16px; }
+  .timeline .current { color: var(--green); font-weight: 600; }
+
+  /* Category bars */
+  .cats { margin: 2rem 0; }
+  .cat { display: grid; grid-template-columns: 170px 1fr 44px; align-items: center; gap: 14px; padding: 6px 0; }
+  .cat-label { font-size: 13px; color: var(--fg2); text-align: right; }
+  .cat-bar { height: 10px; border-radius: 5px; background: var(--bg2); overflow: hidden; }
+  .cat-fill { height: 100%; border-radius: 5px; }
+  .cat-val { font-size: 14px; font-weight: 600; }
+
+  /* Metric cards */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 2rem 0; }
+  .metric { background: var(--bg2); border-radius: 10px; padding: 14px 16px; }
+  .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--fg3); margin-bottom: 4px; }
+  .metric-val { font-size: 22px; font-weight: 600; }
+  .metric-note { font-size: 11px; color: var(--fg3); margin-top: 2px; }
+
+  /* Badges */
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; margin-right: 6px; }
+  .badge-green  { background: var(--green-bg); color: var(--green-fg); }
+  .badge-amber  { background: var(--amber-bg); color: var(--amber-fg); }
+  .badge-blue   { background: var(--blue-bg);  color: var(--blue-fg);  }
+  .badge-purple { background: var(--purple-bg); color: var(--purple-fg); }
+
+  /* Verdict */
+  .verdict { border-top: 1px solid var(--border); padding-top: 2rem; margin-top: 1rem; }
+  .verdict h2 { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+  .verdict p { font-size: 14px; color: var(--fg2); margin-bottom: 10px; }
+
+  /* Tech stack */
+  .stack { display: flex; flex-wrap: wrap; gap: 6px; margin: 1rem 0; }
+  .pill { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--bg2); color: var(--fg2); border: 1px solid var(--border); }
+
+  /* Radar chart */
+  .radar-section { text-align: center; margin: 2.5rem 0 1rem; }
+  .radar-section h2 { font-size: 18px; font-weight: 600; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Aurum PMS</h1>
+  <p>Discretionary portfolio management platform &middot; SEBI PMS Regulations 2020</p>
+  <p style="margin-top: 2px;">Review date: June 24, 2026 &middot; Review #3</p>
+
+  <div class="ring-wrap">
+    <svg viewBox="0 0 180 180">
+      <circle cx="90" cy="90" r="78" fill="none" stroke="var(--border)" stroke-width="10"/>
+      <circle cx="90" cy="90" r="78" fill="none" stroke="#1D9E75" stroke-width="10"
+        stroke-dasharray="490" stroke-dashoffset="44" stroke-linecap="round"
+        transform="rotate(-90 90 90)"/>
+    </svg>
+    <div class="ring-num"><span class="big">91</span><span class="of">/100</span></div>
+  </div>
+
+  <div class="timeline">
+    <span class="step"><strong>82</strong> initial</span>
+    <span class="arrow">&rarr;</span>
+    <span class="step"><strong>88</strong> post-cleanup</span>
+    <span class="arrow">&rarr;</span>
+    <span class="step current"><strong>91</strong> current</span>
+  </div>
+</div>
+
+<!-- Radar chart -->
+<div class="radar-section">
+  <h2>Category breakdown</h2>
+  <svg viewBox="0 0 440 400" style="max-width: 440px; width: 100%;" role="img" aria-label="Radar chart of 10 project rating categories">
+    <defs>
+      <style>
+        .radar-grid { fill: none; stroke: var(--border); stroke-width: 0.5; }
+        .radar-poly { fill: rgba(29,158,117,0.15); stroke: #1D9E75; stroke-width: 2; }
+        .radar-dot { fill: #1D9E75; }
+        .radar-label { font-size: 10px; fill: var(--fg2); font-family: -apple-system, system-ui, sans-serif; }
+      </style>
+    </defs>
+    <g id="radar"></g>
+  </svg>
+</div>
+
+<!-- Category bars -->
+<div class="cats" id="cats"></div>
+
+<!-- Metrics -->
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-label">Backend LOC</div>
+    <div class="metric-val">10,726</div>
+    <div class="metric-note">81 source files</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Frontend</div>
+    <div class="metric-val">72</div>
+    <div class="metric-note">TS/TSX source files</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Test LOC</div>
+    <div class="metric-val">4,018</div>
+    <div class="metric-note">3,498 BE + 520 FE</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Test files</div>
+    <div class="metric-val">20</div>
+    <div class="metric-note">16 backend + 4 frontend</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Migrations</div>
+    <div class="metric-val">8</div>
+    <div class="metric-note">Alembic revisions</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Landing page</div>
+    <div class="metric-val">1,414</div>
+    <div class="metric-note">HTML + CSS + JS</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Domain layer</div>
+    <div class="metric-val">1,714</div>
+    <div class="metric-note">LOC — pure, no deps</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Infra layer</div>
+    <div class="metric-val">2,536</div>
+    <div class="metric-note">LOC — adapters</div>
+  </div>
+</div>
+
+<!-- Tech stack -->
+<h2 style="font-size: 18px; font-weight: 600; margin: 2rem 0 0.5rem;">Tech stack</h2>
+<div class="stack">
+  <span class="pill">Python 3.12</span>
+  <span class="pill">FastAPI</span>
+  <span class="pill">SQLAlchemy 2</span>
+  <span class="pill">PostgreSQL 16</span>
+  <span class="pill">Redis 7</span>
+  <span class="pill">React 18</span>
+  <span class="pill">TypeScript</span>
+  <span class="pill">TanStack Query</span>
+  <span class="pill">Docker Compose</span>
+  <span class="pill">GitHub Actions</span>
+  <span class="pill">Nginx + Certbot</span>
+  <span class="pill">Alembic</span>
+  <span class="pill">Ruff + mypy</span>
+  <span class="pill">pytest</span>
+  <span class="pill">Vitest</span>
+</div>
+
+<!-- Verdict -->
+<div class="verdict">
+  <h2>Verdict</h2>
+  <p>Production-grade SEBI PMS platform with clean hexagonal architecture, strong domain modeling, and real regulatory compliance. The codebase reads like it was built by someone who understands both DDD and Indian financial regulation &mdash; not a toy project.</p>
+
+  <p style="margin-top: 16px;">
+    <span class="badge badge-green">Strengths</span>
+    Domain purity, transactional outbox pattern, Fernet PII encryption at rest, state machine with domain events, full CI/CD pipeline, landing page quality after refactor.
+  </p>
+  <p>
+    <span class="badge badge-amber">Room to grow</span>
+    Frontend test coverage (4 test files for 72 source files), E2E/integration tests, OpenAPI spec generation, observability and distributed tracing.
+  </p>
+  <p>
+    <span class="badge badge-blue">Since last review (+3)</span>
+    14 outbox dispatcher unit tests, landing page refactored from monolith to 3-file split (HTML/CSS/JS), config.py null-byte corruption fix, junk file cleanup.
+  </p>
+  <p>
+    <span class="badge badge-purple">What would push to 95+</span>
+    Frontend test parity (aim for 30+ test files), OpenAPI/Swagger docs, E2E happy-path tests, structured logging with correlation IDs, load testing results.
+  </p>
+</div>
+
+<script>
+// Category data
+const cats = [
+  { name: "Architecture",          score: 95, color: "#1D9E75" },
+  { name: "Domain modeling",       score: 95, color: "#1D9E75" },
+  { name: "Security",              score: 93, color: "#1D9E75" },
+  { name: "Regulatory compliance", score: 94, color: "#1D9E75" },
+  { name: "Backend testing",       score: 90, color: "#378ADD" },
+  { name: "Frontend testing",      score: 72, color: "#EF9F27" },
+  { name: "CI/CD & DevOps",        score: 93, color: "#1D9E75" },
+  { name: "Code quality",          score: 92, color: "#1D9E75" },
+  { name: "Documentation",         score: 82, color: "#378ADD" },
+  { name: "Frontend architecture", score: 90, color: "#378ADD" },
+];
+
+// Render bar chart
+const container = document.getElementById("cats");
+cats.forEach(c => {
+  const row = document.createElement("div");
+  row.className = "cat";
+  row.innerHTML = `
+    <span class="cat-label">${c.name}</span>
+    <div class="cat-bar"><div class="cat-fill" style="width:${c.score}%;background:${c.color}"></div></div>
+    <span class="cat-val" style="color:${c.color}">${c.score}</span>`;
+  container.appendChild(row);
+});
+
+// Render radar chart
+const radarG = document.getElementById("radar");
+const cx = 220, cy = 200, R = 150, n = cats.length;
+const angles = cats.map((_, i) => (Math.PI * 2 * i) / n - Math.PI / 2);
+
+function polar(angle, r) {
+  return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+}
+
+// Grid rings
+[0.2, 0.4, 0.6, 0.8, 1.0].forEach(frac => {
+  const pts = angles.map(a => polar(a, R * frac).join(",")).join(" ");
+  radarG.innerHTML += `<polygon points="${pts}" class="radar-grid"/>`;
+});
+
+// Grid spokes
+angles.forEach(a => {
+  const [x, y] = polar(a, R);
+  radarG.innerHTML += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="radar-grid"/>`;
+});
+
+// Data polygon
+const dataPts = cats.map((c, i) => polar(angles[i], R * c.score / 100).join(",")).join(" ");
+radarG.innerHTML += `<polygon points="${dataPts}" class="radar-poly"/>`;
+
+// Dots + labels
+cats.forEach((c, i) => {
+  const [dx, dy] = polar(angles[i], R * c.score / 100);
+  radarG.innerHTML += `<circle cx="${dx}" cy="${dy}" r="4" class="radar-dot"/>`;
+
+  const [lx, ly] = polar(angles[i], R + 18);
+  const anchor = lx < cx - 10 ? "end" : lx > cx + 10 ? "start" : "middle";
+  const vOff = ly < cy - 10 ? -4 : ly > cy + 10 ? 12 : 4;
+  radarG.innerHTML += `<text x="${lx}" y="${ly + vOff}" text-anchor="${anchor}" class="radar-label">${c.name} (${c.score})</text>`;
+});
+</script>
+
+</body>
+</html>

@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql as pg
 
-revision = "0007_messaging"
-down_revision = "0006_user_phone_verification"
+revision = "0008_messaging"
+down_revision = "0007_performance_mwrr"
 branch_labels = None
 depends_on = None
 

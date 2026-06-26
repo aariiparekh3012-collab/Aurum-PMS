@@ -10,7 +10,7 @@ from app.api import dependencies as deps
 from app.api.v1.dependencies import get_current_user, require_role
 from app.core.database import get_db
 from app.infrastructure.db.models_portfolio import (
-    PortfolioAccountModel, HoldingModel, CashLedgerModel,
+    FeeScheduleModel, PortfolioAccountModel, HoldingModel, CashLedgerModel,
 )
 from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
 from app.infrastructure.db.portfolio_repository import (
@@ -184,7 +184,21 @@ def list_portfolios_by_client(
         # Investors are always scoped to their own client, regardless of the param.
         client_id = own_client_id
     elif client_id is None:
-        raise HTTPException(400, "client_id is required")
+        # Staff with no client_id filter → return all accounts
+        from sqlalchemy import select
+        all_accts = db.scalars(select(PortfolioAccountModel)).all()
+        return [
+            {
+                "id": str(a.id), "account_code": a.account_code,
+                "strategy_id": str(a.strategy_id),
+                "client_id": str(a.client_id),
+                "status": a.status,
+                "inception_date": str(a.inception_date),
+                "cash_balance_inr": a.cash_balance_paise / 100,
+                "holdings_count": 0,
+            }
+            for a in all_accts
+        ]
 
     repo = SqlAlchemyPortfolioAccountRepository(db)
     accounts = repo.list_by_client(client_id)
@@ -473,3 +487,53 @@ def add_cash_entry(
     db.flush()
     new_balance = account.cash_balance_paise if account else body.amount_paise
     return {"id": str(entry.id), "entry_type": body.entry_type, "balance_inr": new_balance / 100}
+
+
+# ── Fee schedules ──────────────────────────────────────────────────────────
+
+class FeeScheduleOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    mgmt_fee_pct: float
+    perf_fee_pct: float
+    high_water_mark: bool
+    hurdle_rate_pct: float | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class CreateFeeScheduleRequest(BaseModel):
+    name: str
+    mgmt_fee_pct: float = Field(ge=0)
+    perf_fee_pct: float = Field(ge=0, default=0)
+    high_water_mark: bool = False
+    hurdle_rate_pct: float | None = None
+
+
+@router.get("/fee-schedules", response_model=list[FeeScheduleOut])
+def list_fee_schedules(
+    db: Session = Depends(get_db),
+    _user: dict = Depends(get_current_user),
+):
+    rows = db.query(FeeScheduleModel).all()
+    return rows
+
+
+@router.post("/fee-schedules", response_model=FeeScheduleOut, status_code=201)
+def create_fee_schedule(
+    body: CreateFeeScheduleRequest,
+    db: Session = Depends(get_db),
+    _user: dict = Depends(require_role("compliance")),
+):
+    sched = FeeScheduleModel(
+        name=body.name,
+        mgmt_fee_pct=body.mgmt_fee_pct,
+        perf_fee_pct=body.perf_fee_pct,
+        high_water_mark=body.high_water_mark,
+        hurdle_rate_pct=body.hurdle_rate_pct,
+    )
+    db.add(sched)
+    db.flush()
+    db.refresh(sched)
+    return sched

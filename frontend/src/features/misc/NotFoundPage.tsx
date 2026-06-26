@@ -12,11 +12,9 @@ export function NotFoundPage() {
         <div
           style={{
             fontSize: "6rem",
-            fontFamily: "'Fraunces', serif",
-            fontWeight: 600,
-            background: "linear-gradient(135deg, var(--gold), var(--gold-2))",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            fontFamily: "'Segoe UI Variable', 'Segoe UI', sans-serif",
+            fontWeight: 700,
+            color: "var(--primary)",
             lineHeight: 1,
             marginBottom: 8,
           }}

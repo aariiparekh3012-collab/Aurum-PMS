@@ -9,6 +9,20 @@ import { Button, Card, Field, SelectField, useToast } from "../../components/ui"
 
 type View = "login" | "register" | "forgot" | "verify";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[6-9]\d{9}$/;
+
+const COUNTRY_CODES = [
+  { code: "+91", label: "IN +91", flag: "🇮🇳" },
+  { code: "+1", label: "US +1", flag: "🇺🇸" },
+] as const;
+
+function validateEmail(v: string): string {
+  if (!v) return "";
+  if (!EMAIL_RE.test(v)) return "Invalid email — must be like name@company.com";
+  return "";
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -17,16 +31,19 @@ export function LoginPage() {
 
   // Login state
   const [email, setEmail] = useState("");
+  const [emailErr, setEmailErr] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Register state
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
+  const [regEmailErr, setRegEmailErr] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
   const [regRole, setRegRole] = useState("investor");
   const [regPhone, setRegPhone] = useState("");
+  const [regCountryCode, setRegCountryCode] = useState("+91");
 
   // Verify (post-signup) state
   const [otpCode, setOtpCode] = useState("");
@@ -38,6 +55,8 @@ export function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const eErr = validateEmail(email);
+    if (eErr) { setEmailErr(eErr); return; }
     setLoading(true);
     try {
       const data = await authApi.login({ email, password });
@@ -64,10 +83,13 @@ export function LoginPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    const eErr = validateEmail(regEmail);
+    if (eErr) { setRegEmailErr(eErr); return; }
     if (regPassword !== regConfirm) {
       toast.error("Passwords do not match");
       return;
     }
+    const fullPhone = regPhone.trim() ? regCountryCode + regPhone.trim() : undefined;
     setLoading(true);
     try {
       const data = await authApi.register({
@@ -75,7 +97,7 @@ export function LoginPage() {
         password: regPassword,
         full_name: regName,
         role: regRole,
-        phone: regPhone.trim() || undefined,
+        phone: fullPhone,
       });
       auth.setTokens(data.access_token, data.refresh_token, data.expires_in, {
         subject: regEmail,
@@ -121,6 +143,8 @@ export function LoginPage() {
 
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
+    const eErr = validateEmail(forgotEmail);
+    if (eErr) { toast.error(eErr); return; }
     setLoading(true);
     try {
       await authApi.forgotPassword(forgotEmail);
@@ -207,8 +231,10 @@ export function LoginPage() {
                   label="Email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setEmailErr(""); }}
+                  onBlur={() => setEmailErr(validateEmail(email))}
                   placeholder="you@example.com"
+                  error={emailErr}
                 />
                 <Field
                   label="Password"
@@ -299,16 +325,35 @@ export function LoginPage() {
                   label="Email"
                   type="email"
                   value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
+                  onChange={(e) => { setRegEmail(e.target.value); setRegEmailErr(""); }}
+                  onBlur={() => setRegEmailErr(validateEmail(regEmail))}
                   placeholder="you@example.com"
+                  error={regEmailErr}
                 />
-                <Field
-                  label="Phone (optional)"
-                  type="tel"
-                  value={regPhone}
-                  onChange={(e) => setRegPhone(e.target.value)}
-                  placeholder="+91 98XXXXXXXX"
-                />
+                <div className="field">
+                  <label className="label">Phone (optional)</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <select
+                      className="select"
+                      value={regCountryCode}
+                      onChange={(e) => setRegCountryCode(e.target.value)}
+                      style={{ width: 110, flexShrink: 0 }}
+                    >
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.code}>{c.flag} {c.label}</option>
+                      ))}
+                    </select>
+                    <input
+                      className="input"
+                      type="tel"
+                      value={regPhone}
+                      onChange={(e) => setRegPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      placeholder="9876543210"
+                      maxLength={10}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+                </div>
                 <SelectField label="Role" value={regRole} onChange={(e) => setRegRole(e.target.value)}>
                   <option value="investor">Investor</option>
                   <option value="rm">Relationship Manager</option>
@@ -404,7 +449,7 @@ export function LoginPage() {
               <h2 style={{ marginBottom: 20 }}>Reset password</h2>
               {forgotSent ? (
                 <div>
-                  <div className="success-check">✓</div>
+                  <div className="success-check">{"✓"}</div>
                   <p className="center muted" style={{ marginBottom: 16 }}>
                     If an account exists with that email, we&rsquo;ve sent a reset link.
                   </p>
@@ -443,7 +488,9 @@ export function LoginPage() {
           )}
 
           <p className="faint center" style={{ fontSize: ".74rem", marginTop: 18, marginBottom: 0 }}>
-            SEBI-registered PMS · Secure authentication
+            SEBI-registered PMS &middot; Secure authentication
+            <br />
+            <a href="/privacy" style={{ color: "var(--gold-2, #b8860b)", textDecoration: "none" }}>Privacy Policy</a>
           </p>
         </Card>
       </div>

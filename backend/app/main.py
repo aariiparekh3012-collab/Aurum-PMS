@@ -63,6 +63,10 @@ def create_app() -> FastAPI:
     # Exception handlers
     register_error_handlers(application)
 
+    # Ensure NSE database tables exist (separate DB, not managed by Alembic)
+    from app.infrastructure.db.nse_database import ensure_nse_tables
+    ensure_nse_tables()
+
     # Routers — full v1 API surface
     api_prefix = "/api/v1"
     application.include_router(api_router, prefix=api_prefix)

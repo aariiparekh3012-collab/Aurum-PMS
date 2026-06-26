@@ -21,6 +21,7 @@ from app.infrastructure.db import models_performance  # noqa: F401
 from app.infrastructure.db import models_notifications  # noqa: F401
 from app.infrastructure.db import models_auth  # noqa: F401
 from app.infrastructure.db import models_nse_reports  # noqa: F401
+from app.infrastructure.db import models_market_data  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:

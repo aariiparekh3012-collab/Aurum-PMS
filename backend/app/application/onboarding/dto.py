@@ -60,6 +60,7 @@ class ApplicationView:
     investor_type: str
     full_name: str
     email: str
+    mobile: str
     pan: str
     proposed_investment_inr: float
     risk_category: str | None

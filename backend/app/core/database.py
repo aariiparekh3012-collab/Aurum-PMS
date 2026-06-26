@@ -31,6 +31,11 @@ def get_session_factory() -> sessionmaker[Session]:
     return sessionmaker(bind=get_engine(), autoflush=False, expire_on_commit=False)
 
 
+def SessionLocal() -> Session:
+    """Convenience: create a standalone session (for background tasks)."""
+    return get_session_factory()()
+
+
 def get_db() -> Generator[Session, None, None]:
     """Yield a session and always commit on success.
 

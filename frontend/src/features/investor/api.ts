@@ -29,6 +29,17 @@ export interface PortfolioSummary {
   inception_date: string;
   holdings_count: number;
   total_cost_paise: number;
+  market_value_paise: number;
+  cash_balance_paise: number;
+  unrealised_pnl_paise: number;
+}
+
+export interface PerformanceReturn {
+  period: string;
+  twrr_pct: number;
+  mwrr_pct: number | null;
+  benchmark_pct: number | null;
+  as_of: string;
 }
 
 export interface InvestorDashboard {
@@ -36,6 +47,10 @@ export interface InvestorDashboard {
   onboarding: OnboardingStatus | null;
   portfolios: PortfolioSummary[];
   total_invested_paise: number;
+  total_market_value_paise: number;
+  total_unrealised_pnl_paise: number;
+  total_cash_paise: number;
+  returns: PerformanceReturn[];
 }
 
 export interface HoldingDetail {
@@ -45,6 +60,10 @@ export interface HoldingDetail {
   quantity: number;
   avg_cost_paise: number;
   cost_value_paise: number;
+  market_price_paise: number;
+  market_value_paise: number;
+  unrealised_pnl_paise: number;
+  day_change_pct: number;
 }
 
 export interface CashEntry {
@@ -54,6 +73,27 @@ export interface CashEntry {
   posted_on: string;
 }
 
+export interface ValuationPoint {
+  as_of: string;
+  market_value_paise: number;
+  cost_value_paise: number;
+  cash_paise: number;
+}
+
+export interface FeeEntry {
+  entry_type: string;
+  amount_paise: number;
+  posted_on: string;
+  description: string;
+}
+
+export interface DocumentInfo {
+  id: string;
+  document_type: string;
+  uploaded_at: string;
+  download_url: string | null;
+}
+
 export const investorApi = {
   dashboard: () =>
     apiClient.get<InvestorDashboard>("/investor/dashboard").then((r) => r.data),
@@ -61,4 +101,10 @@ export const investorApi = {
     apiClient.get<HoldingDetail[]>(`/investor/holdings/${accountId}`).then((r) => r.data),
   cash: (accountId: string) =>
     apiClient.get<CashEntry[]>(`/investor/cash/${accountId}`).then((r) => r.data),
+  valuationHistory: (accountId: string) =>
+    apiClient.get<ValuationPoint[]>(`/investor/valuation-history/${accountId}`).then((r) => r.data),
+  fees: (accountId: string) =>
+    apiClient.get<FeeEntry[]>(`/investor/fees/${accountId}`).then((r) => r.data),
+  documents: () =>
+    apiClient.get<DocumentInfo[]>("/investor/documents").then((r) => r.data),
 };

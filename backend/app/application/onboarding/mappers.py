@@ -12,6 +12,7 @@ def to_view(app: OnboardingApplication) -> ApplicationView:
         investor_type=app.investor_type.value,
         full_name=app.full_name,
         email=app.email,
+        mobile=app.mobile,
         pan=app.pan.value,
         proposed_investment_inr=app.proposed_investment.rupees,
         risk_category=app.risk_category.value if app.risk_category else None,

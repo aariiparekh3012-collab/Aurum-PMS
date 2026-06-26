@@ -88,8 +88,8 @@ export function SettingsPage() {
                 className="avatar"
                 style={{
                   width: 64, height: 64, fontSize: "1.6rem",
-                  background: "linear-gradient(135deg, var(--gold), var(--gold-2))",
-                  color: "#1a1305",
+                  background: "var(--primary)",
+                  color: "#fff",
                 }}
               >
                 {(user?.full_name ?? user?.subject ?? "U")[0].toUpperCase()}
@@ -233,7 +233,7 @@ export function SettingsPage() {
           <h2 style={{ marginBottom: 20 }}>Appearance</h2>
           <div style={{ display: "grid", gap: 16 }}>
             {[
-              { label: "Theme", desc: "Dark mode with gold accents", value: <span className="badge badge--gold">Premium Dark</span> },
+              { label: "Theme", desc: "Switch between light and dark mode", value: <span className="badge badge--info">System</span> },
               { label: "Currency display", desc: "Format for monetary values", value: <span className="mono">INR</span> },
               { label: "Date format", desc: "How dates are displayed", value: <span className="mono">DD/MM/YYYY</span> },
               { label: "Timezone", desc: "Market hours reference", value: <span>IST (UTC+5:30)</span> },

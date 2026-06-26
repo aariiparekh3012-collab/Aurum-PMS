@@ -1,4 +1,4 @@
-"""Auth endpoints — JWT token issuance, registration, login, phone/email verification.
+"""Auth endpoints - JWT token issuance, registration, login, phone/email verification.
 
 In production the dev /token endpoint is disabled; real auth uses email + password.
 """
@@ -14,9 +14,12 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from fastapi import Request
+
 from app.api.v1.dependencies import get_current_user
 from app.core.config import get_settings
 from app.core.database import get_db
+from app.infrastructure.audit.audit_logger import AuditLogger
 from app.core.security import (
     create_access_token,
     generate_verification_token,
@@ -46,7 +49,7 @@ def _expires_in() -> int:
     return get_settings().jwt_expiry_minutes * 60
 
 
-# ── Schemas ────────────────────────────────────────────────────────────────
+# -- Schemas -------------------------------------------------------------------
 
 
 class LoginRequest(BaseModel):
@@ -106,7 +109,7 @@ class MessageResponse(BaseModel):
     message: str
 
 
-# ── Helpers ────────────────────────────────────────────────────────────────
+# -- Helpers -------------------------------------------------------------------
 
 
 def _issue_email_verification(db: Session, user: UserModel) -> None:
@@ -143,7 +146,12 @@ def _issue_email_verification(db: Session, user: UserModel) -> None:
 
 
 def _issue_phone_otp(db: Session, user: UserModel, phone: str) -> None:
-    """Create a 6-digit OTP for the phone and send it."""
+    """Create a 6-digit OTP for the phone and send it.
+
+    Mock-OTP support (demo/dev): if the phone number is listed in
+    MOCK_OTP_PHONES, use the hardcoded MOCK_OTP_CODE and skip SMS delivery.
+    Swap to a real gateway later by clearing those env vars.
+    """
     for c in db.scalars(
         select(PhoneVerificationCodeModel).where(
             PhoneVerificationCodeModel.user_id == user.id,
@@ -152,17 +160,28 @@ def _issue_phone_otp(db: Session, user: UserModel, phone: str) -> None:
     ).all():
         c.is_used = True
 
-    code = f"{secrets.randbelow(1_000_000):06d}"
+    settings = get_settings()
+    normalized = "".join(c for c in phone if c.isdigit())
+    is_mock = normalized in settings.mock_otp_phone_set and settings.mock_otp_code
+
+    code = settings.mock_otp_code if is_mock else f"{secrets.randbelow(1_000_000):06d}"
+
     db.add(PhoneVerificationCodeModel(
         id=uuid.uuid4(),
         user_id=user.id,
         phone=phone,
         code_hash=hash_token(code),
-        expires_at=_now() + _dtmod.timedelta(minutes=get_settings().otp_ttl_minutes),
+        expires_at=_now() + _dtmod.timedelta(minutes=settings.otp_ttl_minutes),
         created_at=_now(),
     ))
     db.flush()
-    get_sms_sender().send_otp(phone=phone, code=code)
+
+    if is_mock:
+        logging.getLogger("pms.auth").info(
+            "[MOCK OTP] Phone %s -> use code %s (no SMS sent)", phone, code,
+        )
+    else:
+        get_sms_sender().send_otp(phone=phone, code=code)
 
 
 def _current_user_record(db: Session, current: dict) -> UserModel:
@@ -172,18 +191,18 @@ def _current_user_record(db: Session, current: dict) -> UserModel:
     return record
 
 
-# ── Endpoints ──────────────────────────────────────────────────────────────
+# -- Endpoints -----------------------------------------------------------------
 
 
 @router.post("/logout", status_code=204)
 def logout():
-    """Stateless logout — client discards the token. No-op server-side."""
+    """Stateless logout - client discards the token. No-op server-side."""
     return None
 
 
 @router.post("/token", response_model=TokenResponse)
 def issue_token(body: LoginRequest):
-    """Dev-only endpoint — issue a JWT for the given username/role.
+    """Dev-only endpoint - issue a JWT for the given username/role.
     Disabled in production environments."""
     if get_settings().environment not in ("local", "development", "test"):
         raise HTTPException(status_code=404, detail="Not found")
@@ -192,7 +211,7 @@ def issue_token(body: LoginRequest):
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=201)
-def register(body: RegisterRequest, db: Session = Depends(get_db)):
+def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db)):
     role = _ROLE_ALIASES.get(body.role, body.role)
     if role not in _VALID_ROLES:
         raise HTTPException(status_code=422, detail="Invalid role")
@@ -232,11 +251,20 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
             logging.getLogger("pms.auth").exception("Failed to send phone OTP")
 
     token = create_access_token(sub=email, role=role)
+
+    AuditLogger(db).log(
+        event_type="auth.register",
+        description=f"New user registered: {email} (role={role})",
+        actor_id=str(user.id), actor_role=role, actor_email=email,
+        resource_type="user", resource_id=str(user.id),
+        request=request,
+    )
+    db.commit()
     return RegisterResponse(access_token=token, expires_in=_expires_in())
 
 
 @router.post("/login", response_model=RegisterResponse)
-def login(body: LoginCredentials, db: Session = Depends(get_db)):
+def login(body: LoginCredentials, request: Request, db: Session = Depends(get_db)):
     """Authenticate against the users table (email + password)."""
     email = body.email.strip().lower()
     user = db.query(UserModel).filter_by(email=email).first()
@@ -248,6 +276,16 @@ def login(body: LoginCredentials, db: Session = Depends(get_db)):
 
     user.last_login_at = _now()
     db.flush()
+
+    AuditLogger(db).log(
+        event_type="auth.login",
+        description=f"User logged in: {user.email}",
+        actor_id=str(user.id), actor_role=user.role, actor_email=user.email,
+        resource_type="user", resource_id=str(user.id),
+        request=request,
+    )
+    db.commit()
+
     token = create_access_token(sub=user.email, role=user.role)
     return RegisterResponse(access_token=token, expires_in=_expires_in())
 
@@ -271,7 +309,7 @@ def send_phone_otp(
     user = _current_user_record(db, current)
     phone = (body.phone or user.phone or "").strip()
     if not phone:
-        raise HTTPException(status_code=422, detail="No phone number on file — provide one")
+        raise HTTPException(status_code=422, detail="No phone number on file - provide one")
     user.phone = phone
     if user.phone_verified and phone == user.phone:
         user.phone_verified = False  # number being (re)confirmed
@@ -297,12 +335,12 @@ def verify_phone(
     ).first()
 
     if record is None:
-        raise HTTPException(status_code=400, detail="No active code — request a new one")
+        raise HTTPException(status_code=400, detail="No active code - request a new one")
     if record.expires_at < _now():
-        raise HTTPException(status_code=400, detail="Code has expired — request a new one")
+        raise HTTPException(status_code=400, detail="Code has expired - request a new one")
     if record.attempts >= 5:
         record.is_used = True
-        raise HTTPException(status_code=429, detail="Too many attempts — request a new code")
+        raise HTTPException(status_code=429, detail="Too many attempts - request a new code")
 
     if hash_token(body.code.strip()) != record.code_hash:
         record.attempts += 1

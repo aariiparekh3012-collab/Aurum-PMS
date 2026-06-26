@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
-from sqlalchemy import select, desc, func, and_, or_
+from sqlalchemy import select, desc, func, and_
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.v1.dependencies import get_current_user

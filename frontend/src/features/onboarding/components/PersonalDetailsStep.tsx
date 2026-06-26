@@ -4,6 +4,11 @@ import { useCreateApplication } from "../hooks/useOnboarding";
 import FieldError from "@/components/ui/FieldError";
 import type { ApplicationResponse } from "../types";
 
+const COUNTRY_CODES = [
+  { code: "+91", label: "IN +91", flag: "\u{1F1EE}\u{1F1F3}" },
+  { code: "+1", label: "US +1", flag: "\u{1F1FA}\u{1F1F8}" },
+] as const;
+
 interface Props { onComplete: (app: ApplicationResponse) => void }
 
 export default function PersonalDetailsStep({ onComplete }: Props) {
@@ -11,11 +16,15 @@ export default function PersonalDetailsStep({ onComplete }: Props) {
     investor_type: "individual", full_name: "", email: "", mobile: "", pan: "",
     proposed_investment_inr: 5_000_000,
   });
+  const [countryCode, setCountryCode] = useState("+91");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const mutation = useCreateApplication();
 
   const set = (field: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const val = field === "proposed_investment_inr" ? Number(e.target.value) : e.target.value;
+    let val: string | number = e.target.value;
+    if (field === "proposed_investment_inr") val = Number(val);
+    else if (field === "pan") val = (val as string).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+    else if (field === "mobile") val = (val as string).replace(/\D/g, "").slice(0, 10);
     setForm((p) => ({ ...p, [field]: val }));
     setErrors((p) => ({ ...p, [field]: "" }));
   };
@@ -64,7 +73,24 @@ export default function PersonalDetailsStep({ onComplete }: Props) {
         </div>
         <div>
           <label>Mobile</label>
-          <input value={form.mobile} onChange={set("mobile")} placeholder="9876543210" maxLength={10} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <select
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              style={{ width: 110, flexShrink: 0 }}
+            >
+              {COUNTRY_CODES.map((c) => (
+                <option key={c.code} value={c.code}>{c.flag} {c.label}</option>
+              ))}
+            </select>
+            <input
+              value={form.mobile}
+              onChange={set("mobile")}
+              placeholder="9876543210"
+              maxLength={10}
+              style={{ flex: 1 }}
+            />
+          </div>
           <FieldError error={errors.mobile} />
         </div>
         <div>

@@ -7,6 +7,10 @@ import Layout from "@/components/Layout";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { VerifyEmailPage } from "@/features/auth/VerifyEmailPage";
 
+// Legal (public, no auth required)
+import { PrivacyPolicyPage } from "@/features/legal/PrivacyPolicyPage";
+import { DataDeletionPage } from "@/features/legal/DataDeletionPage";
+
 // Features
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
 import OnboardingWizard from "@/features/onboarding/components/OnboardingWizard";
@@ -30,6 +34,8 @@ import { StrategiesPage } from "@/features/reference/StrategiesPage";
 import { BrokersPage } from "@/features/reference/BrokersPage";
 import { FeeSchedulesPage } from "@/features/reference/FeeSchedulesPage";
 import { InvestorPortal } from "@/features/investor/InvestorPortal";
+import { FeeManagementPage } from "@/features/fees/FeeManagementPage";
+import { MarketDataPage } from "@/features/market-data/MarketDataPage";
 import { MessagesPage } from "@/features/messaging/MessagesPage";
 import { NotFoundPage } from "@/features/misc/NotFoundPage";
 
@@ -75,6 +81,10 @@ function ProtectedRoutes() {
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/daily-reports" element={<DailyReportsPage />} />
 
+        {/* Fees & Market Data */}
+        {isStaff && <Route path="/fee-management" element={<FeeManagementPage />} />}
+        {isStaff && <Route path="/market-data" element={<MarketDataPage />} />}
+
         {/* Reference data */}
         {isStaff && <Route path="/securities" element={<SecuritiesPage />} />}
         {isStaff && <Route path="/strategies" element={<StrategiesPage />} />}
@@ -105,6 +115,8 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/data-deletion" element={<DataDeletionPage />} />
             <Route path="/*" element={<ProtectedRoutes />} />
           </Routes>
         </ToastProvider>

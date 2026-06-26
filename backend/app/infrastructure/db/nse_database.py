@@ -30,6 +30,12 @@ def get_nse_engine() -> Engine:
     )
 
 
+def ensure_nse_tables() -> None:
+    """Auto-create NseBase tables if they don't exist (no Alembic for this DB)."""
+    from app.infrastructure.db.models_nse_reports import NseBhavCopyReportModel  # noqa: F401
+    NseBase.metadata.create_all(bind=get_nse_engine())
+
+
 def get_nse_session_factory() -> sessionmaker[Session]:
     return sessionmaker(bind=get_nse_engine(), autoflush=False, expire_on_commit=False)
 

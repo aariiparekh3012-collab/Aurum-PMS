@@ -24,7 +24,15 @@ from app.infrastructure.db.models_portfolio import (
     PortfolioAccountModel,
 )
 from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
-from app.infrastructure.db.models_onboarding import OnboardingApplicationModel
+from app.infrastructure.db.models_onboarding import (
+    OnboardingApplicationModel,
+    OnboardingDocumentModel,
+)
+from app.infrastructure.db.models_performance import (
+    PerformanceReturnModel,
+    ValuationSnapshotModel,
+)
+from app.infrastructure.db.models_market_data import SecurityPriceModel
 
 router = APIRouter(prefix="/investor", tags=["investor portal"])
 
@@ -53,6 +61,9 @@ class PortfolioSummary(BaseModel):
     inception_date: date
     holdings_count: int
     total_cost_paise: int
+    market_value_paise: int = 0
+    cash_balance_paise: int = 0
+    unrealised_pnl_paise: int = 0
 
 
 class HoldingDetail(BaseModel):
@@ -62,6 +73,10 @@ class HoldingDetail(BaseModel):
     quantity: float
     avg_cost_paise: int
     cost_value_paise: int
+    market_price_paise: int = 0
+    market_value_paise: int = 0
+    unrealised_pnl_paise: int = 0
+    day_change_pct: float = 0.0
 
 
 class CashEntry(BaseModel):
@@ -72,6 +87,35 @@ class CashEntry(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PerformanceReturn(BaseModel):
+    period: str
+    twrr_pct: float
+    mwrr_pct: float | None = None
+    benchmark_pct: float | None = None
+    as_of: date
+
+
+class ValuationPoint(BaseModel):
+    as_of: date
+    market_value_paise: int
+    cost_value_paise: int
+    cash_paise: int
+
+
+class FeeEntry(BaseModel):
+    entry_type: str
+    amount_paise: int
+    posted_on: date
+    description: str = ""
+
+
+class DocumentInfo(BaseModel):
+    id: uuid.UUID
+    document_type: str
+    uploaded_at: str
+    download_url: str | None = None
 
 
 class OnboardingStatus(BaseModel):
@@ -92,6 +136,10 @@ class InvestorDashboard(BaseModel):
     onboarding: OnboardingStatus | None = None
     portfolios: list[PortfolioSummary] = []
     total_invested_paise: int = 0
+    total_market_value_paise: int = 0
+    total_unrealised_pnl_paise: int = 0
+    total_cash_paise: int = 0
+    returns: list[PerformanceReturn] = []
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -164,12 +212,26 @@ def investor_dashboard(
 
     portfolios: list[PortfolioSummary] = []
     total_invested = 0
+    total_market = 0
+    total_cash = 0
+
     for acct in accounts:
         holdings = db.scalars(
             select(HoldingModel).where(HoldingModel.portfolio_account_id == acct.id)
         ).all()
         cost = sum(int(h.avg_cost_paise * float(h.quantity)) for h in holdings)
         total_invested += cost
+
+        # Latest valuation snapshot for market value
+        latest_snap = db.scalar(
+            select(ValuationSnapshotModel)
+            .where(ValuationSnapshotModel.portfolio_account_id == acct.id)
+            .order_by(ValuationSnapshotModel.as_of.desc())
+            .limit(1)
+        )
+        mv = latest_snap.market_value_paise if latest_snap else cost
+        total_market += mv
+        total_cash += acct.cash_balance_paise
 
         strat = db.get(StrategyModel, acct.strategy_id)
         portfolios.append(PortfolioSummary(
@@ -180,12 +242,39 @@ def investor_dashboard(
             inception_date=acct.inception_date,
             holdings_count=len(holdings),
             total_cost_paise=cost,
+            market_value_paise=mv,
+            cash_balance_paise=acct.cash_balance_paise,
+            unrealised_pnl_paise=mv - cost,
         ))
+
+    # Aggregate performance returns (from first active account, or empty)
+    returns: list[PerformanceReturn] = []
+    if accounts:
+        ret_rows = db.scalars(
+            select(PerformanceReturnModel)
+            .where(PerformanceReturnModel.portfolio_account_id == accounts[0].id)
+            .order_by(PerformanceReturnModel.as_of.desc())
+        ).all()
+        seen_periods: set[str] = set()
+        for r in ret_rows:
+            if r.period not in seen_periods:
+                seen_periods.add(r.period)
+                returns.append(PerformanceReturn(
+                    period=r.period,
+                    twrr_pct=float(r.twrr_pct),
+                    mwrr_pct=float(r.mwrr_pct) if r.mwrr_pct is not None else None,
+                    benchmark_pct=float(r.benchmark_pct) if r.benchmark_pct is not None else None,
+                    as_of=r.as_of,
+                ))
 
     return InvestorDashboard(
         profile=profile,
         portfolios=portfolios,
         total_invested_paise=total_invested,
+        total_market_value_paise=total_market,
+        total_unrealised_pnl_paise=total_market - total_invested,
+        total_cash_paise=total_cash,
+        returns=returns,
     )
 
 
@@ -210,16 +299,28 @@ def investor_holdings(
         select(HoldingModel).where(HoldingModel.portfolio_account_id == account_id)
     ).all()
 
+    # Get latest market prices for all securities in this account
+    from app.services.market_data import get_latest_prices
+    price_map = get_latest_prices(db)
+
     result = []
     for h in holdings:
         sec = db.get(SecurityModel, h.security_id)
+        qty = float(h.quantity)
+        cost_val = int(h.avg_cost_paise * qty)
+        mkt_price = price_map.get(h.security_id, h.avg_cost_paise)
+        mkt_val = int(mkt_price * qty)
         result.append(HoldingDetail(
             security_symbol=sec.symbol if sec else "???",
             security_isin=sec.isin if sec else "???",
             sector=sec.sector if sec else None,
-            quantity=float(h.quantity),
+            quantity=qty,
             avg_cost_paise=int(h.avg_cost_paise),
-            cost_value_paise=int(h.avg_cost_paise * float(h.quantity)),
+            cost_value_paise=cost_val,
+            market_price_paise=mkt_price,
+            market_value_paise=mkt_val,
+            unrealised_pnl_paise=mkt_val - cost_val,
+            day_change_pct=((mkt_val - cost_val) / cost_val * 100) if cost_val else 0.0,
         ))
     return result
 
@@ -247,3 +348,109 @@ def investor_cash(
         .limit(100)
     ).all()
     return entries
+
+
+@router.get("/valuation-history/{account_id}", response_model=list[ValuationPoint])
+def investor_valuation_history(
+    account_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user: dict = Depends(_require_investor),
+):
+    """Valuation history for charting portfolio value over time."""
+    subject = user.get("sub", "")
+    client = _find_client(db, subject)
+    if not client:
+        raise NotFoundError("Client record not found")
+
+    acct = db.get(PortfolioAccountModel, account_id)
+    if not acct or acct.client_id != client.id:
+        raise AuthorizationError("Portfolio account not found or access denied")
+
+    snaps = db.scalars(
+        select(ValuationSnapshotModel)
+        .where(ValuationSnapshotModel.portfolio_account_id == account_id)
+        .order_by(ValuationSnapshotModel.as_of.asc())
+    ).all()
+    return [
+        ValuationPoint(
+            as_of=s.as_of,
+            market_value_paise=s.market_value_paise,
+            cost_value_paise=s.cost_value_paise,
+            cash_paise=s.cash_paise,
+        )
+        for s in snaps
+    ]
+
+
+@router.get("/fees/{account_id}", response_model=list[FeeEntry])
+def investor_fees(
+    account_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user: dict = Depends(_require_investor),
+):
+    """Fee charges for a portfolio account."""
+    subject = user.get("sub", "")
+    client = _find_client(db, subject)
+    if not client:
+        raise NotFoundError("Client record not found")
+
+    acct = db.get(PortfolioAccountModel, account_id)
+    if not acct or acct.client_id != client.id:
+        raise AuthorizationError("Portfolio account not found or access denied")
+
+    fee_types = {"mgmt_fee", "perf_fee", "exit_load"}
+    entries = db.scalars(
+        select(CashLedgerModel)
+        .where(
+            CashLedgerModel.portfolio_account_id == account_id,
+            CashLedgerModel.entry_type.in_(fee_types),
+        )
+        .order_by(CashLedgerModel.posted_on.desc())
+        .limit(50)
+    ).all()
+    return [
+        FeeEntry(
+            entry_type=e.entry_type,
+            amount_paise=abs(e.amount_paise),
+            posted_on=e.posted_on,
+            description=f"{e.entry_type.replace('_', ' ').title()} charge",
+        )
+        for e in entries
+    ]
+
+
+@router.get("/documents", response_model=list[DocumentInfo])
+def investor_documents(
+    db: Session = Depends(get_db),
+    user: dict = Depends(_require_investor),
+):
+    """Documents uploaded during onboarding for this investor."""
+    subject = user.get("sub", "")
+
+    # Find application by email
+    app = db.scalar(
+        select(OnboardingApplicationModel)
+        .where(OnboardingApplicationModel.email == subject.lower())
+        .order_by(OnboardingApplicationModel.created_at.desc())
+    )
+    if not app:
+        return []
+
+    docs = db.scalars(
+        select(OnboardingDocumentModel)
+        .where(OnboardingDocumentModel.application_id == app.id)
+        .order_by(OnboardingDocumentModel.uploaded_at)
+    ).all()
+
+    from app.infrastructure.external.document_storage import get_document_store
+    store = get_document_store()
+
+    return [
+        DocumentInfo(
+            id=d.id,
+            document_type=d.document_type,
+            uploaded_at=d.uploaded_at.isoformat(),
+            download_url=store.get_url(d.storage_key),
+        )
+        for d in docs
+    ]

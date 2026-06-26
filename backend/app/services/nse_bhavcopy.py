@@ -280,10 +280,50 @@ async def _scheduler_loop() -> None:
         trade_date = dt.datetime.now(IST).date()
         try:
             await download_bhavcopy(trade_date)
+            # Auto-ingest prices and run daily valuation after download
+            await _post_download_valuation(trade_date)
         except Exception as exc:
             logger.error("NSE Bhavcopy download failed for %s: %s", trade_date, exc)
         # Small buffer before recalculating next trigger
         await asyncio.sleep(5)
+
+
+async def _post_download_valuation(trade_date: dt.date) -> None:
+    """After a bhavcopy download, parse prices and run mark-to-market."""
+    from app.core.database import SessionLocal
+    from app.services.market_data import parse_bhavcopy_zip, upsert_prices, run_daily_valuation
+
+    # Find the ZIP path
+    from sqlalchemy import select as sa_select
+    factory = NseSessionLocal()
+    nse_db = factory()
+    try:
+        report = nse_db.scalar(
+            sa_select(NseBhavCopyReportModel).where(
+                NseBhavCopyReportModel.file_date == trade_date,
+                NseBhavCopyReportModel.status == "downloaded",
+            )
+        )
+    finally:
+        nse_db.close()
+
+    if report is None:
+        logger.warning("No bhavcopy record for %s after download — skipping valuation", trade_date)
+        return
+
+    db = SessionLocal()
+    try:
+        rows = parse_bhavcopy_zip(report.file_path)
+        if rows:
+            upsert_prices(db, trade_date, rows)
+            run_daily_valuation(db, trade_date)
+            db.commit()
+            logger.info("Post-download valuation complete for %s", trade_date)
+    except Exception as exc:
+        db.rollback()
+        logger.error("Post-download valuation failed for %s: %s", trade_date, exc)
+    finally:
+        db.close()
 
 
 def start_scheduler() -> asyncio.Task:

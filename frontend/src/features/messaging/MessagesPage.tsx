@@ -189,7 +189,7 @@ export function MessagesPage() {
                     border: "none",
                     borderBottom: "1px solid var(--border)",
                     background: isActive
-                      ? "linear-gradient(135deg, rgba(236,72,153,0.08), rgba(236,72,153,0.03))"
+                      ? "var(--primary-light)"
                       : "transparent",
                     cursor: "pointer",
                     textAlign: "left",
@@ -202,7 +202,7 @@ export function MessagesPage() {
                       height: 40,
                       borderRadius: 20,
                       background: isActive
-                        ? "linear-gradient(135deg, #ec4899, #db2777)"
+                        ? "var(--primary)"
                         : "var(--bg-elevated)",
                       color: isActive ? "#fff" : "var(--primary)",
                       display: "flex",
@@ -337,7 +337,7 @@ export function MessagesPage() {
                         width: 32,
                         height: 32,
                         borderRadius: 16,
-                        background: "linear-gradient(135deg, #ec4899, #db2777)",
+                        background: "var(--primary)",
                         color: "#fff",
                         display: "flex",
                         alignItems: "center",
@@ -505,7 +505,7 @@ export function MessagesPage() {
                     width: 36,
                     height: 36,
                     borderRadius: 18,
-                    background: "linear-gradient(135deg, #ec4899, #db2777)",
+                    background: "var(--primary)",
                     color: "#fff",
                     display: "flex",
                     alignItems: "center",

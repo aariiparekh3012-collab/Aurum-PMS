@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 
-from sqlalchemy import select, desc
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.domain.performance.engine import (
@@ -22,7 +22,6 @@ from app.domain.performance.engine import (
     compute_mgmt_fee,
     compute_mwrr,
     compute_period_returns,
-    compute_twrr,
 )
 from app.infrastructure.db.models_performance import (
     PerformanceReturnModel,
@@ -30,7 +29,6 @@ from app.infrastructure.db.models_performance import (
 )
 from app.infrastructure.db.models_portfolio import (
     CapitalFlowModel,
-    CashLedgerModel,
     FeeScheduleModel,
     HoldingModel,
     PortfolioAccountModel,

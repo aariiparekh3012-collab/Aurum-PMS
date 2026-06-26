@@ -13,10 +13,10 @@ export interface Application {
 }
 
 export const applicationsApi = {
-  list: (status?: string) =>
+  list: (status?: string): Promise<Application[]> =>
     apiClient
-      .get<Application[]>("/onboarding/applications", { params: status ? { status } : {} })
-      .then((r) => r.data),
+      .get<{ applications: Application[] } | Application[]>("/onboarding/applications", { params: status ? { status } : {} })
+      .then((r) => (Array.isArray(r.data) ? r.data : (r.data as { applications: Application[] }).applications ?? [])),
   decide: (id: string, approve: boolean, reason?: string) =>
     apiClient
       .post(`/onboarding/applications/${id}/decision`, { approve, reason })

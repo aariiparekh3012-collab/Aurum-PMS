@@ -36,7 +36,7 @@ const inr = (paise: number) =>
   }).format(paise / 100);
 
 export function FeeManagementPage() {
-  const qc = useQueryClient();
+  const _qc = useQueryClient(); void _qc;
   const toast = useToast();
   const [tab, setTab] = useState<"schedules" | "billing" | "history">("schedules");
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null);

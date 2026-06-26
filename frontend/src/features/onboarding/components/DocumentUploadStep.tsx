@@ -33,7 +33,7 @@ export default function DocumentUploadStep({ applicationId, onComplete }: Props)
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  const { data: docs = [], isLoading } = useQuery({
+  const { data: docs = [] } = useQuery({
     queryKey: ["documents", applicationId],
     queryFn: () =>
       apiClient

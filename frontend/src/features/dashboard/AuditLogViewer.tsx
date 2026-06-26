@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import { Card, StatusBadge, SkeletonTable } from "../../components/ui";
+import { Card, SkeletonTable } from "../../components/ui";
 
 interface AuditLogEntry {
   id: string;

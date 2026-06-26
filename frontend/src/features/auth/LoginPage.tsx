@@ -10,7 +10,6 @@ import { Button, Card, Field, SelectField, useToast } from "../../components/ui"
 type View = "login" | "register" | "forgot" | "verify";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[6-9]\d{9}$/;
 
 const COUNTRY_CODES = [
   { code: "+91", label: "IN +91", flag: "🇮🇳" },

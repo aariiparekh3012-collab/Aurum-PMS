@@ -5,7 +5,6 @@ import {
   PortfolioSummary,
   HoldingDetail,
   CashEntry,
-  ValuationPoint,
   FeeEntry,
   DocumentInfo,
 } from "./api";

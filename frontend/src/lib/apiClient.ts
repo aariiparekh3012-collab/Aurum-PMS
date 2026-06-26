@@ -1,8 +1,12 @@
 import axios from "axios";
 import { auth } from "./auth";
 
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? "https://aurum-pms-backend.onrender.com/api/v1" : "/api/v1");
+
 export const apiClient = axios.create({
-  baseURL: "/api/v1",
+  baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
 });
 

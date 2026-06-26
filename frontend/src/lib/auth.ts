@@ -65,9 +65,10 @@ export const auth = {
   hasRefreshToken: (): boolean => !!localStorage.getItem(REFRESH_KEY),
 };
 
-export type Role = "compliance" | "relationship_manager" | "investor";
+export type Role = "compliance" | "relationship_manager" | "investor" | "admin";
 
 export const ROLE_HOME: Record<string, string> = {
+  admin: "/dashboard",
   compliance: "/clients",
   relationship_manager: "/applications",
   rm: "/applications", // legacy alias
@@ -75,6 +76,12 @@ export const ROLE_HOME: Record<string, string> = {
 };
 
 export const ROLE_ROUTES: Record<string, string[]> = {
+  admin: [
+    "/", "/dashboard", "/onboarding", "/applications", "/compliance", "/clients",
+    "/securities", "/strategies", "/brokers", "/fee-schedules",
+    "/orders", "/trades", "/holdings", "/performance",
+    "/reports", "/activity", "/settings", "/audit",
+  ],
   compliance: [
     "/", "/dashboard", "/onboarding", "/applications", "/compliance", "/clients",
     "/securities", "/strategies", "/brokers", "/fee-schedules",

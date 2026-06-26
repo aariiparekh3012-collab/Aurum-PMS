@@ -22,6 +22,23 @@ function validateEmail(v: string): string {
   return "";
 }
 
+type PasswordStrength = "none" | "weak" | "fair" | "strong" | "very-strong";
+
+function getPasswordStrength(pw: string): { level: PasswordStrength; label: string; color: string; percent: number } {
+  if (!pw) return { level: "none", label: "", color: "transparent", percent: 0 };
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  if (score <= 1) return { level: "weak", label: "Weak", color: "#ef4444", percent: 25 };
+  if (score === 2) return { level: "fair", label: "Fair", color: "#f59e0b", percent: 50 };
+  if (score === 3) return { level: "strong", label: "Strong", color: "#22c55e", percent: 75 };
+  return { level: "very-strong", label: "Very Strong", color: "#10b981", percent: 100 };
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -43,6 +60,8 @@ export function LoginPage() {
   const [regRole, setRegRole] = useState("investor");
   const [regPhone, setRegPhone] = useState("");
   const [regCountryCode, setRegCountryCode] = useState("+91");
+  const [accessCode, setAccessCode] = useState("");
+  const [showAccessCode, setShowAccessCode] = useState(false);
 
   // Verify (post-signup) state
   const [otpCode, setOtpCode] = useState("");
@@ -88,6 +107,11 @@ export function LoginPage() {
       toast.error("Passwords do not match");
       return;
     }
+    if ((regRole === "rm" || regRole === "compliance" || regRole === "admin") && !accessCode.trim()) {
+      setShowAccessCode(true);
+      toast.error("Enter the access code for this role");
+      return;
+    }
     const fullPhone = regPhone.trim() ? regCountryCode + regPhone.trim() : undefined;
     setLoading(true);
     try {
@@ -97,6 +121,7 @@ export function LoginPage() {
         full_name: regName,
         role: regRole,
         phone: fullPhone,
+        access_code: (regRole === "rm" || regRole === "compliance" || regRole === "admin") ? accessCode.trim() : undefined,
       });
       auth.setTokens(data.access_token, data.refresh_token, data.expires_in, {
         subject: regEmail,
@@ -353,18 +378,72 @@ export function LoginPage() {
                     />
                   </div>
                 </div>
-                <SelectField label="Role" value={regRole} onChange={(e) => setRegRole(e.target.value)}>
+                <SelectField label="Role" value={regRole} onChange={(e) => {
+                  setRegRole(e.target.value);
+                  const needsCode = e.target.value === "rm" || e.target.value === "compliance" || e.target.value === "admin";
+                  setShowAccessCode(needsCode);
+                  if (!needsCode) setAccessCode("");
+                }}>
                   <option value="investor">Investor</option>
                   <option value="rm">Relationship Manager</option>
                   <option value="compliance">Compliance Officer</option>
+                  <option value="admin">Admin</option>
                 </SelectField>
-                <Field
-                  label="Password"
-                  type="password"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  placeholder="Min 8 characters"
-                />
+                {showAccessCode && (
+                  <div style={{
+                    background: "var(--bg-secondary)",
+                    border: "1px solid var(--border-light)",
+                    borderRadius: 8,
+                    padding: "12px 14px",
+                    marginBottom: 12,
+                  }}>
+                    <p style={{ fontSize: ".8rem", color: "var(--muted)", marginBottom: 8 }}>
+                      {regRole === "rm" ? "Relationship Manager" : regRole === "compliance" ? "Compliance Officer" : "Admin"} registration requires an access code.
+                      {regRole !== "admin" ? " Contact your administrator if you don't have one." : ""}
+                    </p>
+                    <Field
+                      label="Access Code"
+                      type="password"
+                      value={accessCode}
+                      onChange={(e) => setAccessCode(e.target.value)}
+                      placeholder="Enter access code"
+                    />
+                  </div>
+                )}
+                <div>
+                  <Field
+                    label="Password"
+                    type="password"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    placeholder="Min 6 characters"
+                    error={regPassword && regPassword.length < 6 ? "Password must be at least 6 characters" : ""}
+                  />
+                  {regPassword && regPassword.length >= 1 && (() => {
+                    const s = getPasswordStrength(regPassword);
+                    return (
+                      <div style={{ marginTop: -8, marginBottom: 12 }}>
+                        <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                          {[25, 50, 75, 100].map((threshold) => (
+                            <div
+                              key={threshold}
+                              style={{
+                                flex: 1,
+                                height: 4,
+                                borderRadius: 2,
+                                background: s.percent >= threshold ? s.color : "var(--border-light)",
+                                transition: "background 0.3s",
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <span style={{ fontSize: ".75rem", color: s.color, fontWeight: 600 }}>
+                          {s.label}
+                        </span>
+                      </div>
+                    );
+                  })()}
+                </div>
                 <Field
                   label="Confirm Password"
                   type="password"

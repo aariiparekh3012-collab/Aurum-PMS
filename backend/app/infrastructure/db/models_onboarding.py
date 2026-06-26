@@ -56,6 +56,14 @@ class OnboardingApplicationModel(Base):
     agreement_esign_ref: Mapped[str | None] = mapped_column(String(64))
     rejection_reason: Mapped[str | None] = mapped_column(Text)
 
+    # Who is managing / reviewing this application
+    assigned_rm_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    assigned_compliance_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 

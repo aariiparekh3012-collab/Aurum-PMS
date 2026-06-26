@@ -27,7 +27,7 @@ export interface SessionInfo {
 }
 
 export const authApi = {
-  register: (data: { email: string; password: string; full_name: string; role?: string; phone?: string }) =>
+  register: (data: { email: string; password: string; full_name: string; role?: string; phone?: string; access_code?: string }) =>
     apiClient.post<TokenResponse>("/auth/register", data).then((r) => r.data),
 
   sendPhoneOtp: (phone?: string) =>

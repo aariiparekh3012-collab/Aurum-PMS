@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://postgres:aarya123@localhost:5432/aurumpms"
 
     # -- NSE Reports Database (separate DB for daily Bhavcopy downloads)
-    nse_database_url: str = "postgresql://postgres:aarya123@localhost:5432/downloaddailyreport"
+    nse_database_url: str = "postgresql://postgres:aarya123@localhost:5432/aurum_market_data"
 
     # -- Auth / JWT
     jwt_secret: str = "change-me-in-production"

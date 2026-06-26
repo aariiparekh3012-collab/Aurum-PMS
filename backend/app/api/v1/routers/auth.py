@@ -38,7 +38,7 @@ from app.infrastructure.external.sms_client import get_sms_sender
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 _ROLE_ALIASES = {"rm": "relationship_manager"}
-_VALID_ROLES = ("investor", "relationship_manager", "compliance")
+_VALID_ROLES = ("investor", "relationship_manager", "compliance", "admin")
 
 
 def _now():
@@ -68,6 +68,7 @@ class RegisterRequest(BaseModel):
     full_name: str
     role: str = "investor"
     phone: str | None = None
+    access_code: str | None = None
 
 
 class RegisterResponse(BaseModel):
@@ -215,8 +216,25 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     role = _ROLE_ALIASES.get(body.role, body.role)
     if role not in _VALID_ROLES:
         raise HTTPException(status_code=422, detail="Invalid role")
-    if len(body.password) < 8:
-        raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
+    if len(body.password) < 6:
+        raise HTTPException(status_code=422, detail="Password must be at least 6 characters")
+
+    # Role access codes — RM, Compliance, and Admin need a code to register
+    _ROLE_ACCESS_CODES = {
+        "relationship_manager": "4444",
+        "compliance": "8888",
+        "admin": "3012",
+    }
+    required_code = _ROLE_ACCESS_CODES.get(role)
+    if required_code:
+        if not body.access_code or body.access_code.strip() != required_code:
+            raise HTTPException(status_code=403, detail="Invalid access code for this role")
+
+    # Admin: only one account allowed
+    if role == "admin":
+        existing_admin = db.query(UserModel).filter_by(role="admin").first()
+        if existing_admin is not None:
+            raise HTTPException(status_code=409, detail="An admin account already exists")
 
     email = body.email.strip().lower()
     existing = db.query(UserModel).filter_by(email=email).first()
@@ -239,11 +257,15 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     db.add(user)
     db.flush()
 
-    # Fire off verifications. Don't fail the signup if a provider hiccups.
+    # Fire off verifications. Log errors visibly but don't fail signup.
     try:
+        logging.getLogger("pms.auth").info("Sending verification email to %s ...", email)
         _issue_email_verification(db, user)
-    except Exception:  # noqa: BLE001
-        logging.getLogger("pms.auth").exception("Failed to send verification email")
+        logging.getLogger("pms.auth").info("Verification email sent successfully to %s", email)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger("pms.auth").exception(
+            "FAILED to send verification email to %s: %s", email, exc,
+        )
     if phone:
         try:
             _issue_phone_otp(db, user, phone)

@@ -16,16 +16,20 @@ export function VerifyEmailPage() {
       setMessage("This link is missing its verification token.");
       return;
     }
-    authApi
-      .verifyEmail(token)
-      .then((r) => {
-        setStatus("ok");
-        setMessage(r.message || "Your email has been verified.");
-      })
-      .catch((e: Error) => {
-        setStatus("error");
-        setMessage(e.message);
-      });
+    // Small delay so the user sees the loading state
+    const timer = setTimeout(() => {
+      authApi
+        .verifyEmail(token)
+        .then((r) => {
+          setStatus("ok");
+          setMessage(r.message || "Your email has been verified.");
+        })
+        .catch((e: Error) => {
+          setStatus("error");
+          setMessage(e.message);
+        });
+    }, 1200);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -33,7 +37,14 @@ export function VerifyEmailPage() {
       <div className="auth-card">
         <Card>
           <div className="center" style={{ flexDirection: "column", textAlign: "center", gap: 4 }}>
-            {status === "verifying" && <p className="muted">Verifying your email&hellip;</p>}
+            {status === "verifying" && (
+              <>
+                <div className="spinner" style={{ width: 36, height: 36, border: "3px solid var(--border-light)", borderTopColor: "var(--primary)", borderRadius: "50%", animation: "spin 0.8s linear infinite", marginBottom: 12 }} />
+                <h2 style={{ marginBottom: 8 }}>Verifying your email</h2>
+                <p className="muted">Please wait a moment&hellip;</p>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </>
+            )}
             {status === "ok" && (
               <>
                 <div className="success-check">✓</div>

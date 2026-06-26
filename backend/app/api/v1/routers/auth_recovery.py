@@ -44,8 +44,8 @@ class ResetPasswordRequest(BaseModel):
     @field_validator("new_password")
     @classmethod
     def password_strength(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
+        if len(v) < 6:
+            raise ValueError("Password must be at least 6 characters")
         return v
 
 
@@ -168,7 +168,7 @@ def verify_email(body: VerifyEmailRequest, db: Session = Depends(get_db)):
         raise DomainError("Invalid verification token", code="bad_request")
 
     if token_record.is_used:
-        raise DomainError("Email already verified", code="bad_request")
+        return MessageResponse(message="Email already verified.")
 
     if token_record.expires_at < now:
         raise DomainError("Verification link has expired", code="bad_request")

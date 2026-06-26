@@ -633,7 +633,7 @@ def seed_nse_reports(c: httpx.Client):
         import psycopg2
         nse_url = os.getenv(
             "NSE_DATABASE_URL",
-            "postgresql://postgres:localdev123@localhost:5432/downloaddailyreport",
+            "postgresql://postgres:aarya123@localhost:5432/aurum_market_data",
         )
         nse_url = nse_url.replace("postgresql+psycopg2://", "postgresql://")
         conn = psycopg2.connect(nse_url)

@@ -43,6 +43,14 @@ class ClientModel(Base):
     full_name: Mapped[str] = mapped_column(String(200), nullable=False)
     email: Mapped[str] = mapped_column(String(254), nullable=False)
     mobile: Mapped[str] = mapped_column(String(20), nullable=False)
+    # Assigned RM and Compliance officer for this client
+    assigned_rm_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    assigned_compliance_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 

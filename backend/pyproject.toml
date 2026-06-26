@@ -15,7 +15,6 @@ markers = [
     "integration: integration tests requiring external services",
     "security: security-focused tests",
 ]
-testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

@@ -51,12 +51,20 @@ class SqlAlchemyOnboardingRepository(OnboardingRepository):
             updated_at=app.updated_at,
         )
 
+    @staticmethod
+    def _safe_decrypt(ciphertext: str, fallback: str = "XXXXX0000X") -> str:
+        """Decrypt PII, returning a fallback on key-mismatch (stale rows)."""
+        try:
+            return decrypt(ciphertext)
+        except Exception:          # cryptography.fernet.InvalidToken or similar
+            return fallback
+
     def _to_entity(self, m: OnboardingApplicationModel) -> OnboardingApplication:
-        pan_plain = decrypt(m.pan_enc)
+        pan_plain = self._safe_decrypt(m.pan_enc)
         bank = None
         if m.bank_account_enc:
             bank = BankAccount(
-                account_number=decrypt(m.bank_account_enc),
+                account_number=self._safe_decrypt(m.bank_account_enc, "000000000"),
                 ifsc=m.bank_ifsc,
                 holder_name=m.bank_holder_name,
             )

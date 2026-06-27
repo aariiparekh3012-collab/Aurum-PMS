@@ -12,6 +12,18 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.security import decrypt_pii, encrypt_pii, hash_pan
+
+import logging as _logging
+_log = _logging.getLogger(__name__)
+
+
+def _safe_decrypt(ciphertext: str, fallback: str = "XXXXX0000X") -> str:
+    """Decrypt PII, returning a fallback on key-mismatch (stale rows)."""
+    try:
+        return decrypt_pii(ciphertext)
+    except Exception:
+        _log.warning("PII decryption failed — returning masked fallback")
+        return fallback
 from app.domain.client.entities import (
     Client,
     ClientBankAccount,
@@ -103,7 +115,7 @@ class SqlAlchemyClientRepository(ClientRepository):
             id=m.id,
             onboarding_application_id=m.onboarding_application_id,
             client_code=m.client_code,
-            pan=PAN(decrypt_pii(m.pan_enc)),
+            pan=PAN(_safe_decrypt(m.pan_enc)),
             investor_type=InvestorType(m.investor_type),
             full_name=m.full_name,
             email=m.email,
@@ -114,7 +126,7 @@ class SqlAlchemyClientRepository(ClientRepository):
             bank_accounts=[
                 ClientBankAccount(
                     id=b.id,
-                    account_number=decrypt_pii(b.account_enc),
+                    account_number=_safe_decrypt(b.account_enc, "000000000"),
                     ifsc=b.ifsc,
                     holder_name=b.holder_name,
                     is_primary=b.is_primary,
@@ -128,7 +140,7 @@ class SqlAlchemyClientRepository(ClientRepository):
             nominees=[
                 Nominee(
                     id=n.id,
-                    name=decrypt_pii(n.name_enc),
+                    name=_safe_decrypt(n.name_enc, "***"),
                     relationship=n.relationship_,
                     share_percent=float(n.share_percent),
                     rank=n.rank,

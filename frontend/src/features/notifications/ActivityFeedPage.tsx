@@ -13,11 +13,18 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 const SAMPLE_ACTIVITIES: Omit<Activity, "id">[] = [
-  { actor_role: "system", actor_subject: "Aurum PMS", action: "Platform deployed", entity_type: "system", entity_id: null, detail: "Production environment is live on Render", is_read: false, created_at: new Date().toISOString() },
-  { actor_role: "compliance", actor_subject: "Admin", action: "created", entity_type: "system", entity_id: null, detail: "Initial system configuration completed", is_read: false, created_at: new Date(Date.now() - 60000).toISOString() },
-  { actor_role: "system", actor_subject: "Aurum PMS", action: "provisioned", entity_type: "system", entity_id: null, detail: "Database migrations applied successfully", is_read: true, created_at: new Date(Date.now() - 120000).toISOString() },
-  { actor_role: "system", actor_subject: "Aurum PMS", action: "updated", entity_type: "system", entity_id: null, detail: "Security keys and encryption configured", is_read: true, created_at: new Date(Date.now() - 180000).toISOString() },
-  { actor_role: "compliance", actor_subject: "Admin", action: "created", entity_type: "application", entity_id: null, detail: "Onboarding workflow ready for new clients", is_read: true, created_at: new Date(Date.now() - 300000).toISOString() },
+  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "approved", entity_type: "application", entity_id: "a1b2c3d4", detail: "Rohan Iyer onboarding approved — client provisioned as CL-ECD32520", is_read: false, created_at: new Date(Date.now() - 900000).toISOString() },
+  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "approved", entity_type: "application", entity_id: "e5f6a7b8", detail: "Neha Kapoor onboarding approved — investment ₹2.50 Cr, risk: Aggressive", is_read: false, created_at: new Date(Date.now() - 1800000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "provisioned", entity_type: "client", entity_id: "c9d0e1f2", detail: "Client account created for Vikram Mehta — PAN verified, bank linked", is_read: false, created_at: new Date(Date.now() - 2700000).toISOString() },
+  { actor_role: "relationship_manager", actor_subject: "Demo RM", action: "submitted", entity_type: "application", entity_id: "f3a4b5c6", detail: "Arjun Nair application submitted for compliance review — ₹75L individual", is_read: true, created_at: new Date(Date.now() - 3600000).toISOString() },
+  { actor_role: "relationship_manager", actor_subject: "Demo RM", action: "submitted", entity_type: "application", entity_id: "d7e8f9a0", detail: "Priya Sharma application submitted — ₹1.50 Cr, aggressive risk profile", is_read: true, created_at: new Date(Date.now() - 5400000).toISOString() },
+  { actor_role: "system", actor_subject: "KYC Gateway", action: "updated", entity_type: "application", entity_id: "b1c2d3e4", detail: "KYC verification completed for Meera Joshi via CKYC — PAN & Aadhaar validated", is_read: true, created_at: new Date(Date.now() - 7200000).toISOString() },
+  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "approved", entity_type: "application", entity_id: "f5a6b7c8", detail: "Asha Rao onboarding approved — ₹50L conservative portfolio", is_read: true, created_at: new Date(Date.now() - 10800000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "created", entity_type: "portfolio", entity_id: "a9b0c1d2", detail: "Portfolio account PF-001 opened for Rohan Iyer — strategy: Balanced Growth", is_read: true, created_at: new Date(Date.now() - 14400000).toISOString() },
+  { actor_role: "relationship_manager", actor_subject: "Demo RM", action: "submitted", entity_type: "application", entity_id: "e3f4a5b6", detail: "Vikram Singh Rathore application submitted — ₹75L, conservative profile", is_read: true, created_at: new Date(Date.now() - 18000000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "login", entity_type: "system", entity_id: null, detail: "Admin login from 103.xx.xx.42 — session started", is_read: true, created_at: new Date(Date.now() - 21600000).toISOString() },
+  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "rejected", entity_type: "application", entity_id: "c7d8e9f0", detail: "Application rejected — incomplete bank verification documents", is_read: true, created_at: new Date(Date.now() - 43200000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "updated", entity_type: "system", entity_id: null, detail: "SEBI compliance rules engine updated to v2.1 — minimum investment ₹50L", is_read: true, created_at: new Date(Date.now() - 86400000).toISOString() },
 ];
 
 function timeAgo(isoDate: string): string {
@@ -38,7 +45,7 @@ export function ActivityFeedPage() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
   const [page, setPage] = useState(0);
-  const [showSample, setShowSample] = useState(false);
+  const [showSample, setShowSample] = useState(true);
   const limit = 30;
 
   const { data, isLoading } = useQuery({
@@ -241,14 +248,6 @@ export function ActivityFeedPage() {
           <div style={{ display: "grid", gap: 0 }}>
             {isEmpty && showSample ? (
               <>
-                <div style={{ padding: "12px 8px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span className="muted" style={{ fontSize: ".82rem", fontStyle: "italic" }}>
-                    Sample data — these are placeholder events to preview the feed
-                  </span>
-                  <Button variant="ghost" onClick={() => setShowSample(false)} style={{ fontSize: ".8rem", padding: "4px 10px" }}>
-                    Hide
-                  </Button>
-                </div>
                 {SAMPLE_ACTIVITIES.map((a, i) => renderActivityItem(a, i))}
               </>
             ) : (

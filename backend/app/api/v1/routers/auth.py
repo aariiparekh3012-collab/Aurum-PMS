@@ -321,29 +321,6 @@ def me(current=Depends(get_current_user), db: Session = Depends(get_db)):
     return record
 
 
-class _AdminUpdateRequest(BaseModel):
-    new_email: str
-    new_password: str
-    new_full_name: str | None = None
-
-
-@router.put("/admin-update")
-def admin_update(body: _AdminUpdateRequest, current=Depends(get_current_user), db: Session = Depends(get_db)):
-    """Temporary endpoint to update admin credentials. Remove after use."""
-    if current.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
-    user = db.query(UserModel).filter_by(role="admin").first()
-    if not user:
-        raise HTTPException(status_code=404, detail="No admin found")
-    user.email = body.new_email.strip().lower()
-    user.password_hash = hash_password(body.new_password)
-    if body.new_full_name:
-        user.full_name = body.new_full_name.strip()
-    user.updated_at = _now()
-    db.commit()
-    return {"message": "Admin updated", "email": user.email}
-
-
 @router.post("/send-phone-otp", response_model=MessageResponse)
 def send_phone_otp(
     body: PhoneRequest,

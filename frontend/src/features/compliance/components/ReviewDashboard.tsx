@@ -21,10 +21,10 @@ export default function ReviewDashboard() {
   const fetchApps = async (status: string) => {
     setLoading(true);
     try {
-      const { data } = await apiClient.get<ApplicationResponse[]>("/onboarding/applications", {
+      const { data } = await apiClient.get<any>("/onboarding/applications", {
         params: { status },
       });
-      setApps(data);
+      setApps(Array.isArray(data) ? data : data.applications ?? []);
     } catch { setApps([]); }
     setLoading(false);
   };

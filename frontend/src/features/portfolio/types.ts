@@ -25,9 +25,15 @@ export interface HoldingRow {
   isin: string;
   symbol: string;
   name: string;
+  sector?: string;
   quantity: number;
   avg_cost_paise: number;
   total_cost_paise?: number;
+  ltp_paise?: number | null;
+  ltp_inr?: number | null;
+  current_value_inr?: number | null;
+  pnl_inr?: number | null;
+  pnl_pct?: number | null;
   lots_count: number;
 }
 

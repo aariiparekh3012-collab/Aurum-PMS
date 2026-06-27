@@ -36,7 +36,7 @@ export const portfolioApi = {
 
   // ── Holdings ──
   holdings: (accountId: string) =>
-    apiClient.get(`/portfolio/accounts/${accountId}/holdings`).then((r) => r.data as HoldingRow[]),
+    apiClient.get(`/portfolio/accounts/${accountId}/holdings`).then((r) => (r.data?.holdings ?? r.data) as HoldingRow[]),
 
   // ── Trades ──
   recordTrade: (accountId: string, data: {

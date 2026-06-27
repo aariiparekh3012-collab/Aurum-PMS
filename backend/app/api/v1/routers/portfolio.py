@@ -13,6 +13,7 @@ from app.infrastructure.db.models_portfolio import (
     FeeScheduleModel, PortfolioAccountModel, HoldingModel, CashLedgerModel,
 )
 from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
+from app.services.market_data import get_latest_prices
 from app.infrastructure.db.portfolio_repository import (
     SqlAlchemyClientRepository, SqlAlchemyPortfolioAccountRepository,
     SqlAlchemyTradeRepository,
@@ -78,6 +79,7 @@ class SecuritySeedRequest(BaseModel):
 
 class StrategySeedRequest(BaseModel):
     name: str
+    code: str = ""
     approach: str = "discretionary"
 
 
@@ -231,17 +233,35 @@ def get_holdings(
         from fastapi import HTTPException
         raise HTTPException(404, "Portfolio account not found")
 
+    # Fetch latest market prices for LTP / P&L
+    prices = get_latest_prices(db)
+
     result = []
     for sec_id, holding in account.holdings.items():
         sec = db.get(SecurityModel, sec_id)
+        ltp_paise = prices.get(sec_id)
+        avg_cost_paise = holding.avg_cost_paise
+        qty = holding.quantity
+        total_cost_paise = avg_cost_paise * qty
+        current_value_paise = (ltp_paise * qty) if ltp_paise else None
+        pnl_paise = (current_value_paise - total_cost_paise) if current_value_paise is not None else None
+        pnl_pct = (pnl_paise / total_cost_paise * 100) if (pnl_paise is not None and total_cost_paise) else None
+
         result.append({
             "security_id": str(sec_id),
             "isin": sec.isin if sec else "",
             "symbol": sec.symbol if sec else "",
             "name": sec.symbol if sec else "",
-            "quantity": holding.quantity,
-            "avg_cost_inr": holding.avg_cost_paise / 100,
-            "total_cost_inr": holding.total_cost_paise / 100,
+            "sector": sec.sector if sec else "",
+            "quantity": qty,
+            "avg_cost_paise": avg_cost_paise,
+            "avg_cost_inr": avg_cost_paise / 100,
+            "total_cost_inr": total_cost_paise / 100,
+            "ltp_paise": ltp_paise,
+            "ltp_inr": ltp_paise / 100 if ltp_paise else None,
+            "current_value_inr": current_value_paise / 100 if current_value_paise is not None else None,
+            "pnl_inr": pnl_paise / 100 if pnl_paise is not None else None,
+            "pnl_pct": round(pnl_pct, 2) if pnl_pct is not None else None,
             "lots_count": len(holding.lots),
         })
     return {"account_id": str(account_id), "holdings": result}
@@ -384,10 +404,11 @@ def seed_strategy(
     db: Session = Depends(get_db),
     _user: dict = Depends(require_role("compliance", "relationship_manager")),
 ):
-    strat = StrategyModel(name=body.name, approach=body.approach)
+    code = body.code or body.name.upper().replace(" ", "_")[:32]
+    strat = StrategyModel(name=body.name, code=code, approach=body.approach)
     db.add(strat)
     db.flush()
-    return {"id": str(strat.id), "name": strat.name}
+    return {"id": str(strat.id), "name": strat.name, "code": strat.code}
 
 
 @router.get("/strategies")

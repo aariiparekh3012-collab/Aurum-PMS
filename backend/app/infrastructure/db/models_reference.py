@@ -18,7 +18,6 @@ class SecurityModel(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     isin: Mapped[str] = mapped_column(String(12), unique=True, nullable=False)
     symbol: Mapped[str] = mapped_column(String(32), nullable=False)
-    name: Mapped[str | None] = mapped_column(String(120))
     exchange: Mapped[str] = mapped_column(String(10), nullable=False)
     instrument_type: Mapped[str] = mapped_column(String(20), nullable=False)
     sector: Mapped[str | None] = mapped_column(String(64))

@@ -13,18 +13,39 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 const SAMPLE_ACTIVITIES: Omit<Activity, "id">[] = [
+  // ── application ──
   { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "approved", entity_type: "application", entity_id: "a1b2c3d4", detail: "Rohan Iyer onboarding approved — client provisioned as CL-ECD32520", is_read: false, created_at: new Date(Date.now() - 900000).toISOString() },
-  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "approved", entity_type: "application", entity_id: "e5f6a7b8", detail: "Neha Kapoor onboarding approved — investment ₹2.50 Cr, risk: Aggressive", is_read: false, created_at: new Date(Date.now() - 1800000).toISOString() },
-  { actor_role: "system", actor_subject: "Aurum PMS", action: "provisioned", entity_type: "client", entity_id: "c9d0e1f2", detail: "Client account created for Vikram Mehta — PAN verified, bank linked", is_read: false, created_at: new Date(Date.now() - 2700000).toISOString() },
-  { actor_role: "relationship_manager", actor_subject: "Demo RM", action: "submitted", entity_type: "application", entity_id: "f3a4b5c6", detail: "Arjun Nair application submitted for compliance review — ₹75L individual", is_read: true, created_at: new Date(Date.now() - 3600000).toISOString() },
-  { actor_role: "relationship_manager", actor_subject: "Demo RM", action: "submitted", entity_type: "application", entity_id: "d7e8f9a0", detail: "Priya Sharma application submitted — ₹1.50 Cr, aggressive risk profile", is_read: true, created_at: new Date(Date.now() - 5400000).toISOString() },
-  { actor_role: "system", actor_subject: "KYC Gateway", action: "updated", entity_type: "application", entity_id: "b1c2d3e4", detail: "KYC verification completed for Meera Joshi via CKYC — PAN & Aadhaar validated", is_read: true, created_at: new Date(Date.now() - 7200000).toISOString() },
-  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "approved", entity_type: "application", entity_id: "f5a6b7c8", detail: "Asha Rao onboarding approved — ₹50L conservative portfolio", is_read: true, created_at: new Date(Date.now() - 10800000).toISOString() },
-  { actor_role: "system", actor_subject: "Aurum PMS", action: "created", entity_type: "portfolio", entity_id: "a9b0c1d2", detail: "Portfolio account PF-001 opened for Rohan Iyer — strategy: Balanced Growth", is_read: true, created_at: new Date(Date.now() - 14400000).toISOString() },
-  { actor_role: "relationship_manager", actor_subject: "Demo RM", action: "submitted", entity_type: "application", entity_id: "e3f4a5b6", detail: "Vikram Singh Rathore application submitted — ₹75L, conservative profile", is_read: true, created_at: new Date(Date.now() - 18000000).toISOString() },
-  { actor_role: "system", actor_subject: "Aurum PMS", action: "login", entity_type: "system", entity_id: null, detail: "Admin login from 103.xx.xx.42 — session started", is_read: true, created_at: new Date(Date.now() - 21600000).toISOString() },
-  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "rejected", entity_type: "application", entity_id: "c7d8e9f0", detail: "Application rejected — incomplete bank verification documents", is_read: true, created_at: new Date(Date.now() - 43200000).toISOString() },
+  { actor_role: "compliance", actor_subject: "Kavita Deshmukh", action: "approved", entity_type: "application", entity_id: "e5f6a7b8", detail: "Neha Kapoor onboarding approved — investment ₹2.50 Cr, risk: Aggressive", is_read: false, created_at: new Date(Date.now() - 1800000).toISOString() },
+  { actor_role: "relationship_manager", actor_subject: "Sanjay Gupta", action: "submitted", entity_type: "application", entity_id: "f3a4b5c6", detail: "Arjun Nair application submitted for compliance review — ₹75L individual", is_read: true, created_at: new Date(Date.now() - 5400000).toISOString() },
+  { actor_role: "relationship_manager", actor_subject: "Sanjay Gupta", action: "submitted", entity_type: "application", entity_id: "d7e8f9a0", detail: "Priya Sharma application submitted — ₹1.50 Cr, aggressive risk profile", is_read: true, created_at: new Date(Date.now() - 7200000).toISOString() },
+  { actor_role: "system", actor_subject: "KYC Gateway", action: "updated", entity_type: "application", entity_id: "b1c2d3e4", detail: "KYC verification completed for Meera Joshi via CKYC — PAN & Aadhaar validated", is_read: true, created_at: new Date(Date.now() - 10800000).toISOString() },
+  { actor_role: "compliance", actor_subject: "Aarii Parekh", action: "rejected", entity_type: "application", entity_id: "c7d8e9f0", detail: "Application rejected — incomplete bank verification documents", is_read: true, created_at: new Date(Date.now() - 64800000).toISOString() },
+
+  // ── order ──
+  { actor_role: "relationship_manager", actor_subject: "Sanjay Gupta", action: "created", entity_type: "order", entity_id: "ORD-20260627", detail: "Buy 500 RELIANCE @ ₹2,845.60 for Rohan Iyer — market order", is_read: false, created_at: new Date(Date.now() - 2700000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "filled", entity_type: "order", entity_id: "ORD-20260626", detail: "Buy 200 TCS @ ₹4,120.00 executed — filled 200/200 shares", is_read: true, created_at: new Date(Date.now() - 14400000).toISOString() },
+  { actor_role: "relationship_manager", actor_subject: "Sanjay Gupta", action: "created", entity_type: "order", entity_id: "ORD-20260625", detail: "Sell 100 INFY @ ₹1,590.25 for Neha Kapoor — limit order", is_read: true, created_at: new Date(Date.now() - 36000000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "filled", entity_type: "order", entity_id: "ORD-20260624", detail: "Buy 1000 HDFCBANK @ ₹1,712.40 executed — partial fill 800/1000", is_read: true, created_at: new Date(Date.now() - 57600000).toISOString() },
+
+  // ── trade ──
+  { actor_role: "system", actor_subject: "NSE Gateway", action: "settled", entity_type: "trade", entity_id: "TRD-78254", detail: "RELIANCE buy 500 shares settled T+1 — ₹14,22,800 debited from Rohan Iyer", is_read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
+  { actor_role: "system", actor_subject: "NSE Gateway", action: "settled", entity_type: "trade", entity_id: "TRD-78190", detail: "TCS buy 200 shares settled — ₹8,24,000 debited from Vikram Mehta", is_read: true, created_at: new Date(Date.now() - 18000000).toISOString() },
+  { actor_role: "system", actor_subject: "BSE Gateway", action: "settled", entity_type: "trade", entity_id: "TRD-78120", detail: "ICICIBANK sell 300 shares settled — ₹3,69,900 credited to Asha Rao", is_read: true, created_at: new Date(Date.now() - 43200000).toISOString() },
+
+  // ── client ──
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "provisioned", entity_type: "client", entity_id: "c9d0e1f2", detail: "Client account created for Vikram Mehta — PAN verified, bank linked", is_read: false, created_at: new Date(Date.now() - 4500000).toISOString() },
+  { actor_role: "compliance", actor_subject: "Kavita Deshmukh", action: "updated", entity_type: "client", entity_id: "d1e2f3a4", detail: "Neha Kapoor risk profile reassessed — Aggressive → Moderate (quarterly review)", is_read: true, created_at: new Date(Date.now() - 21600000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "provisioned", entity_type: "client", entity_id: "e5f6a7b8", detail: "Client account created for Asha Rao — CL-537B1A50, conservative profile", is_read: true, created_at: new Date(Date.now() - 50400000).toISOString() },
+
+  // ── portfolio ──
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "created", entity_type: "portfolio", entity_id: "PF-001", detail: "Portfolio account opened for Rohan Iyer — strategy: Balanced Growth", is_read: true, created_at: new Date(Date.now() - 25200000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "updated", entity_type: "portfolio", entity_id: "PF-002", detail: "Neha Kapoor portfolio rebalanced — 60% equity, 30% debt, 10% gold", is_read: true, created_at: new Date(Date.now() - 28800000).toISOString() },
+  { actor_role: "relationship_manager", actor_subject: "Sanjay Gupta", action: "created", entity_type: "portfolio", entity_id: "PF-003", detail: "New portfolio account opened for Vikram Mehta — strategy: Large Cap Focus", is_read: true, created_at: new Date(Date.now() - 54000000).toISOString() },
+
+  // ── system ──
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "login", entity_type: "system", entity_id: null, detail: "Admin login from 103.xx.xx.42 — session started", is_read: true, created_at: new Date(Date.now() - 32400000).toISOString() },
   { actor_role: "system", actor_subject: "Aurum PMS", action: "updated", entity_type: "system", entity_id: null, detail: "SEBI compliance rules engine updated to v2.1 — minimum investment ₹50L", is_read: true, created_at: new Date(Date.now() - 86400000).toISOString() },
+  { actor_role: "system", actor_subject: "Aurum PMS", action: "updated", entity_type: "system", entity_id: null, detail: "Daily NAV computation completed — 5 portfolios recalculated", is_read: true, created_at: new Date(Date.now() - 72000000).toISOString() },
 ];
 
 function timeAgo(isoDate: string): string {
@@ -213,12 +234,17 @@ export function ActivityFeedPage() {
       {/* ── Activity KPIs ── */}
       {isLoading ? (
         <SkeletonKPIs count={2} />
-      ) : (
-        <div className="kpis" style={{ marginBottom: 20 }}>
-          <div className="kpi"><span className="kpi__value">{total}</span><span className="kpi__label">Total events</span></div>
-          <div className="kpi"><span className="kpi__value" style={{ color: unread > 0 ? "var(--warning)" : undefined }}>{unread}</span><span className="kpi__label">Unread</span></div>
-        </div>
-      )}
+      ) : (() => {
+        const sampleFiltered = SAMPLE_ACTIVITIES.filter((a) => filter === "all" || a.entity_type === filter);
+        const displayTotal = total || (isEmpty && showSample ? sampleFiltered.length : 0);
+        const displayUnread = unread || (isEmpty && showSample ? sampleFiltered.filter((a) => !a.is_read).length : 0);
+        return (
+          <div className="kpis" style={{ marginBottom: 20 }}>
+            <div className="kpi"><span className="kpi__value">{displayTotal}</span><span className="kpi__label">Total events</span></div>
+            <div className="kpi"><span className="kpi__value" style={{ color: displayUnread > 0 ? "var(--warning)" : undefined }}>{displayUnread}</span><span className="kpi__label">Unread</span></div>
+          </div>
+        );
+      })()}
 
       {/* ── Filter Chips ── */}
       <div className="row" style={{ gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
@@ -248,7 +274,9 @@ export function ActivityFeedPage() {
           <div style={{ display: "grid", gap: 0 }}>
             {isEmpty && showSample ? (
               <>
-                {SAMPLE_ACTIVITIES.map((a, i) => renderActivityItem(a, i))}
+                {SAMPLE_ACTIVITIES
+                  .filter((a) => filter === "all" || a.entity_type === filter)
+                  .map((a, i) => renderActivityItem(a, i))}
               </>
             ) : (
               items.map((a: Activity, i: number) => renderActivityItem(a, i))

@@ -10,6 +10,7 @@ import { Button, Card, Field, SelectField, useToast } from "../../components/ui"
 type View = "login" | "register" | "forgot" | "verify";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 8;
 
 const COUNTRY_CODES = [
   { code: "+91", label: "IN +91", flag: "🇮🇳" },
@@ -27,7 +28,7 @@ type PasswordStrength = "none" | "weak" | "fair" | "strong" | "very-strong";
 function getPasswordStrength(pw: string): { level: PasswordStrength; label: string; color: string; percent: number } {
   if (!pw) return { level: "none", label: "", color: "transparent", percent: 0 };
   let score = 0;
-  if (pw.length >= 6) score++;
+  if (pw.length >= MIN_PASSWORD_LENGTH) score++;
   if (pw.length >= 10) score++;
   if (/[A-Z]/.test(pw)) score++;
   if (/[0-9]/.test(pw)) score++;
@@ -101,6 +102,10 @@ export function LoginPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (regPassword.length < MIN_PASSWORD_LENGTH) {
+      toast.error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+      return;
+    }
     const eErr = validateEmail(regEmail);
     if (eErr) { setRegEmailErr(eErr); return; }
     if (regPassword !== regConfirm) {

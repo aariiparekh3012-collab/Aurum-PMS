@@ -421,8 +421,13 @@ export function LoginPage() {
                     type="password"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="Min 6 characters"
-                    error={regPassword && regPassword.length < 6 ? "Password must be at least 6 characters" : ""}
+                    placeholder="Min 8 characters"
+                    minLength={MIN_PASSWORD_LENGTH}
+                    error={
+                      regPassword && regPassword.length < MIN_PASSWORD_LENGTH
+                    ? `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+                      : ""
+                    }
                   />
                   {regPassword && regPassword.length >= 1 && (() => {
                     const s = getPasswordStrength(regPassword);

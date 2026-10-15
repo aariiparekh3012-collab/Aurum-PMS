@@ -4,7 +4,7 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import BigInteger, Boolean, Date, DateTime, Numeric, String, ForeignKey, func
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, ForeignKey, Numeric, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -48,7 +48,7 @@ class PortfolioAccountModel(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
-    holdings: Mapped[list["HoldingModel"]] = relationship(back_populates="portfolio_account")
+    holdings: Mapped[list[HoldingModel]] = relationship(back_populates="portfolio_account")
 
 
 class HoldingModel(Base):
@@ -69,7 +69,7 @@ class HoldingModel(Base):
     )
 
     portfolio_account: Mapped[PortfolioAccountModel] = relationship(back_populates="holdings")
-    lots: Mapped[list["HoldingLotModel"]] = relationship(
+    lots: Mapped[list[HoldingLotModel]] = relationship(
         back_populates="holding", cascade="all, delete-orphan"
     )
 

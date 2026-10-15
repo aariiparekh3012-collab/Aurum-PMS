@@ -71,8 +71,8 @@ class Client:
     nominees: list[Nominee] = field(default_factory=list)
     risk_profiles: list[ClientRiskProfile] = field(default_factory=list)
 
-    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
-    updated_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
+    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
+    updated_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
 
     @classmethod
     def from_onboarding(
@@ -89,7 +89,7 @@ class Client:
         demat_account: DematAccount | None,
         risk_category: RiskCategory | None,
         risk_score: int | None,
-    ) -> "Client":
+    ) -> Client:
         client = cls(
             onboarding_application_id=application_id,
             client_code=client_code,

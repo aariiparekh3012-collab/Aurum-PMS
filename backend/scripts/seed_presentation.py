@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import os
 import random
-import sys
 import time
 from datetime import date, timedelta
 
@@ -125,7 +124,7 @@ def _get_retry(c: httpx.Client, path: str, retries: int = 5) -> httpx.Response:
 def _register(c: httpx.Client, email, password, full_name, role):
     """Register a user, retrying once on 429 rate-limit."""
     payload = {"email": email, "password": password, "full_name": full_name, "role": role}
-    for attempt in range(3):
+    for _attempt in range(3):
         r = c.post("/auth/register", json=payload)
         if r.status_code == 429:
             wait = 15
@@ -519,7 +518,7 @@ def seed_messages(c: httpx.Client):
         ),
     ]
 
-    for sender_email, sender_pw, sender_role, recipient_email, messages in conversations:
+    for sender_email, sender_pw, _sender_role, recipient_email, messages in conversations:
         for _attempt in range(3):
             login_r = c.post("/auth/login", json={"email": sender_email, "password": sender_pw})
             if login_r.status_code == 429:

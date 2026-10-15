@@ -12,12 +12,9 @@ from __future__ import annotations
 
 import hashlib
 import os
-import shutil
 import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
-
-from app.core.config import get_settings
 
 
 class DocumentStore(ABC):
@@ -47,11 +44,10 @@ class DocumentStore(ABC):
 class LocalDocumentStore(DocumentStore):
     """Store documents on the local filesystem."""
 
-    def __init__(self, base_path: str | None = None):
-        self._base = Path(base_path or os.getenv(
-            "DOCUMENT_STORAGE_PATH",
-            str(Path(__file__).resolve().parents[4] / "document_uploads"),
-        ))
+    def __init__(self, base_path: str | None = None) -> None:
+        default_path = str(Path(__file__).resolve().parents[4] / "document_uploads")
+        configured_path = base_path or os.getenv("DOCUMENT_STORAGE_PATH") or default_path
+        self._base = Path(configured_path)
         self._base.mkdir(parents=True, exist_ok=True)
 
     def save(self, key: str, data: bytes) -> str:
@@ -79,9 +75,8 @@ class LocalDocumentStore(DocumentStore):
 class S3DocumentStore(DocumentStore):
     """Store documents in S3/MinIO."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         import boto3
-        settings = get_settings()
         self._bucket = os.getenv("DOCUMENT_S3_BUCKET", "pms-documents")
 
         endpoint_url = os.getenv("DOCUMENT_S3_ENDPOINT")

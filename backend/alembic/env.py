@@ -3,25 +3,27 @@ from __future__ import annotations
 
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from alembic import context
 from app.core.config import get_settings
 from app.core.database import Base
 
 # Import ALL model files so their tables register on Base.metadata
-from app.infrastructure.db import models_onboarding  # noqa: F401
-from app.infrastructure.db import models_audit  # noqa: F401
-from app.infrastructure.db import models_outbox  # noqa: F401
-from app.infrastructure.db import models_client  # noqa: F401
-from app.infrastructure.db import models_reference  # noqa: F401
-from app.infrastructure.db import models_trading  # noqa: F401
-from app.infrastructure.db import models_portfolio  # noqa: F401
-from app.infrastructure.db import models_performance  # noqa: F401
-from app.infrastructure.db import models_notifications  # noqa: F401
-from app.infrastructure.db import models_auth  # noqa: F401
-from app.infrastructure.db import models_nse_reports  # noqa: F401
-from app.infrastructure.db import models_market_data  # noqa: F401
+from app.infrastructure.db import (
+    models_audit,  # noqa: F401
+    models_auth,  # noqa: F401
+    models_client,  # noqa: F401
+    models_market_data,  # noqa: F401
+    models_notifications,  # noqa: F401
+    models_nse_reports,  # noqa: F401
+    models_onboarding,  # noqa: F401
+    models_outbox,  # noqa: F401
+    models_performance,  # noqa: F401
+    models_portfolio,  # noqa: F401
+    models_reference,  # noqa: F401
+    models_trading,  # noqa: F401
+)
 
 config = context.config
 if config.config_file_name is not None:

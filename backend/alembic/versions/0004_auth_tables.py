@@ -6,8 +6,9 @@ Revises: 0003_notifications
 from __future__ import annotations
 
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql as pg
+
+from alembic import op
 
 revision = "0004_auth"
 down_revision = "0003_notifications"

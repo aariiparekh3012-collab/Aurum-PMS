@@ -15,7 +15,7 @@ import logging
 import uuid
 from dataclasses import dataclass
 
-from sqlalchemy import select, desc, and_
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.domain.performance.engine import FeeSchedule, compute_mgmt_fee, compute_perf_fee

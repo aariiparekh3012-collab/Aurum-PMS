@@ -1,5 +1,6 @@
 """Use case: record a contribution or withdrawal."""
 from __future__ import annotations
+
 from app.application.portfolio.dto import CapitalFlowCommand
 from app.core.exceptions import NotFoundError
 from app.domain.portfolio.repositories import PortfolioAccountRepository

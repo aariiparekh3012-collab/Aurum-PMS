@@ -219,8 +219,6 @@ def seed_trading(c: httpx.Client, account_ids: list[str], ref: dict) -> None:
         print("  skip trading: no accounts or brokers")
         return
 
-    today = date.today()
-    all_securities = list(ref["securities"].items())  # [(symbol, id), ...]
     strategies     = list(ref["strategies"].values())
     broker_id      = ref["brokers"][0]
 
@@ -247,7 +245,6 @@ def seed_trading(c: httpx.Client, account_ids: list[str], ref: dict) -> None:
         if not sec_id or not strategy_id:
             continue
 
-        days_ago = 5 + idx * 6
         acct_id  = account_ids[idx % len(account_ids)]
 
         # Create order → approve → record trade

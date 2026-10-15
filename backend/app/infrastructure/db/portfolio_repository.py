@@ -6,22 +6,31 @@ import uuid
 from sqlalchemy.orm import Session, joinedload
 
 from app.domain.portfolio.entities import (
-    Client, Holding, HoldingLot,
-    PortfolioAccount, Trade,
+    Client,
+    Holding,
+    HoldingLot,
+    PortfolioAccount,
+    Trade,
 )
 from app.domain.portfolio.enums import (
-    ClientStatus, OrderSide, PortfolioStatus,
+    ClientStatus,
+    OrderSide,
+    PortfolioStatus,
 )
 from app.domain.portfolio.repositories import (
-    ClientRepository, PortfolioAccountRepository, TradeRepository,
+    ClientRepository,
+    PortfolioAccountRepository,
+    TradeRepository,
 )
 from app.infrastructure.db.models_client import ClientModel
 from app.infrastructure.db.models_portfolio import (
-    CapitalFlowModel, CashLedgerModel, HoldingLotModel,
-    HoldingModel, PortfolioAccountModel,
+    CapitalFlowModel,
+    CashLedgerModel,
+    HoldingLotModel,
+    HoldingModel,
+    PortfolioAccountModel,
 )
 from app.infrastructure.db.models_trading import TradeModel
-
 
 # ── Client ──────────────────────────────────────────────────────────────
 
@@ -163,8 +172,8 @@ class SqlAlchemyPortfolioAccountRepository(PortfolioAccountRepository):
 
         # Persist new capital flows
         for flow in account.capital_flows:
-            existing = self._db.get(CapitalFlowModel, flow.id)
-            if existing is None:
+            existing_flow = self._db.get(CapitalFlowModel, flow.id)
+            if existing_flow is None:
                 self._db.add(CapitalFlowModel(
                     id=flow.id, portfolio_account_id=account.id,
                     flow_type=flow.flow_type.value, asset_kind=flow.asset_kind.value,
@@ -173,9 +182,10 @@ class SqlAlchemyPortfolioAccountRepository(PortfolioAccountRepository):
 
         # Persist new cash ledger entries (compute running balance)
         for entry in account.cash_ledger:
-            existing = self._db.get(CashLedgerModel, entry.id)
-            if existing is None:
-                from sqlalchemy import func as _func, select as _select
+            existing_entry = self._db.get(CashLedgerModel, entry.id)
+            if existing_entry is None:
+                from sqlalchemy import func as _func
+                from sqlalchemy import select as _select
                 prev_balance = self._db.scalar(
                     _select(_func.coalesce(_func.sum(CashLedgerModel.amount_paise), 0))
                     .where(CashLedgerModel.portfolio_account_id == account.id)
@@ -192,10 +202,10 @@ class SqlAlchemyPortfolioAccountRepository(PortfolioAccountRepository):
         for h_row in (row.holdings or []):
             lots = [
                 HoldingLot(
-                    id=l.id, quantity=float(l.quantity),
-                    cost_paise=l.cost_paise, acquired_on=l.acquired_on,
+                    id=lot.id, quantity=float(lot.quantity),
+                    cost_paise=lot.cost_paise, acquired_on=lot.acquired_on,
                 )
-                for l in h_row.lots
+                for lot in h_row.lots
             ]
             holdings[h_row.security_id] = Holding(
                 id=h_row.id,

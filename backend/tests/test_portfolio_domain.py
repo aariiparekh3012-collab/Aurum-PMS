@@ -3,16 +3,22 @@ from __future__ import annotations
 
 import datetime as dt
 import uuid
+
 import pytest
 
+from app.core.exceptions import InvalidStateTransition, ValidationError
 from app.domain.portfolio.entities import (
-    Client, Holding, HoldingLot, PortfolioAccount, Order, Trade,
+    Client,
+    Holding,
+    Order,
+    PortfolioAccount,
 )
 from app.domain.portfolio.enums import (
-    ClientStatus, OrderSide, OrderStatus, PortfolioStatus,
+    ClientStatus,
+    OrderSide,
+    OrderStatus,
+    PortfolioStatus,
 )
-from app.core.exceptions import InvalidStateTransition, ValidationError
-
 
 # ── Holding + FIFO ──────────────────────────────────────────────────────
 
@@ -65,6 +71,7 @@ class TestHolding:
         h = Holding(security_id=uuid.uuid4())
         h.add_lot(100, 10000)
         consumed = h.remove_fifo(100)
+        assert len(consumed) == 1
         assert h.quantity == 0
         assert h.avg_cost_paise == 0
         assert len(h.lots) == 0

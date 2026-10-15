@@ -1,7 +1,9 @@
 """Use case: create a portfolio account for a client under a strategy."""
 from __future__ import annotations
-import uuid
+
 import datetime as dt
+import uuid
+
 from app.application.portfolio.dto import CreatePortfolioCommand, PortfolioView
 from app.core.exceptions import NotFoundError
 from app.domain.portfolio.entities import PortfolioAccount

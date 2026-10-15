@@ -7,13 +7,10 @@ import uuid
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
-from app.infrastructure.audit.audit_logger import AuditLogger
-from app.services.notifications import OnboardingEvent, notify_onboarding_status
 from app.api.v1.dependencies import (
+    get_approve_uc,
     get_confirm_esign_uc,
     get_create_application_uc,
-    get_approve_uc,
     get_current_user,
     get_query_uc,
     get_risk_profile_uc,
@@ -36,11 +33,16 @@ from app.application.onboarding.dto import (
     SubmitKycCommand,
 )
 from app.application.onboarding.use_cases.approve_onboarding import ApproveOnboardingUseCase
-from app.application.onboarding.use_cases.complete_risk_profile import CompleteRiskProfileUseCase
+from app.application.onboarding.use_cases.complete_risk_profile import (
+    CompleteRiskProfileUseCase,
+)
 from app.application.onboarding.use_cases.confirm_esign import ConfirmEsignUseCase
 from app.application.onboarding.use_cases.create_application import CreateApplicationUseCase
 from app.application.onboarding.use_cases.get_application import GetApplicationUseCase
 from app.application.onboarding.use_cases.submit_kyc import SubmitKycUseCase
+from app.core.database import get_db
+from app.infrastructure.audit.audit_logger import AuditLogger
+from app.services.notifications import OnboardingEvent, notify_onboarding_status
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 _log = logging.getLogger("pms.onboarding.api")

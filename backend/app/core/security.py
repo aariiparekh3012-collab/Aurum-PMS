@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import secrets as _secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from cryptography.fernet import Fernet
@@ -40,7 +40,7 @@ def hash_pan(pan: str) -> str:
 
 def create_access_token(*, sub: str, role: str, extra: dict | None = None) -> str:
     s = get_settings()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload = {
         "sub": sub, "role": role, "iat": now,
         "exp": now + timedelta(minutes=s.jwt_expiry_minutes),

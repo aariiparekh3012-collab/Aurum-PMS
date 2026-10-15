@@ -160,7 +160,7 @@ class TestKraErrorHandling:
         import logging
         caplog.set_level(logging.INFO)
 
-        result = kra_adapter.verify(
+        kra_adapter.verify(
             pan="AAAPA1234A",
             aadhaar_last4="1234",
             name="Test User",

@@ -1,6 +1,7 @@
 """SQLAlchemy implementation of OnboardingRepository (Data Mapper pattern)."""
 from __future__ import annotations
 
+import builtins
 import uuid
 
 from sqlalchemy.orm import Session
@@ -8,11 +9,18 @@ from sqlalchemy.orm import Session
 from app.core.security import decrypt, encrypt, hash_pan
 from app.domain.onboarding.entities import OnboardingApplication
 from app.domain.onboarding.enums import (
-    InvestorType, KycSource, OnboardingStatus, RiskCategory,
+    InvestorType,
+    KycSource,
+    OnboardingStatus,
+    RiskCategory,
 )
 from app.domain.onboarding.repositories import OnboardingRepository
 from app.domain.onboarding.value_objects import (
-    PAN, Aadhaar, BankAccount, DematAccount, Money,
+    PAN,
+    Aadhaar,
+    BankAccount,
+    DematAccount,
+    Money,
 )
 from app.infrastructure.db.models_onboarding import OnboardingApplicationModel
 
@@ -62,14 +70,14 @@ class SqlAlchemyOnboardingRepository(OnboardingRepository):
     def _to_entity(self, m: OnboardingApplicationModel) -> OnboardingApplication:
         pan_plain = self._safe_decrypt(m.pan_enc)
         bank = None
-        if m.bank_account_enc:
+        if m.bank_account_enc and m.bank_ifsc and m.bank_holder_name:
             bank = BankAccount(
                 account_number=self._safe_decrypt(m.bank_account_enc, "000000000"),
                 ifsc=m.bank_ifsc,
                 holder_name=m.bank_holder_name,
             )
         demat = None
-        if m.demat_bo_id:
+        if m.demat_bo_id and m.demat_depository:
             demat = DematAccount(bo_id=m.demat_bo_id, depository=m.demat_depository)
         aadhaar = Aadhaar(last4=m.aadhaar_last4) if m.aadhaar_last4 else None
 
@@ -135,7 +143,9 @@ class SqlAlchemyOnboardingRepository(OnboardingRepository):
         m.updated_at = application.updated_at
         self._s.flush()
 
-    def list(self, *, offset: int = 0, limit: int = 50) -> list[OnboardingApplication]:
+    def list(
+        self, *, offset: int = 0, limit: int = 50
+    ) -> builtins.list[OnboardingApplication]:
         rows = (
             self._s.query(OnboardingApplicationModel)
             .order_by(OnboardingApplicationModel.created_at.desc())
@@ -145,7 +155,7 @@ class SqlAlchemyOnboardingRepository(OnboardingRepository):
 
     def list_by_status(
         self, status: OnboardingStatus, *, offset: int = 0, limit: int = 50,
-    ) -> list[OnboardingApplication]:
+    ) -> builtins.list[OnboardingApplication]:
         rows = (
             self._s.query(OnboardingApplicationModel)
             .filter(OnboardingApplicationModel.status == status.value)

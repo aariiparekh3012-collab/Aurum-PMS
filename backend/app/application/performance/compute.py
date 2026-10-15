@@ -34,7 +34,6 @@ from app.infrastructure.db.models_portfolio import (
     PortfolioAccountModel,
 )
 
-
 # ── DTOs ──────────────────────────────────────────────────────────────────────
 
 @dataclass

@@ -9,11 +9,11 @@ Permission matrix:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
-from sqlalchemy import select, desc, func, and_
+from sqlalchemy import and_, desc, func, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.v1.dependencies import get_current_user
@@ -257,7 +257,7 @@ def get_conversation(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Conversation not found")
 
     # Mark as read
-    participant.last_read_at = datetime.now(timezone.utc)
+    participant.last_read_at = datetime.now(UTC)
 
     # Get participants
     all_participants = db.scalars(
@@ -329,6 +329,11 @@ def start_conversation(
     if existing:
         conv_id = existing
         conv = db.get(ConversationModel, conv_id)
+        if conv is None:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                "Existing conversation could not be loaded",
+            )
     else:
         conv = ConversationModel()
         db.add(conv)
@@ -343,7 +348,7 @@ def start_conversation(
         db.flush()
 
     # Add the message
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     msg = MessageModel(
         conversation_id=conv.id, sender_id=me.id, body=body.body.strip()
     )
@@ -411,7 +416,7 @@ def send_message(
     if not participant:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Conversation not found")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     msg = MessageModel(
         conversation_id=conversation_id, sender_id=me.id, body=body.body.strip()
     )

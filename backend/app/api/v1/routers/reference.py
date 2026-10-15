@@ -303,8 +303,8 @@ def seed_reference_data(
     """Upsert sample NSE securities, benchmarks, strategies, brokers."""
     sec_count = 0
     for isin, symbol, exchange, itype, sector in SEED_SECURITIES:
-        exists = db.scalar(select(SecurityModel).where(SecurityModel.isin == isin))
-        if not exists:
+        existing_security = db.scalar(select(SecurityModel).where(SecurityModel.isin == isin))
+        if not existing_security:
             db.add(SecurityModel(isin=isin, symbol=symbol, exchange=exchange, instrument_type=itype, sector=sector))
             sec_count += 1
 
@@ -328,15 +328,15 @@ def seed_reference_data(
         ("Flexi Cap Core", "FCC", "flexi_cap", "NIFTY500"),
     ]
     for name, code, approach, bm_code in strategies_seed:
-        exists = db.scalar(select(StrategyModel).where(StrategyModel.code == code))
-        if not exists:
+        existing_strategy = db.scalar(select(StrategyModel).where(StrategyModel.code == code))
+        if not existing_strategy:
             db.add(StrategyModel(name=name, code=code, approach=approach, benchmark_id=bm_ids.get(bm_code)))
             strat_count += 1
 
     broker_count = 0
     for name, reg_no in SEED_BROKERS:
-        exists = db.scalar(select(BrokerModel).where(BrokerModel.sebi_reg_no == reg_no))
-        if not exists:
+        existing_broker = db.scalar(select(BrokerModel).where(BrokerModel.sebi_reg_no == reg_no))
+        if not existing_broker:
             db.add(BrokerModel(name=name, sebi_reg_no=reg_no))
             broker_count += 1
 

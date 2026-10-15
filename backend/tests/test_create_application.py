@@ -2,15 +2,14 @@
 from __future__ import annotations
 
 import uuid
+
 import pytest
 
 from app.application.onboarding.dto import CreateApplicationCommand
 from app.application.onboarding.use_cases.create_application import CreateApplicationUseCase
 from app.core.exceptions import ValidationError
 from app.domain.onboarding.entities import OnboardingApplication
-from app.domain.onboarding.enums import OnboardingStatus
 from app.domain.onboarding.repositories import OnboardingRepository
-
 
 # ── In-memory fakes ──────────────────────────────────────────────────────
 

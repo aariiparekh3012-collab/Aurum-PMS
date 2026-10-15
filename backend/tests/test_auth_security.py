@@ -6,14 +6,11 @@ Critical for SEBI compliance and preventing unauthorized access.
 from __future__ import annotations
 
 import time
-from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
 
 from tests.conftest import auth_header
-
 
 _REG = {
     "email": "secure-user@example.com",
@@ -207,7 +204,7 @@ class TestEmailVerification:
         if resp.status_code == 201:
             token = resp.json()["access_token"]
             # Try to access protected endpoint
-            me_resp = client.get("/api/v1/auth/me", headers=auth_header(token))
+            client.get("/api/v1/auth/me", headers=auth_header(token))
             # Depending on design, may require verification
             # assert me_resp.status_code in [200, 403]
         else:

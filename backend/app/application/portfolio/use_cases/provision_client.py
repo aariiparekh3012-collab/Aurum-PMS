@@ -1,6 +1,8 @@
 """Use case: provision a client record when onboarding reaches ACTIVE."""
 from __future__ import annotations
+
 import uuid
+
 from app.application.portfolio.dto import ClientView, ProvisionClientCommand
 from app.core.exceptions import NotFoundError, ValidationError
 from app.core.security import hash_pan

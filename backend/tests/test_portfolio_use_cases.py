@@ -1,30 +1,32 @@
 """Tests for portfolio use cases using in-memory repository fakes."""
 from __future__ import annotations
 
-import uuid
 import datetime as dt
+import uuid
+
 import pytest
 
-from app.domain.portfolio.entities import Client, PortfolioAccount, Trade
-from app.domain.portfolio.enums import ClientStatus, OrderSide, PortfolioStatus
-from app.domain.portfolio.repositories import (
-    ClientRepository, PortfolioAccountRepository, TradeRepository,
-)
-from app.domain.onboarding.entities import OnboardingApplication
-from app.domain.onboarding.enums import OnboardingStatus, InvestorType
-from app.domain.onboarding.value_objects import PAN, Money
-from app.domain.onboarding.repositories import OnboardingRepository
-
 from app.application.portfolio.dto import (
-    ProvisionClientCommand, CreatePortfolioCommand,
-    RecordTradeCommand, CapitalFlowCommand,
+    CapitalFlowCommand,
+    CreatePortfolioCommand,
+    ProvisionClientCommand,
+    RecordTradeCommand,
 )
-from app.application.portfolio.use_cases.provision_client import ProvisionClientUseCase
 from app.application.portfolio.use_cases.create_portfolio import CreatePortfolioUseCase
-from app.application.portfolio.use_cases.record_trade import RecordTradeUseCase
+from app.application.portfolio.use_cases.provision_client import ProvisionClientUseCase
 from app.application.portfolio.use_cases.record_capital_flow import RecordCapitalFlowUseCase
+from app.application.portfolio.use_cases.record_trade import RecordTradeUseCase
 from app.core.exceptions import NotFoundError, ValidationError
-
+from app.domain.onboarding.entities import OnboardingApplication
+from app.domain.onboarding.enums import InvestorType, OnboardingStatus
+from app.domain.onboarding.repositories import OnboardingRepository
+from app.domain.onboarding.value_objects import PAN, Money
+from app.domain.portfolio.entities import Client, PortfolioAccount, Trade
+from app.domain.portfolio.repositories import (
+    ClientRepository,
+    PortfolioAccountRepository,
+    TradeRepository,
+)
 
 # ── In-memory fakes ────────────────────────────────────────────────────
 
@@ -84,7 +86,7 @@ class FakeTradeRepo(TradeRepository):
     def __init__(self):
         self._store: list[Trade] = []
 
-    def add(self, trade):
+    def add(self, trade, *, contract_note=None):
         self._store.append(trade)
     def list_by_portfolio(self, portfolio_id, *, limit=50):
         return [t for t in self._store if t.portfolio_account_id == portfolio_id][:limit]

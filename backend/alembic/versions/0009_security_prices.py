@@ -6,8 +6,9 @@ Revises: 0008_messaging
 from __future__ import annotations
 
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql as pg
+
+from alembic import op
 
 revision = "0009_security_prices"
 down_revision = "0008_messaging"

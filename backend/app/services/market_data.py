@@ -19,21 +19,21 @@ import uuid
 import zipfile
 from pathlib import Path
 
-from sqlalchemy import select, and_
+from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
 from app.application.performance.compute import (
-    ComputeSnapshotCommand,
-    ComputeSnapshotUseCase,
     ComputeReturnsCommand,
     ComputeReturnsUseCase,
+    ComputeSnapshotCommand,
+    ComputeSnapshotUseCase,
 )
+from app.infrastructure.db.models_market_data import SecurityPriceModel
 from app.infrastructure.db.models_portfolio import (
     HoldingModel,
     PortfolioAccountModel,
 )
 from app.infrastructure.db.models_reference import SecurityModel
-from app.infrastructure.db.models_market_data import SecurityPriceModel
 
 logger = logging.getLogger(__name__)
 

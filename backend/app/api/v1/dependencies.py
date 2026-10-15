@@ -9,9 +9,19 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+# ── Use cases ────────────────────────────────────────────────────────────
+from app.application.onboarding.use_cases.approve_onboarding import ApproveOnboardingUseCase
+from app.application.onboarding.use_cases.complete_risk_profile import (
+    CompleteRiskProfileUseCase,
+)
+from app.application.onboarding.use_cases.confirm_esign import ConfirmEsignUseCase
+from app.application.onboarding.use_cases.create_application import CreateApplicationUseCase
+from app.application.onboarding.use_cases.get_application import GetApplicationUseCase
+from app.application.onboarding.use_cases.submit_kyc import SubmitKycUseCase
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.security import decode_access_token
+from app.domain.onboarding.services import RiskProfilingService
 
 # ── Ports / adapters ─────────────────────────────────────────────────────
 from app.infrastructure.audit.event_publisher import OutboxEventPublisher
@@ -26,15 +36,6 @@ from app.infrastructure.external.esign_client import (
 )
 from app.infrastructure.external.kyc_client import FakeKycAdapter, SurepassKycAdapter
 
-# ── Use cases ────────────────────────────────────────────────────────────
-from app.application.onboarding.use_cases.approve_onboarding import ApproveOnboardingUseCase
-from app.application.onboarding.use_cases.complete_risk_profile import CompleteRiskProfileUseCase
-from app.application.onboarding.use_cases.confirm_esign import ConfirmEsignUseCase
-from app.application.onboarding.use_cases.create_application import CreateApplicationUseCase
-from app.application.onboarding.use_cases.get_application import GetApplicationUseCase
-from app.application.onboarding.use_cases.submit_kyc import SubmitKycUseCase
-from app.domain.onboarding.services import RiskProfilingService
-
 _bearer = HTTPBearer(auto_error=False)
 
 
@@ -48,7 +49,7 @@ def get_current_user(
     try:
         return decode_access_token(creds.credentials)
     except Exception:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token") from None
 
 
 def require_role(*roles: str):

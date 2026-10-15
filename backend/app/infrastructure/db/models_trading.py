@@ -4,7 +4,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, Numeric, String, ForeignKey, func
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -31,8 +31,8 @@ class OrderModel(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
-    allocations: Mapped[list["OrderAllocationModel"]] = relationship(back_populates="order")
-    trades: Mapped[list["TradeModel"]] = relationship(back_populates="order")
+    allocations: Mapped[list[OrderAllocationModel]] = relationship(back_populates="order")
+    trades: Mapped[list[TradeModel]] = relationship(back_populates="order")
 
 
 class OrderAllocationModel(Base):

@@ -29,7 +29,7 @@ class OutboxEventPublisher(EventPublisher):
                         k: (v.isoformat() if isinstance(v, dt.datetime) else str(v))
                         for k, v in dataclasses.asdict(event).items()
                     },
-                    created_at=dt.datetime.now(dt.timezone.utc),
+                    created_at=dt.datetime.now(dt.UTC),
                 )
             )
         self._s.flush()

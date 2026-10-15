@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
@@ -115,7 +115,7 @@ async def upload_document(
             pass  # best effort
         existing.storage_key = storage_key
         existing.sha256 = sha256
-        existing.uploaded_at = datetime.now(timezone.utc)
+        existing.uploaded_at = datetime.now(UTC)
         doc = existing
     else:
         doc = OnboardingDocumentModel(
@@ -124,7 +124,7 @@ async def upload_document(
             document_type=document_type,
             storage_key=storage_key,
             sha256=sha256,
-            uploaded_at=datetime.now(timezone.utc),
+            uploaded_at=datetime.now(UTC),
         )
         db.add(doc)
 
@@ -195,7 +195,7 @@ def download_document(
     try:
         data = store.get(key)
     except FileNotFoundError:
-        raise HTTPException(404, "Document not found")
+        raise HTTPException(404, "Document not found") from None
 
     # Determine content type from extension
     ext = key.rsplit(".", 1)[-1].lower()

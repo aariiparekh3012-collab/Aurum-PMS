@@ -4,7 +4,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Text, func, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,10 +25,10 @@ class ConversationModel(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
-    participants: Mapped[list["ConversationParticipantModel"]] = relationship(
+    participants: Mapped[list[ConversationParticipantModel]] = relationship(
         back_populates="conversation", cascade="all, delete-orphan"
     )
-    messages: Mapped[list["MessageModel"]] = relationship(
+    messages: Mapped[list[MessageModel]] = relationship(
         back_populates="conversation",
         cascade="all, delete-orphan",
         order_by="MessageModel.created_at",

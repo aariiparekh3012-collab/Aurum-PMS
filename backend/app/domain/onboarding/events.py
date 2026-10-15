@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 class DomainEvent:
     aggregate_id: uuid.UUID
     occurred_at: dt.datetime = field(
-        default_factory=lambda: dt.datetime.now(dt.timezone.utc)
+        default_factory=lambda: dt.datetime.now(dt.UTC)
     )
 
 

@@ -9,17 +9,14 @@ import logging
 import secrets
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from fastapi import Request
-
 from app.api.v1.dependencies import get_current_user
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.infrastructure.audit.audit_logger import AuditLogger
 from app.core.security import (
     create_access_token,
     generate_verification_token,
@@ -27,6 +24,7 @@ from app.core.security import (
     hash_token,
     verify_password,
 )
+from app.infrastructure.audit.audit_logger import AuditLogger
 from app.infrastructure.db.models_auth import (
     EmailVerificationTokenModel,
     PhoneVerificationCodeModel,
@@ -37,12 +35,11 @@ from app.infrastructure.external.sms_client import get_sms_sender
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-_ROLE_ALIASES = {"rm": "relationship_manager"}
-_VALID_ROLES = ("investor", "relationship_manager", "compliance", "admin")
+_SELF_SERVICE_ROLES = ("investor",)
 
 
 def _now():
-    return _dtmod.datetime.now(_dtmod.timezone.utc)
+    return _dtmod.datetime.now(_dtmod.UTC)
 
 
 def _expires_in() -> int:
@@ -213,28 +210,14 @@ def issue_token(body: LoginRequest):
 
 @router.post("/register", response_model=RegisterResponse, status_code=201)
 def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db)):
-    role = _ROLE_ALIASES.get(body.role, body.role)
-    if role not in _VALID_ROLES:
-        raise HTTPException(status_code=422, detail="Invalid role")
+    role = body.role
+    if role not in _SELF_SERVICE_ROLES:
+        raise HTTPException(
+            status_code=422,
+            detail="Only investor accounts support self-service registration",
+        )
     if len(body.password) < 6:
         raise HTTPException(status_code=422, detail="Password must be at least 6 characters")
-
-    # Role access codes — RM, Compliance, and Admin need a code to register
-    _ROLE_ACCESS_CODES = {
-        "relationship_manager": "4444",
-        "compliance": "8888",
-        "admin": "3012",
-    }
-    required_code = _ROLE_ACCESS_CODES.get(role)
-    if required_code:
-        if not body.access_code or body.access_code.strip() != required_code:
-            raise HTTPException(status_code=403, detail="Invalid access code for this role")
-
-    # Admin: only one account allowed
-    if role == "admin":
-        existing_admin = db.query(UserModel).filter_by(role="admin").first()
-        if existing_admin is not None:
-            raise HTTPException(status_code=409, detail="An admin account already exists")
 
     email = body.email.strip().lower()
     existing = db.query(UserModel).filter_by(email=email).first()

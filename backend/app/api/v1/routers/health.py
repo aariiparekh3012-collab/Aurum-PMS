@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime as dt
 import logging
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select, text
@@ -93,7 +94,7 @@ def seed_demo_data(db: Session = Depends(get_db)) -> dict:
 
     now = dt.datetime.now(dt.UTC)
 
-    demo_applicants = [
+    demo_applicants: list[dict[str, Any]] = [
         {
             "full_name": "Rajesh Kumar Sharma",
             "email": "rajesh.sharma@example.com",

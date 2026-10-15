@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, date, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum
 
@@ -63,7 +63,7 @@ class Order:
     placed_by: str = ""
     notes: str = ""
     id: uuid.UUID = field(default_factory=uuid.uuid4)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # ── state transitions ──
     def submit(self) -> None:
@@ -130,4 +130,4 @@ class Trade:
     broker_id: uuid.UUID | None = None
     status: TradeStatus = TradeStatus.EXECUTED
     id: uuid.UUID = field(default_factory=uuid.uuid4)
-    executed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    executed_at: datetime = field(default_factory=lambda: datetime.now(UTC))

@@ -10,6 +10,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from app.application.client.use_cases.provision_client import ProvisionClientUseCase
 from app.application.onboarding.use_cases.approve_onboarding import ApproveOnboardingUseCase
 from app.application.onboarding.use_cases.complete_risk_profile import (
     CompleteRiskProfileUseCase,
@@ -17,7 +18,6 @@ from app.application.onboarding.use_cases.complete_risk_profile import (
 from app.application.onboarding.use_cases.create_application import CreateApplicationUseCase
 from app.application.onboarding.use_cases.esign_agreement import EsignAgreementUseCase
 from app.application.onboarding.use_cases.submit_kyc import SubmitKycUseCase
-from app.application.client.use_cases.provision_client import ProvisionClientUseCase
 from app.application.portfolio.use_cases.provision_client import (
     ProvisionClientUseCase as PortfolioProvisionClientUseCase,
 )
@@ -26,13 +26,12 @@ from app.core.database import get_db
 from app.core.security import decode_access_token
 from app.domain.onboarding.services import RiskProfilingService
 from app.infrastructure.audit.event_publisher import OutboxEventPublisher
-from app.infrastructure.db.repository import SqlAlchemyOnboardingRepository
 from app.infrastructure.db.client_repository import SqlAlchemyClientRepository
 from app.infrastructure.db.portfolio_repository import (
     SqlAlchemyClientRepository as SqlAlchemyPortfolioClientRepository,
 )
+from app.infrastructure.db.repository import SqlAlchemyOnboardingRepository
 from app.infrastructure.events.outbox_dispatcher import OutboxDispatcher
-from app.infrastructure.external.redis_message_bus import RedisMessageBus
 from app.infrastructure.external.bank_verification_client import (
     FakeBankVerificationAdapter,
     SurepassPennyDropAdapter,
@@ -42,7 +41,7 @@ from app.infrastructure.external.esign_client import (
     FakeEsignAdapter,
 )
 from app.infrastructure.external.kra_client import FakeKycAdapter, SurepassKycAdapter
-
+from app.infrastructure.external.redis_message_bus import RedisMessageBus
 
 # ---- auth ----
 _bearer = HTTPBearer(auto_error=False)
@@ -84,6 +83,7 @@ def current_client_id(db: Session, user: dict):
         return None
     if role == "investor":
         from sqlalchemy import select
+
         from app.infrastructure.db.models_client import ClientModel
 
         client = db.scalar(

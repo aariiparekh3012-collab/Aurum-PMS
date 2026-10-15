@@ -1,8 +1,11 @@
 """Portfolio repository ports."""
 from __future__ import annotations
+
 import uuid
 from abc import ABC, abstractmethod
+
 from app.domain.portfolio.entities import Client, PortfolioAccount, Trade
+
 
 class ClientRepository(ABC):
     @abstractmethod

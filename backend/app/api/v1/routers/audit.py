@@ -6,7 +6,8 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import func as sa_func, select, desc, and_
+from sqlalchemy import and_, desc, select
+from sqlalchemy import func as sa_func
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
@@ -84,7 +85,12 @@ def list_audit_logs(
         .limit(limit)
     ).all()
 
-    return AuditLogPage(logs=rows, total=total or 0, limit=limit, offset=offset)
+    return AuditLogPage(
+        logs=[AuditLogOut.model_validate(row) for row in rows],
+        total=total or 0,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.get("/logs/{log_id}", response_model=AuditLogOut)

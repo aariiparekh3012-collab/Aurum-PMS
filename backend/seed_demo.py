@@ -3,13 +3,13 @@
 Run:  python seed_demo.py
 Requires: backend .env to be configured, aurum-main database to exist with tables.
 """
+import hashlib
 import os
+import random
+import secrets as _secrets
 import sys
 import uuid
-import random
-import hashlib
-import secrets as _secrets
-from datetime import datetime, date, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 # Add backend to path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -29,7 +29,7 @@ def hash_password(password):
 
 
 def now():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def random_date(start_days_ago=365, end_days_ago=30):
@@ -279,7 +279,7 @@ def main():
         # Add constituents (random 5-8 stocks per strategy)
         stocks = random.sample(list(enumerate(security_ids)), random.randint(5, 8))
         total_weight = 0
-        for j, (idx, sec_id) in enumerate(stocks):
+        for j, (_idx, sec_id) in enumerate(stocks):
             if j == len(stocks) - 1:
                 weight = round(1.0 - total_weight, 4)
             else:
@@ -346,7 +346,7 @@ def main():
             "risk_cat": random.choice(["conservative", "moderate", "aggressive"]),
             "risk_score": random.randint(30, 90),
             "rm": assigned_rm, "co": assigned_co,
-            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=timezone.utc),
+            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=UTC),
         })
 
         # Client record
@@ -364,7 +364,7 @@ def main():
             "pan_hash": pan_hash, "pan_enc": f"ENC_{pan}",
             "name": inv["name"], "email": inv["email"], "phone": inv["phone"],
             "rm": assigned_rm, "co": assigned_co,
-            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=timezone.utc),
+            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=UTC),
         })
         client_ids.append(client_id)
 
@@ -381,7 +381,7 @@ def main():
             "acc": f"ENC_{random.randint(10000000000, 99999999999)}",
             "ifsc": f"HDFC0{random.randint(100000, 999999)}",
             "name": inv["name"],
-            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=timezone.utc),
+            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=UTC),
         })
 
         # Demat account
@@ -393,7 +393,7 @@ def main():
             "id": demat_id, "cid": client_id,
             "bo": f"{random.randint(1000000000000000, 9999999999999999)}",
             "dep": random.choice(["NSDL", "CDSL"]),
-            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=timezone.utc),
+            "t": datetime.combine(onb_date, datetime.min.time()).replace(tzinfo=UTC),
         })
         client_demat_ids.append(demat_id)
 
@@ -456,7 +456,7 @@ def main():
                 "id": uuid.uuid4(), "pa": pa_id, "sec": sec_id,
                 "br": random.choice(broker_ids),
                 "qty": qty, "price": avg_cost,
-                "traded": datetime.combine(buy_date, datetime.min.time()).replace(tzinfo=timezone.utc),
+                "traded": datetime.combine(buy_date, datetime.min.time()).replace(tzinfo=UTC),
                 "cn": f"CN{random.randint(100000, 999999)}",
                 "t": t,
             })
@@ -529,14 +529,14 @@ def main():
     print("SEED COMPLETE!")
     print("=" * 60)
     print(f"\nAll demo accounts use password: {PASSWORD}")
-    print(f"\nAdmin:      aariiparekh3012@gmail.com")
+    print("\nAdmin:      aariiparekh3012@gmail.com")
     print(f"Compliance: {', '.join(co['email'] for co in COMPLIANCE_OFFICERS)}")
     print(f"RMs:        {', '.join(rm['email'] for rm in RMS)}")
     print(f"Investors:  {INVESTORS[0]['email']} ... {INVESTORS[-1]['email']} (20 total)")
-    print(f"\nRM assignments:")
+    print("\nRM assignments:")
     for i, inv in enumerate(INVESTORS):
         print(f"  {inv['name']:25s} -> {RMS[i % len(RMS)]['name']}")
-    print(f"\nCompliance assignments:")
+    print("\nCompliance assignments:")
     for i, inv in enumerate(INVESTORS):
         print(f"  {inv['name']:25s} -> {COMPLIANCE_OFFICERS[i % len(co_ids)]['name']}")
 

@@ -14,7 +14,6 @@ from fastapi.testclient import TestClient
 
 from tests.conftest import auth_header
 
-
 _VALID_USER = {
     "email": "kyc-test@example.com",
     "password": "StrongP@ss1",
@@ -402,7 +401,7 @@ class TestKYCComplianceRules:
         token = reg.json()["access_token"]
 
         # Try to create portfolio/order without KYC
-        resp = client.post(
+        client.post(
             "/api/v1/portfolios",
             json={"name": "Test", "strategy": "Growth"},
             headers=auth_header(token),

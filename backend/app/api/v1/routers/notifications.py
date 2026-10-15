@@ -6,7 +6,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import select, desc, func, update
+from sqlalchemy import desc, func, select, update
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
@@ -96,7 +96,11 @@ def activity_feed(
         unread_q = unread_q.where(scope)
     unread = db.scalar(unread_q) or 0
 
-    return FeedResponse(items=items, total=total, unread=unread)
+    return FeedResponse(
+        items=[ActivityOut.model_validate(item) for item in items],
+        total=total,
+        unread=unread,
+    )
 
 
 @router.get("/unread-count", response_model=UnreadCount)

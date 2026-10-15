@@ -12,16 +12,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.v1.dependencies import (
-    get_approve_uc,
     get_create_application_uc,
     get_current_user,
     get_query_uc,
 )
 from app.application.onboarding.dto import ApplicationView
-from app.core.exceptions import ValidationError
 from app.main import app
 from tests.conftest import auth_header
-
 
 # ── Helpers ──────────────────────────────────────────────────────────────
 

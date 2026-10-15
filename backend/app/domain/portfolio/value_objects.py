@@ -1,6 +1,8 @@
 """Portfolio value objects."""
 from __future__ import annotations
+
 from dataclasses import dataclass
+
 from app.core.exceptions import ValidationError
 
 
@@ -31,7 +33,7 @@ class Price:
             raise ValidationError("Price cannot be negative", code="invalid_price")
 
     @classmethod
-    def from_rupees(cls, rupees: float) -> "Price":
+    def from_rupees(cls, rupees: float) -> Price:
         return cls(paise=round(rupees * 100))
 
     @property

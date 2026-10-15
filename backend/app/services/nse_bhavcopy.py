@@ -22,8 +22,8 @@ from zoneinfo import ZoneInfo
 import httpx
 from sqlalchemy.orm import Session
 
-from app.infrastructure.db.nse_database import NseSessionLocal
 from app.infrastructure.db.models_nse_reports import NseBhavCopyReportModel
+from app.infrastructure.db.nse_database import NseSessionLocal
 
 logger = logging.getLogger(__name__)
 
@@ -157,7 +157,7 @@ def _upsert_record(
                 NseBhavCopyReportModel.file_date == trade_date
             )
         )
-        now_utc = dt.datetime.now(dt.timezone.utc)
+        now_utc = dt.datetime.now(dt.UTC)
         if existing:
             existing.file_name = file_name
             existing.file_path = file_path
@@ -290,11 +290,11 @@ async def _scheduler_loop() -> None:
 
 async def _post_download_valuation(trade_date: dt.date) -> None:
     """After a bhavcopy download, parse prices and run mark-to-market."""
-    from app.core.database import SessionLocal
-    from app.services.market_data import parse_bhavcopy_zip, upsert_prices, run_daily_valuation
-
     # Find the ZIP path
     from sqlalchemy import select as sa_select
+
+    from app.core.database import SessionLocal
+    from app.services.market_data import parse_bhavcopy_zip, run_daily_valuation, upsert_prices
     factory = NseSessionLocal()
     nse_db = factory()
     try:

@@ -59,7 +59,7 @@ class UserModel(Base):
         DateTime(timezone=True), nullable=True
     )
 
-    refresh_tokens: Mapped[list["RefreshTokenModel"]] = relationship(
+    refresh_tokens: Mapped[list[RefreshTokenModel]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 

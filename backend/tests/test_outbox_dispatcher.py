@@ -18,13 +18,10 @@ from __future__ import annotations
 
 import datetime as dt
 import uuid
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock
 
-import pytest
-
-from app.infrastructure.events.outbox_dispatcher import OutboxDispatcher
 from app.infrastructure.events.message_bus import EventMessage, NoOpMessageBus
-
+from app.infrastructure.events.outbox_dispatcher import OutboxDispatcher
 
 # ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -41,7 +38,7 @@ def _make_outbox_row(
     row.event_type = event_type
     row.payload = payload or {"some": "data"}
     row.published = published
-    row.created_at = dt.datetime(2026, 1, 15, 12, 0, 0, tzinfo=dt.timezone.utc)
+    row.created_at = dt.datetime(2026, 1, 15, 12, 0, 0, tzinfo=dt.UTC)
     return row
 
 

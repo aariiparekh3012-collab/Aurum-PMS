@@ -5,7 +5,7 @@ import { auth, homeFor } from "../../lib/auth";
 import { apiClient } from "../../lib/apiClient";
 import { useAuth } from "../../contexts/AuthContext";
 import { authApi } from "./api";
-import { Button, Card, Field, SelectField, useToast } from "../../components/ui";
+import { Button, Card, Field, useToast } from "../../components/ui";
 
 type View = "login" | "register" | "forgot" | "verify";
 
@@ -58,11 +58,8 @@ export function LoginPage() {
   const [regEmailErr, setRegEmailErr] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
-  const [regRole, setRegRole] = useState("investor");
   const [regPhone, setRegPhone] = useState("");
   const [regCountryCode, setRegCountryCode] = useState("+91");
-  const [accessCode, setAccessCode] = useState("");
-  const [showAccessCode, setShowAccessCode] = useState(false);
 
   // Verify (post-signup) state
   const [otpCode, setOtpCode] = useState("");
@@ -112,11 +109,6 @@ export function LoginPage() {
       toast.error("Passwords do not match");
       return;
     }
-    if ((regRole === "rm" || regRole === "compliance" || regRole === "admin") && !accessCode.trim()) {
-      setShowAccessCode(true);
-      toast.error("Enter the access code for this role");
-      return;
-    }
     const fullPhone = regPhone.trim() ? regCountryCode + regPhone.trim() : undefined;
     setLoading(true);
     try {
@@ -124,13 +116,12 @@ export function LoginPage() {
         email: regEmail,
         password: regPassword,
         full_name: regName,
-        role: regRole,
+        role: "investor",
         phone: fullPhone,
-        access_code: (regRole === "rm" || regRole === "compliance" || regRole === "admin") ? accessCode.trim() : undefined,
       });
       auth.setTokens(data.access_token, data.refresh_token, data.expires_in, {
         subject: regEmail,
-        role: regRole,
+        role: "investor",
         email: regEmail,
         full_name: regName,
       });
@@ -150,7 +141,7 @@ export function LoginPage() {
     try {
       await authApi.verifyPhone(otpCode.trim());
       toast.success("Phone verified!");
-      navigate(homeFor(regRole || "investor"));
+      navigate(homeFor("investor"));
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -383,38 +374,6 @@ export function LoginPage() {
                     />
                   </div>
                 </div>
-                <SelectField label="Role" value={regRole} onChange={(e) => {
-                  setRegRole(e.target.value);
-                  const needsCode = e.target.value === "rm" || e.target.value === "compliance" || e.target.value === "admin";
-                  setShowAccessCode(needsCode);
-                  if (!needsCode) setAccessCode("");
-                }}>
-                  <option value="investor">Investor</option>
-                  <option value="rm">Relationship Manager</option>
-                  <option value="compliance">Compliance Officer</option>
-                  <option value="admin">Admin</option>
-                </SelectField>
-                {showAccessCode && (
-                  <div style={{
-                    background: "var(--bg-secondary)",
-                    border: "1px solid var(--border-light)",
-                    borderRadius: 8,
-                    padding: "12px 14px",
-                    marginBottom: 12,
-                  }}>
-                    <p style={{ fontSize: ".8rem", color: "var(--muted)", marginBottom: 8 }}>
-                      {regRole === "rm" ? "Relationship Manager" : regRole === "compliance" ? "Compliance Officer" : "Admin"} registration requires an access code.
-                      {regRole !== "admin" ? " Contact your administrator if you don't have one." : ""}
-                    </p>
-                    <Field
-                      label="Access Code"
-                      type="password"
-                      value={accessCode}
-                      onChange={(e) => setAccessCode(e.target.value)}
-                      placeholder="Enter access code"
-                    />
-                  </div>
-                )}
                 <div>
                   <Field
                     label="Password"
@@ -517,14 +476,14 @@ export function LoginPage() {
                     <button
                       type="button"
                       style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", padding: 0, font: "inherit" }}
-                      onClick={() => navigate(homeFor(regRole || "investor"))}
+                      onClick={() => navigate(homeFor("investor"))}
                     >
                       Skip for now
                     </button>
                   </div>
                 </form>
               ) : (
-                <Button variant="primary" block onClick={() => navigate(homeFor(regRole || "investor"))}>
+                <Button variant="primary" block onClick={() => navigate(homeFor("investor"))}>
                   Continue to app
                 </Button>
               )}

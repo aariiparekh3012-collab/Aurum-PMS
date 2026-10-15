@@ -37,7 +37,7 @@ class OutboxDispatcher:
         self,
         session: Session,
         provision_client: ProvisionClientUseCase,
-        provision_portfolio_client: "PortfolioProvisionClientUseCase | None" = None,
+        provision_portfolio_client: PortfolioProvisionClientUseCase | None = None,
         message_bus: MessageBusPort | None = None,
     ) -> None:
         self._s = session

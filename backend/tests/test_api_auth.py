@@ -5,11 +5,9 @@ Postgres session that rolls back after each test.
 """
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
 
 from tests.conftest import auth_header
-
 
 # ── Registration ─────────────────────────────────────────────────────────
 

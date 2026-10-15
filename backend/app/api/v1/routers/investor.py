@@ -18,12 +18,6 @@ from app.core.database import get_db
 from app.core.exceptions import AuthorizationError, NotFoundError
 from app.core.security import decrypt_pii
 from app.infrastructure.db.models_client import ClientModel
-from app.infrastructure.db.models_portfolio import (
-    CashLedgerModel,
-    HoldingModel,
-    PortfolioAccountModel,
-)
-from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
 from app.infrastructure.db.models_onboarding import (
     OnboardingApplicationModel,
     OnboardingDocumentModel,
@@ -32,7 +26,12 @@ from app.infrastructure.db.models_performance import (
     PerformanceReturnModel,
     ValuationSnapshotModel,
 )
-from app.infrastructure.db.models_market_data import SecurityPriceModel
+from app.infrastructure.db.models_portfolio import (
+    CashLedgerModel,
+    HoldingModel,
+    PortfolioAccountModel,
+)
+from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
 
 router = APIRouter(prefix="/investor", tags=["investor portal"])
 

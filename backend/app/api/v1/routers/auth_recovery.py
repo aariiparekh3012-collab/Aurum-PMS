@@ -21,12 +21,12 @@ from app.core.security import (
     hash_password,
     hash_token,
 )
-from app.infrastructure.external.email_client import get_email_sender
 from app.infrastructure.db.models_auth import (
     EmailVerificationTokenModel,
     PasswordResetTokenModel,
     UserModel,
 )
+from app.infrastructure.external.email_client import get_email_sender
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -62,7 +62,7 @@ class MessageResponse(BaseModel):
 @router.post("/forgot-password", response_model=MessageResponse)
 def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Request a password reset link. Always returns success to prevent email enumeration."""
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
 
     user = db.scalars(
         select(UserModel).where(UserModel.email == body.email)
@@ -112,7 +112,7 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
 @router.post("/reset-password", response_model=MessageResponse)
 def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)):
     """Reset password using a valid token."""
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
     token_hash = hash_token(body.token)
 
     token_record = db.scalars(
@@ -155,7 +155,7 @@ def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)):
 @router.post("/verify-email", response_model=MessageResponse)
 def verify_email(body: VerifyEmailRequest, db: Session = Depends(get_db)):
     """Verify email address using a valid token."""
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
     token_hash = hash_token(body.token)
 
     token_record = db.scalars(
@@ -187,7 +187,7 @@ def verify_email(body: VerifyEmailRequest, db: Session = Depends(get_db)):
 @router.post("/resend-verification", response_model=MessageResponse)
 def resend_verification(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Resend email verification token."""
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
 
     user = db.scalars(
         select(UserModel).where(UserModel.email == body.email)

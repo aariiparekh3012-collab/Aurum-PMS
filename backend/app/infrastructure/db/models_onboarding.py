@@ -67,7 +67,7 @@ class OnboardingApplicationModel(Base):
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    documents: Mapped[list["OnboardingDocumentModel"]] = relationship(
+    documents: Mapped[list[OnboardingDocumentModel]] = relationship(
         back_populates="application", cascade="all, delete-orphan"
     )
 

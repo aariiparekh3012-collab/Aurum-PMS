@@ -13,10 +13,9 @@ boundary.
 """
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date, timedelta
-from typing import Sequence
-
 
 # Value types
 

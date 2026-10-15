@@ -8,7 +8,7 @@ Run from ANY directory with venv active:
     cd backend && python scripts/reset_db.py
 """
 from __future__ import annotations
-import os
+
 import sys
 from pathlib import Path
 

@@ -13,7 +13,6 @@ from fastapi.testclient import TestClient
 
 from tests.conftest import auth_header
 
-
 _VALID_USER = {
     "email": "valid@example.com",
     "password": "StrongP@ss1",

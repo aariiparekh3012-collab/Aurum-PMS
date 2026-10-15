@@ -2,18 +2,24 @@
 from __future__ import annotations
 
 import uuid
+
 import pytest
 
 from app.application.onboarding.dto import SubmitKycCommand
-from app.application.onboarding.ports import BankVerificationPort, BankVerificationResult, KycPort, KycResult
+from app.application.onboarding.ports import (
+    BankVerificationPort,
+    BankVerificationResult,
+    KycPort,
+    KycResult,
+)
 from app.application.onboarding.use_cases.submit_kyc import SubmitKycUseCase
 from app.core.exceptions import NotFoundError
 from app.domain.onboarding.entities import OnboardingApplication
-from app.domain.onboarding.enums import InvestorType, OnboardingStatus
+from app.domain.onboarding.enums import InvestorType
 from app.domain.onboarding.value_objects import PAN, Money
 
 # reuse the in-memory repo/publisher from test_create_application
-from tests.test_create_application import InMemoryOnboardingRepository, FakeEventPublisher
+from tests.test_create_application import FakeEventPublisher, InMemoryOnboardingRepository
 
 
 class AlwaysPassKyc(KycPort):

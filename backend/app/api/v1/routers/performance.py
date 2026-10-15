@@ -6,18 +6,18 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import select, desc
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
 from app.api.v1.dependencies import get_current_user
 from app.application.performance.compute import (
-    FullComputeCommand,
-    FullComputeUseCase,
     ComputeReturnsCommand,
     ComputeReturnsUseCase,
     ComputeSnapshotCommand,
     ComputeSnapshotUseCase,
+    FullComputeCommand,
+    FullComputeUseCase,
 )
 from app.core.database import get_db
 from app.infrastructure.db.models_performance import (
@@ -318,6 +318,6 @@ def performance_summary(
         latest_cash_paise=cash,
         unrealised_pnl_paise=pnl,
         unrealised_pnl_pct=pnl_pct,
-        returns=returns,
-        history=history,
+        returns=[ReturnOut.model_validate(item) for item in returns],
+        history=[SnapshotOut.model_validate(item) for item in history],
     )

@@ -2,27 +2,23 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlalchemy import func, select, desc
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
 from app.core.database import get_db
-from app.core.security import decrypt_pii
-from app.infrastructure.db.models_onboarding import OnboardingApplicationModel
 from app.infrastructure.db.models_client import ClientModel, ClientRiskProfileModel
+from app.infrastructure.db.models_onboarding import OnboardingApplicationModel
+from app.infrastructure.db.models_performance import (
+    ValuationSnapshotModel,
+)
 from app.infrastructure.db.models_portfolio import (
     CashLedgerModel,
-    FeeScheduleModel,
     HoldingModel,
     PortfolioAccountModel,
-)
-from app.infrastructure.db.models_performance import (
-    PerformanceReturnModel,
-    ValuationSnapshotModel,
 )
 from app.infrastructure.db.models_reference import StrategyModel
 from app.infrastructure.db.models_trading import OrderModel
@@ -288,11 +284,17 @@ def get_rm_dashboard(
         .order_by(desc(OnboardingApplicationModel.created_at))
         .limit(5)
     ).all()
-    for a in recent_apps:
+    for application in recent_apps:
         recent.append(RecentActivity(
             kind="onboarding",
-            description=f"{a.full_name} — {a.status.replace('_', ' ')}",
-            date=a.created_at.date().isoformat() if a.created_at else "",
+            description=(
+                f"{application.full_name} — {application.status.replace('_', ' ')}"
+            ),
+            date=(
+                application.created_at.date().isoformat()
+                if application.created_at
+                else ""
+            ),
         ))
     recent.sort(key=lambda r: r.date, reverse=True)
 

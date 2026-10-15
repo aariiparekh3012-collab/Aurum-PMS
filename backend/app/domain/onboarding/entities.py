@@ -67,8 +67,8 @@ class OnboardingApplication:
     agreement_esign_ref: str | None = None
     rejection_reason: str | None = None
 
-    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
-    updated_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
+    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
+    updated_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
 
     _events: list[events.DomainEvent] = field(default_factory=list, repr=False, init=False)
 
@@ -84,7 +84,7 @@ class OnboardingApplication:
                 f"Cannot move from {self.status.value} to {target.value}"
             )
         self.status = target
-        self.updated_at = dt.datetime.now(dt.timezone.utc)
+        self.updated_at = dt.datetime.now(dt.UTC)
 
     # ---- lifecycle behaviours ----
     @classmethod
@@ -98,7 +98,7 @@ class OnboardingApplication:
         pan: PAN,
         proposed_investment: Money,
         min_investment: Money,
-    ) -> "OnboardingApplication":
+    ) -> OnboardingApplication:
         if proposed_investment.paise < min_investment.paise:
             raise ValidationError(
                 f"Proposed investment below SEBI minimum of "

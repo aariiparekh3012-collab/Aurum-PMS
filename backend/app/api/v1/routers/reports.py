@@ -8,27 +8,27 @@ from datetime import date, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import select, desc, and_
+from sqlalchemy import and_, desc, select
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
 from app.core.database import get_db
+from app.infrastructure.db.models_performance import (
+    PerformanceReturnModel,
+    ValuationSnapshotModel,
+)
 from app.infrastructure.db.models_portfolio import (
     CashLedgerModel,
     FeeScheduleModel,
     HoldingModel,
     PortfolioAccountModel,
 )
-from app.infrastructure.db.models_trading import TradeModel
 from app.infrastructure.db.models_reference import (
+    BrokerModel,
     SecurityModel,
     StrategyModel,
-    BrokerModel,
 )
-from app.infrastructure.db.models_performance import (
-    PerformanceReturnModel,
-    ValuationSnapshotModel,
-)
+from app.infrastructure.db.models_trading import TradeModel
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -274,7 +274,7 @@ def transaction_report(
             quantity=float(t.quantity),
             price_paise=t.price_paise,
             value_paise=val,
-            broker_name=broker_map.get(t.broker_id, "Unknown"),
+            broker_name=broker_map.get(t.broker_id, "Unknown") if t.broker_id else "Unknown",
             contract_note=t.contract_note,
         ))
 
@@ -397,7 +397,7 @@ def fee_invoice(
 
     items = [
         FeeLineItem(
-            description="Management fee (pro-rated {}d)".format(days),
+            description=f"Management fee (pro-rated {days}d)",
             basis_paise=aum,
             rate_pct=mgmt_pct,
             amount_paise=mgmt_fee,

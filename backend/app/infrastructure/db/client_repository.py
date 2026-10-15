@@ -6,24 +6,13 @@ encryption/decryption and PAN hashing (same scheme as onboarding).
 from __future__ import annotations
 
 import datetime as dt
+import logging as _logging
 import uuid
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.security import decrypt_pii, encrypt_pii, hash_pan
-
-import logging as _logging
-_log = _logging.getLogger(__name__)
-
-
-def _safe_decrypt(ciphertext: str, fallback: str = "XXXXX0000X") -> str:
-    """Decrypt PII, returning a fallback on key-mismatch (stale rows)."""
-    try:
-        return decrypt_pii(ciphertext)
-    except Exception:
-        _log.warning("PII decryption failed — returning masked fallback")
-        return fallback
 from app.domain.client.entities import (
     Client,
     ClientBankAccount,
@@ -43,6 +32,17 @@ from app.infrastructure.db.models_client import (
     NomineeModel,
 )
 
+_log = _logging.getLogger(__name__)
+
+
+def _safe_decrypt(ciphertext: str, fallback: str = "XXXXX0000X") -> str:
+    """Decrypt PII, returning a fallback on key-mismatch (stale rows)."""
+    try:
+        return decrypt_pii(ciphertext)
+    except Exception:
+        _log.warning("PII decryption failed — returning masked fallback")
+        return fallback
+
 
 def _pan_hash(pan: str) -> str:
     """Delegate to the canonical HMAC-based hash in core.security."""
@@ -55,7 +55,7 @@ class SqlAlchemyClientRepository(ClientRepository):
 
     # ---- mapping ----
     def _to_model(self, e: Client) -> ClientModel:
-        now = dt.datetime.now(dt.timezone.utc)
+        now = dt.datetime.now(dt.UTC)
         return ClientModel(
             id=e.id,
             onboarding_application_id=e.onboarding_application_id,

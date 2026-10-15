@@ -44,7 +44,7 @@ class Aadhaar:
             raise ValidationError("Aadhaar last4 must be 4 digits", code="invalid_aadhaar")
 
     @classmethod
-    def from_full(cls, full: str) -> "Aadhaar":
+    def from_full(cls, full: str) -> Aadhaar:
         if not _AADHAAR_RE.match(full):
             raise ValidationError("Invalid Aadhaar number", code="invalid_aadhaar")
         return cls(last4=full[-4:])
@@ -90,7 +90,7 @@ class Money:
             raise ValidationError("Money cannot be negative", code="invalid_money")
 
     @classmethod
-    def from_rupees(cls, rupees: float) -> "Money":
+    def from_rupees(cls, rupees: float) -> Money:
         return cls(paise=round(rupees * 100))
 
     @property

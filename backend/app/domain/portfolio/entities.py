@@ -8,10 +8,14 @@ from dataclasses import dataclass, field
 from app.core.exceptions import InvalidStateTransition, ValidationError
 from app.domain.portfolio import events
 from app.domain.portfolio.enums import (
-    AssetKind, CashEntryType, ClientStatus, FlowType,
-    OrderSide, OrderStatus, PortfolioStatus,
+    AssetKind,
+    CashEntryType,
+    ClientStatus,
+    FlowType,
+    OrderSide,
+    OrderStatus,
+    PortfolioStatus,
 )
-
 
 # ── Client (provisioned from onboarding) ─────────────────────────────────
 
@@ -26,7 +30,7 @@ class Client:
     full_name: str = ""
     email: str = ""
     status: ClientStatus = ClientStatus.ACTIVE
-    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
+    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
 
     _events: list = field(default_factory=list, repr=False, init=False)
 
@@ -38,7 +42,7 @@ class Client:
     def provision(
         cls, *, onboarding_application_id: uuid.UUID, client_code: str,
         pan_hash: str, investor_type: str, full_name: str, email: str,
-    ) -> "Client":
+    ) -> Client:
         c = cls(
             onboarding_application_id=onboarding_application_id,
             client_code=client_code, pan_hash=pan_hash,
@@ -85,8 +89,8 @@ class Holding:
         lot = HoldingLot(quantity=qty, cost_paise=price_paise, acquired_on=date or dt.date.today())
         self.lots.append(lot)
         # recalculate average cost
-        total_cost = sum(l.quantity * l.cost_paise for l in self.lots)
-        total_qty = sum(l.quantity for l in self.lots)
+        total_cost = sum(lot.quantity * lot.cost_paise for lot in self.lots)
+        total_qty = sum(lot.quantity for lot in self.lots)
         self.quantity = total_qty
         self.avg_cost_paise = round(total_cost / total_qty) if total_qty else 0
 
@@ -116,8 +120,8 @@ class Holding:
                 ))
                 remaining = 0
         self.lots = new_lots
-        total_qty = sum(l.quantity for l in self.lots)
-        total_cost = sum(l.quantity * l.cost_paise for l in self.lots)
+        total_qty = sum(lot.quantity for lot in self.lots)
+        total_cost = sum(lot.quantity * lot.cost_paise for lot in self.lots)
         self.quantity = total_qty
         self.avg_cost_paise = round(total_cost / total_qty) if total_qty else 0
         return consumed
@@ -159,7 +163,7 @@ class Trade:
     side: OrderSide = OrderSide.BUY
     quantity: float = 0
     price_paise: int = 0
-    traded_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
+    traded_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
 
     @property
     def value_paise(self) -> int:
@@ -177,7 +181,7 @@ class Order:
     quantity: float = 0
     filled_quantity: float = 0
     status: OrderStatus = OrderStatus.DRAFT
-    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
+    created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
 
     _events: list = field(default_factory=list, repr=False, init=False)
 

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import uuid
+
 import pytest
 
 from app.application.onboarding.dto import ApproveCommand
@@ -10,7 +11,7 @@ from app.core.exceptions import NotFoundError, ValidationError
 from app.domain.onboarding.entities import OnboardingApplication
 from app.domain.onboarding.enums import InvestorType, KycSource, RiskCategory
 from app.domain.onboarding.value_objects import PAN, Aadhaar, BankAccount, DematAccount, Money
-from tests.test_create_application import InMemoryOnboardingRepository, FakeEventPublisher
+from tests.test_create_application import FakeEventPublisher, InMemoryOnboardingRepository
 
 
 def _app_under_review() -> OnboardingApplication:

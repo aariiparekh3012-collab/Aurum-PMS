@@ -2,31 +2,38 @@
 from __future__ import annotations
 
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
 from app.api.v1.dependencies import get_current_user, require_role
+from app.application.portfolio.dto import (
+    CapitalFlowCommand,
+    CreatePortfolioCommand,
+    ProvisionClientCommand,
+    RecordTradeCommand,
+)
+from app.application.portfolio.use_cases.create_portfolio import CreatePortfolioUseCase
+from app.application.portfolio.use_cases.provision_client import ProvisionClientUseCase
+from app.application.portfolio.use_cases.record_capital_flow import RecordCapitalFlowUseCase
+from app.application.portfolio.use_cases.record_trade import RecordTradeUseCase
 from app.core.database import get_db
 from app.infrastructure.db.models_portfolio import (
-    FeeScheduleModel, PortfolioAccountModel, HoldingModel, CashLedgerModel,
+    CashLedgerModel,
+    FeeScheduleModel,
+    HoldingModel,
+    PortfolioAccountModel,
 )
 from app.infrastructure.db.models_reference import SecurityModel, StrategyModel
-from app.services.market_data import get_latest_prices
 from app.infrastructure.db.portfolio_repository import (
-    SqlAlchemyClientRepository, SqlAlchemyPortfolioAccountRepository,
+    SqlAlchemyClientRepository,
+    SqlAlchemyPortfolioAccountRepository,
     SqlAlchemyTradeRepository,
 )
 from app.infrastructure.db.repository import SqlAlchemyOnboardingRepository
-from app.application.portfolio.use_cases.provision_client import ProvisionClientUseCase
-from app.application.portfolio.use_cases.create_portfolio import CreatePortfolioUseCase
-from app.application.portfolio.use_cases.record_trade import RecordTradeUseCase
-from app.application.portfolio.use_cases.record_capital_flow import RecordCapitalFlowUseCase
-from app.application.portfolio.dto import (
-    ProvisionClientCommand, CreatePortfolioCommand,
-    RecordTradeCommand, CapitalFlowCommand,
-)
+from app.services.market_data import get_latest_prices
 
 router = APIRouter(prefix="/portfolio", tags=["portfolio"])
 
@@ -203,6 +210,7 @@ def list_portfolios_by_client(
         ]
 
     repo = SqlAlchemyPortfolioAccountRepository(db)
+    assert client_id is not None
     accounts = repo.list_by_client(client_id)
     return {
         "accounts": [

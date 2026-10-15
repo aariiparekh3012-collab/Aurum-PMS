@@ -6,8 +6,9 @@ Revises: 0009_security_prices
 from __future__ import annotations
 
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql as pg
+
+from alembic import op
 
 revision = "0010_audit_trail"
 down_revision = "0009_security_prices"

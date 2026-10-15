@@ -54,16 +54,16 @@ class ClientModel(Base):
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    bank_accounts: Mapped[list["ClientBankAccountModel"]] = relationship(
+    bank_accounts: Mapped[list[ClientBankAccountModel]] = relationship(
         back_populates="client", cascade="all, delete-orphan"
     )
-    demat_accounts: Mapped[list["ClientDematAccountModel"]] = relationship(
+    demat_accounts: Mapped[list[ClientDematAccountModel]] = relationship(
         back_populates="client", cascade="all, delete-orphan"
     )
-    nominees: Mapped[list["NomineeModel"]] = relationship(
+    nominees: Mapped[list[NomineeModel]] = relationship(
         back_populates="client", cascade="all, delete-orphan"
     )
-    risk_profiles: Mapped[list["ClientRiskProfileModel"]] = relationship(
+    risk_profiles: Mapped[list[ClientRiskProfileModel]] = relationship(
         back_populates="client", cascade="all, delete-orphan"
     )
 

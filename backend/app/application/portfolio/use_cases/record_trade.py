@@ -1,5 +1,6 @@
 """Use case: record a buy or sell trade on a portfolio."""
 from __future__ import annotations
+
 from app.application.portfolio.dto import RecordTradeCommand, TradeView
 from app.core.exceptions import NotFoundError
 from app.domain.portfolio.enums import OrderSide

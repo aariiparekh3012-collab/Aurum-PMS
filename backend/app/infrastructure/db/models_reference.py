@@ -4,7 +4,7 @@ from __future__ import annotations
 import datetime
 import uuid
 
-from sqlalchemy import Boolean, Date, Numeric, String, ForeignKey
+from sqlalchemy import Boolean, Date, ForeignKey, Numeric, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -32,7 +32,7 @@ class BenchmarkModel(Base):
     name: Mapped[str] = mapped_column(String(80), nullable=False)
     code: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
 
-    values: Mapped[list["BenchmarkValueModel"]] = relationship(back_populates="benchmark")
+    values: Mapped[list[BenchmarkValueModel]] = relationship(back_populates="benchmark")
 
 
 class BenchmarkValueModel(Base):
@@ -62,7 +62,7 @@ class StrategyModel(Base):
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
-    constituents: Mapped[list["StrategyConstituentModel"]] = relationship(back_populates="strategy")
+    constituents: Mapped[list[StrategyConstituentModel]] = relationship(back_populates="strategy")
 
 
 class StrategyConstituentModel(Base):

@@ -11,6 +11,7 @@ Revises: 0004_auth
 from __future__ import annotations
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0005_portfolio_extras"

@@ -11,9 +11,13 @@ import logging
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from app.api.middleware import (
+    CorrelationIdMiddleware,
+    RateLimitMiddleware,
+    SecurityHeadersMiddleware,
+)
 from app.api.v1.error_handlers import register_error_handlers
 from app.api.v1.router import api_router
-from app.api.middleware import CorrelationIdMiddleware, RateLimitMiddleware, SecurityHeadersMiddleware
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 
@@ -23,7 +27,10 @@ logger = logging.getLogger(__name__)
 @contextlib.asynccontextmanager
 async def _lifespan(application: FastAPI):  # noqa: ARG001
     """Start background tasks on startup; cancel on shutdown."""
+    from app.infrastructure.db.nse_database import ensure_nse_tables
     from app.services.nse_bhavcopy import start_scheduler
+
+    ensure_nse_tables()
     scheduler_task = start_scheduler()
     logger.info("NSE Bhavcopy scheduler launched")
     try:
@@ -62,10 +69,6 @@ def create_app() -> FastAPI:
 
     # Exception handlers
     register_error_handlers(application)
-
-    # Ensure NSE database tables exist (separate DB, not managed by Alembic)
-    from app.infrastructure.db.nse_database import ensure_nse_tables
-    ensure_nse_tables()
 
     # Routers — full v1 API surface
     api_prefix = "/api/v1"

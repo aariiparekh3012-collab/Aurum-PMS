@@ -1,11 +1,12 @@
 """Use case: submit KYC details — triggers penny-drop + KRA/CKYC verification."""
 from __future__ import annotations
 
-
 from app.application.onboarding.dto import ApplicationView, SubmitKycCommand
 from app.application.onboarding.mappers import to_view
 from app.application.onboarding.ports import (
-    BankVerificationPort, EventPublisher, KycPort,
+    BankVerificationPort,
+    EventPublisher,
+    KycPort,
 )
 from app.core.exceptions import NotFoundError
 from app.domain.onboarding.enums import KycSource

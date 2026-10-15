@@ -11,12 +11,12 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from sqlalchemy import func, select, desc
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.api import dependencies as deps
-from app.infrastructure.db.nse_database import get_nse_db
 from app.infrastructure.db.models_nse_reports import NseBhavCopyReportModel
+from app.infrastructure.db.nse_database import get_nse_db
 
 router = APIRouter(prefix="/nse-reports", tags=["nse-reports"])
 
@@ -37,7 +37,7 @@ class BhavCopyRecord(BaseModel):
     model_config = {"from_attributes": True}
 
     @classmethod
-    def from_orm_model(cls, m: NseBhavCopyReportModel) -> "BhavCopyRecord":
+    def from_orm_model(cls, m: NseBhavCopyReportModel) -> BhavCopyRecord:
         return cls(
             id=str(m.id),
             file_date=m.file_date,
@@ -133,6 +133,7 @@ async def trigger_download(
 ):
     """Manually trigger a Bhavcopy download (staff only). Runs in the background."""
     import asyncio
+
     from app.services.nse_bhavcopy import download_bhavcopy
 
     target = file_date or dt.date.today()

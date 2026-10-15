@@ -5,11 +5,12 @@ Critical for SEBI compliance and preventing unauthorized access.
 """
 from __future__ import annotations
 
-import time
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.security import create_access_token
 from tests.conftest import auth_header
 
 _REG = {
@@ -23,20 +24,15 @@ _REG = {
 class TestTokenExpiry:
     """Verify JWT tokens expire and don't allow further requests."""
 
-    def test_token_expires_after_configured_time(self, client: TestClient, monkeypatch):
+    def test_token_expires_after_configured_time(self, client: TestClient):
         """Token should be invalid after JWT_EXPIRY_MINUTES."""
         # Register user
         reg_resp = client.post("/api/v1/auth/register", json=_REG)
-        token = reg_resp.json()["access_token"]
-
-        # Mock token expiry by manipulating the token's exp claim
-        # In production, this happens naturally; test by mocking time.time()
-        original_time = time.time
-
-        def mock_time():
-            return original_time() + (60 * 60)  # 1 hour later
-
-        monkeypatch.setattr("time.time", mock_time)
+        assert reg_resp.status_code == 201
+        token = create_access_token(
+            sub=_REG["email"], role="investor",
+            extra={"exp": datetime.now(UTC) - timedelta(seconds=1)},
+        )
 
         # With expired token, /me should return 401
         resp = client.get("/api/v1/auth/me", headers=auth_header(token))

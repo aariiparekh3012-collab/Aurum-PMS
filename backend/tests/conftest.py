@@ -54,8 +54,13 @@ def _ensure_tables():
         conn.commit()
     Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
     with engine.connect() as conn:
+        # A public.users ↔ public.onboarding_applications ↔ client.clients FK
+        # cycle prevents SQLAlchemy from sorting drop_all(). In this dedicated
+        # test database, remove exactly the ORM tables with PostgreSQL CASCADE.
+        prep = engine.dialect.identifier_preparer
+        for table in Base.metadata.tables.values():
+            conn.execute(text(f"DROP TABLE IF EXISTS {prep.format_table(table)} CASCADE"))
         for schema in reversed(_PG_SCHEMAS):
             conn.execute(text(f"DROP SCHEMA IF EXISTS {schema} CASCADE"))
         conn.commit()

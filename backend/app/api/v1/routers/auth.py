@@ -10,7 +10,7 @@ import secrets
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -60,12 +60,26 @@ class TokenResponse(BaseModel):
 
 
 class RegisterRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
-    full_name: str
+    full_name: str = Field(min_length=1, max_length=200)
     role: str = "investor"
     phone: str | None = None
     access_code: str | None = None
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Password cannot be blank")
+        return value
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Full name cannot be blank")
+        return value
 
 
 class RegisterResponse(BaseModel):
@@ -218,7 +232,6 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
         )
     if len(body.password) < 8:
         raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
-
     email = body.email.strip().lower()
     existing = db.query(UserModel).filter_by(email=email).first()
     if existing is not None:

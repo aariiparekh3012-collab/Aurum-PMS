@@ -47,4 +47,5 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(PmsError)
     async def generic_pms(_req: Request, exc: PmsError):
-        return JSONResponse(status_code=500, content={"error": exc.code, "message": exc.message})
+        status_code = {"bad_request": 400, "not_found": 404}.get(exc.code, 500)
+        return JSONResponse(status_code=status_code, content={"error": exc.code, "message": exc.message})

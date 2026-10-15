@@ -1,228 +1,104 @@
-"""Integration tests for KRA (KYC Registration Agency) verification.
+"""Surepass PAN adapter contract tests with deterministic HTTP responses.
 
-These tests run against the mock KRA sandbox server (tests/mocks/kra_sandbox.py).
-
-To run with mock server:
-    1. Start mock server: uvicorn tests.mocks.kra_sandbox:app --port 8001
-    2. Set in .env: KRA_BASE_URL=http://localhost:8001
-    3. pytest tests/integration/test_kra_integration.py -v
+No live vendor credentials or sandbox process is required in CI.
 """
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+import httpx
 import pytest
 
 from app.core.exceptions import ValidationError
-from app.infrastructure.external.kra_client import KraKycAdapter
+from app.infrastructure.external.kra_client import SurepassKycAdapter
 
 
 @pytest.fixture
-def kra_adapter():
-    """Fixture providing a KRA adapter (requires mock server on :8001)."""
-    # Override with mock server URL for tests
-    import os
-    os.environ["KRA_BASE_URL"] = "http://localhost:8001"
-    os.environ["KRA_API_KEY"] = "test-key"
-    return KraKycAdapter()
+def surepass(monkeypatch):
+    requests: list[httpx.Request] = []
 
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        pan = request.read().decode()
+        if "REJEC1234D" in pan:
+            return httpx.Response(400, text="PAN rejected")
+        if "FRAUD1234Z" in pan:
+            return httpx.Response(200, json={
+                "success": True, "data": {"status": "INVALID", "pan_number": "FRAUD1234Z"},
+                "message": "PAN inactive",
+            })
+        if "UNKNP1234Z" in pan:
+            return httpx.Response(200, json={
+                "success": False, "data": {}, "message": "Verification pending",
+            })
+        return httpx.Response(200, json={
+            "success": True,
+            "data": {"status": "VALID", "pan_number": "AAAPA1234A", "full_name": "Rajesh Kumar"},
+        })
 
-class TestKraVerification:
-    """Test KRA verification scenarios."""
-
-    def test_verify_valid_pan_succeeds(self, kra_adapter):
-        """Verified PAN should return VERIFIED status."""
-        result = kra_adapter.verify(
-            pan="AAAPA1234A",
-            aadhaar_last4="1234",
-            name="Rajesh Kumar",
-        )
-        assert result.verified is True
-        assert result.source == "kra"
-        assert "KRA-" in result.reference
-
-    def test_verify_alternative_valid_pan(self, kra_adapter):
-        """Multiple verified PANs should work."""
-        result = kra_adapter.verify(
-            pan="BBBPB5678B",
-            aadhaar_last4="5678",
-            name="Priya Singh",
-        )
-        assert result.verified is True
-        assert result.source == "kra"
-
-    def test_verify_rejected_pan_fails(self, kra_adapter):
-        """Rejected PAN should return VERIFIED=False with reason."""
-        result = kra_adapter.verify(
-            pan="REJECTD1E",
-            aadhaar_last4="1234",
-            name="Wrong Name",
-        )
-        assert result.verified is False
-        assert result.source == "kra"
-        assert result.reason is not None
-        assert "mismatch" in result.reason.lower()
-
-    def test_verify_fraud_pan_rejected(self, kra_adapter):
-        """Fraud-flagged PAN should be rejected."""
-        result = kra_adapter.verify(
-            pan="FRAUDZ1234",
-            aadhaar_last4="1234",
-            name="Test User",
-        )
-        assert result.verified is False
-        assert "fraud" in result.reason.lower() or "inactive" in result.reason.lower()
-
-    def test_verify_unknown_pan_returns_pending(self, kra_adapter):
-        """Unknown PANs should return PENDING (async vendor)."""
-        result = kra_adapter.verify(
-            pan="UNKNPAN99Z",
-            aadhaar_last4="9999",
-            name="Unknown User",
-        )
-        assert result.verified is False
-        assert "pending" in result.reason.lower() or "progress" in result.reason.lower()
-
-    def test_verify_invalid_pan_format_raises(self, kra_adapter):
-        """Invalid PAN format should raise ValidationError immediately."""
-        with pytest.raises(ValidationError) as exc:
-            kra_adapter.verify(
-                pan="INVALID",  # Only 7 chars, not 10
-                aadhaar_last4="1234",
-                name="Test User",
-            )
-        assert exc.value.code == "invalid_pan"
-
-    def test_verify_invalid_aadhaar_format_raises(self, kra_adapter):
-        """Invalid Aadhaar format should raise ValidationError."""
-        with pytest.raises(ValidationError) as exc:
-            kra_adapter.verify(
-                pan="AAAPA1234A",
-                aadhaar_last4="12",  # Only 2 digits, need 4
-                name="Test User",
-            )
-        assert exc.value.code == "invalid_aadhaar"
-
-    def test_verify_non_digit_aadhaar_raises(self, kra_adapter):
-        """Non-digit Aadhaar should raise ValidationError."""
-        with pytest.raises(ValidationError):
-            kra_adapter.verify(
-                pan="AAAPA1234A",
-                aadhaar_last4="ABCD",  # Not digits
-                name="Test User",
-            )
-
-    def test_verify_whitespace_in_name_is_trimmed(self, kra_adapter):
-        """Leading/trailing whitespace in name should be stripped."""
-        # This test verifies the adapter normalizes input
-        result = kra_adapter.verify(
-            pan="AAAPA1234A",
-            aadhaar_last4="1234",
-            name="  Rajesh Kumar  ",  # Extra whitespace
-        )
-        # If it reaches the API, whitespace was handled
-        assert result.source == "kra"
-
-
-class TestKraPanValidation:
-    """Test PAN format validation."""
-
-    def test_valid_pan_format(self, kra_adapter):
-        """10-char PAN with correct format should be valid."""
-        assert kra_adapter._is_valid_pan("AAAPA1234A") is True
-        assert kra_adapter._is_valid_pan("BBBPB5678B") is True
-        assert kra_adapter._is_valid_pan("CCCPC9012C") is True
-
-    def test_invalid_pan_too_short(self, kra_adapter):
-        """PAN shorter than 10 chars is invalid."""
-        assert kra_adapter._is_valid_pan("AAAP1234A") is False
-
-    def test_invalid_pan_too_long(self, kra_adapter):
-        """PAN longer than 10 chars is invalid."""
-        assert kra_adapter._is_valid_pan("AAAPA1234AA") is False
-
-    def test_invalid_pan_non_alpha_prefix(self, kra_adapter):
-        """PAN with non-alpha first 5 chars is invalid."""
-        assert kra_adapter._is_valid_pan("1AAAA1234A") is False
-
-    def test_invalid_pan_non_digit_middle(self, kra_adapter):
-        """PAN with non-digit chars 5-9 is invalid."""
-        assert kra_adapter._is_valid_pan("AAAPAABCDA") is False
-
-    def test_invalid_pan_non_alpha_last(self, kra_adapter):
-        """PAN with non-alpha last char is invalid."""
-        assert kra_adapter._is_valid_pan("AAAPA12341") is False
-
-
-class TestKraErrorHandling:
-    """Test KRA error handling and retries."""
-
-    def test_verify_logs_request_details(self, kra_adapter, caplog):
-        """Verification should log non-PII details for debugging."""
-        import logging
-        caplog.set_level(logging.INFO)
-
-        kra_adapter.verify(
-            pan="AAAPA1234A",
-            aadhaar_last4="1234",
-            name="Test User",
-        )
-
-        # Check logs don't contain full PAN (only last 4)
-        log_text = caplog.text
-        assert "1234" in log_text or "A" in log_text  # Last 4 or masked version
-        # Full PAN should NOT be in logs
-        assert "AAAPA1234A" not in log_text or "AAAPA" not in log_text
-
-    def test_verify_request_id_is_unique(self, kra_adapter):
-        """Each verification request should have a unique request_id."""
-        # Make two requests and verify they succeed
-        result1 = kra_adapter.verify(
-            pan="AAAPA1234A",
-            aadhaar_last4="1234",
-            name="Test User 1",
-        )
-        result2 = kra_adapter.verify(
-            pan="AAAPA1234A",
-            aadhaar_last4="1234",
-            name="Test User 2",
-        )
-        # Both should succeed (request IDs don't collide)
-        assert result1.verified is True
-        assert result2.verified is True
-
-
-# Test data for quick reference
-TEST_CASES = [
-    {
-        "name": "Verified Identity",
-        "pan": "AAAPA1234A",
-        "aadhaar_last4": "1234",
-        "full_name": "Rajesh Kumar",
-        "expected_verified": True,
-    },
-    {
-        "name": "Rejected (Name Mismatch)",
-        "pan": "REJECTD1E",
-        "aadhaar_last4": "1234",
-        "full_name": "Wrong Name",
-        "expected_verified": False,
-    },
-    {
-        "name": "Pending (Async)",
-        "pan": "UNKNPAN99Z",
-        "aadhaar_last4": "9999",
-        "full_name": "Unknown User",
-        "expected_verified": False,
-    },
-]
-
-
-@pytest.mark.parametrize("test_case", TEST_CASES)
-def test_kra_all_scenarios(test_case, kra_adapter):
-    """Parametrized test covering all KRA scenarios."""
-    result = kra_adapter.verify(
-        pan=test_case["pan"],
-        aadhaar_last4=test_case["aadhaar_last4"],
-        name=test_case["full_name"],
+    original_client = httpx.Client
+    transport = httpx.MockTransport(respond)
+    monkeypatch.setattr(
+        "app.infrastructure.external.kra_client.get_settings",
+        lambda: SimpleNamespace(surepass_base_url="https://surepass.invalid", surepass_api_token="test"),
     )
-    assert result.verified == test_case["expected_verified"]
-    assert result.source == "kra"
+    monkeypatch.setattr(
+        httpx, "Client", lambda **kwargs: original_client(transport=transport, **kwargs),
+    )
+    return SurepassKycAdapter(), requests
+
+
+@pytest.mark.parametrize("pan", ["AAAPA1234A", "BBBPB5678B"])
+def test_verified_pan(surepass, pan):
+    adapter, requests = surepass
+    result = adapter.verify(pan=pan, aadhaar_last4="1234", name="Rajesh Kumar")
+    assert result.verified is True
+    assert result.source == "surepass"
+    assert result.reference == "AAAPA1234A"
+    assert requests[-1].url == "https://surepass.invalid/pan/pan"
+    assert requests[-1].headers["Authorization"] == "Bearer test"
+
+
+@pytest.mark.parametrize("pan,reason", [
+    ("REJEC1234D", "rejected"),
+    ("FRAUD1234Z", "inactive"),
+    ("UNKNP1234Z", "pending"),
+])
+def test_unverified_pan(surepass, pan, reason):
+    adapter, _ = surepass
+    result = adapter.verify(pan=pan, aadhaar_last4="1234", name="Test User")
+    assert result.verified is False
+    assert result.source == "surepass"
+    assert reason in result.reason.lower()
+
+
+@pytest.mark.parametrize("pan", ["INVALID", "AAAP1234A", "AAAPA1234AA", "1AAAA1234A", "AAAPAABCDA", "AAAPA12341"])
+def test_invalid_pan_rejected_before_http(surepass, pan):
+    adapter, requests = surepass
+    with pytest.raises(ValidationError) as exc:
+        adapter.verify(pan=pan, aadhaar_last4="1234", name="Test User")
+    assert exc.value.code == "invalid_pan"
+    assert not requests
+
+
+@pytest.mark.parametrize("last4", ["12", "ABCD"])
+def test_invalid_aadhaar_rejected_before_http(surepass, last4):
+    adapter, requests = surepass
+    with pytest.raises(ValidationError) as exc:
+        adapter.verify(pan="AAAPA1234A", aadhaar_last4=last4, name="Test User")
+    assert exc.value.code == "invalid_aadhaar"
+    assert not requests
+
+
+def test_name_whitespace_and_masked_logging(surepass, caplog):
+    adapter, _ = surepass
+    result = adapter.verify(pan="AAAPA1234A", aadhaar_last4="1234", name="  Rajesh Kumar  ")
+    assert result.verified is True
+    assert "AAAPA1234A" not in caplog.text
+
+
+def test_request_ids_are_unique(surepass):
+    adapter, requests = surepass
+    for _ in range(2):
+        assert adapter.verify(pan="AAAPA1234A", aadhaar_last4="1234", name="Rajesh Kumar").verified
+    assert requests[0].headers["X-Request-ID"] != requests[1].headers["X-Request-ID"]

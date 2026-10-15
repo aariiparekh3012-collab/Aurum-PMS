@@ -90,7 +90,7 @@ class TestInputValidation:
 
         # Try to create application with missing fields
         resp = client.post(
-            "/api/v1/applications",
+            "/api/v1/onboarding/applications",
             json={"full_name": "Test"},  # Missing pan, dob, etc.
             headers=auth_header(token),
         )

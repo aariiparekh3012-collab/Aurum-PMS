@@ -5,6 +5,7 @@ Tests that don't request DB fixtures (e.g. pure domain tests) run without Postgr
 """
 from __future__ import annotations
 
+import asyncio
 import os
 
 # Set test env BEFORE any app imports so get_settings() picks them up.
@@ -14,7 +15,7 @@ os.environ.setdefault("FERNET_KEY", "dGVzdC1rZXktMzItYnl0ZXMtdXJsLXNhZmU=")
 os.environ.setdefault("NSE_DATABASE_URL", "postgresql://pms:pms@localhost:5432/pms_test")
 
 from collections.abc import Generator
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -30,6 +31,7 @@ from app.core.database import Base, get_db, get_engine  # noqa: E402
 
 get_engine.cache_clear()
 
+from app.api.middleware import RateLimitMiddleware  # noqa: E402
 from app.core.security import create_access_token  # noqa: E402
 from app.main import app  # noqa: E402
 
@@ -79,6 +81,23 @@ def db_session(_ensure_tables) -> Generator[Session, None, None]:
 
 # ── TestClient ───────────────────────────────────────────────────────────
 
+@pytest.fixture(autouse=True)
+def _isolate_app_lifespan():
+    """Keep shared middleware state and background I/O out of individual tests."""
+    middleware = app.middleware_stack
+    while middleware is not None:
+        if isinstance(middleware, RateLimitMiddleware):
+            middleware._buckets.clear()
+            break
+        middleware = getattr(middleware, "app", None)
+
+    with patch(
+        "app.services.nse_bhavcopy.start_scheduler",
+        side_effect=lambda: asyncio.create_task(asyncio.sleep(3600)),
+    ):
+        yield
+
+
 @pytest.fixture
 def client(db_session: Session) -> Generator[TestClient, None, None]:
     """FastAPI TestClient with the DB session overridden and NSE scheduler mocked."""
@@ -89,10 +108,8 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     app.dependency_overrides[get_db] = _override_get_db
 
     # Mock the NSE Bhavcopy scheduler so the lifespan doesn't need the NSE DB.
-    mock_task = AsyncMock()
-    with patch("app.services.nse_bhavcopy.start_scheduler", return_value=mock_task):
-        with TestClient(app, raise_server_exceptions=False) as tc:
-            yield tc
+    with TestClient(app, raise_server_exceptions=False) as tc:
+        yield tc
 
     app.dependency_overrides.clear()
 

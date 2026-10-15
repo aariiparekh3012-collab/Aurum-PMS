@@ -60,19 +60,18 @@ def _clear_overrides():
 
 # ── Create application ───────────────────────────────────────────────────
 
-def test_create_application_success(investor_token: str):
+def test_create_application_success(investor_token: str, client: TestClient):
     mock_uc = MagicMock()
     mock_uc.execute.return_value = _APP_VIEW
 
     app.dependency_overrides[get_create_application_uc] = lambda: mock_uc
     app.dependency_overrides[get_current_user] = lambda: _fake_user()
 
-    with TestClient(app, raise_server_exceptions=False) as client:
-        resp = client.post(
-            "/api/v1/onboarding/applications",
-            json=_CREATE_BODY,
-            headers=auth_header(investor_token),
-        )
+    resp = client.post(
+        "/api/v1/onboarding/applications",
+        json=_CREATE_BODY,
+        headers=auth_header(investor_token),
+    )
     assert resp.status_code == 201
     data = resp.json()
     assert data["id"] == str(_FAKE_ID)
@@ -146,7 +145,8 @@ def test_list_applications_as_compliance(compliance_token: str):
             headers=auth_header(compliance_token),
         )
     assert resp.status_code == 200
-    assert len(resp.json()) == 1
+    assert resp.json()["total"] == 1
+    assert resp.json()["applications"][0]["id"] == str(_FAKE_ID)
 
 
 # ── Decision (approve/reject) ───────────────────────────────────────────

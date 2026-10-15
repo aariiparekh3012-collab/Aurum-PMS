@@ -214,10 +214,10 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     if role not in _SELF_SERVICE_ROLES:
         raise HTTPException(
             status_code=422,
-            detail="Only investor accounts support self-service registration",
+            detail="Only the investor role supports self-service registration",
         )
-    if len(body.password) < 6:
-        raise HTTPException(status_code=422, detail="Password must be at least 6 characters")
+    if len(body.password) < 8:
+        raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
 
     email = body.email.strip().lower()
     existing = db.query(UserModel).filter_by(email=email).first()

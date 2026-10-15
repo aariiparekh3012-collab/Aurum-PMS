@@ -30,6 +30,7 @@ _APP_VIEW = ApplicationView(
     investor_type="individual",
     full_name="Asha Rao",
     email="asha@example.com",
+    mobile="9876543210",
     pan="ABCDE1234F",
     proposed_investment_inr=5_000_000.0,
     risk_category=None,
